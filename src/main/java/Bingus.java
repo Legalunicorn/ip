@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -8,7 +10,7 @@ public class Bingus {
     private static final String LINE = "____________________________________________________________";
     private static final String INDENT = "    ";
 
-    private static final Task[] inputList = new Task[100];
+    private static final List<Task> inputList = new ArrayList<>();
     private static int inputListSize = 0;
 
     /**
@@ -47,7 +49,7 @@ public class Bingus {
                 String[] parts = userInput.split("\\s+", 2);
                 String command = parts[0];
 
-                // parts must be size > 1, unless its a bye commajds
+                // parts must be size > 1, unless it's a bye command
 
                 System.out.println(LINE);
                 switch (command) {
@@ -93,7 +95,7 @@ public class Bingus {
      * @param t task to store
      */
     private static void addTask(Task t) {
-        inputList[inputListSize] = t;
+        inputList.add(t);
         inputListSize++;
         System.out.println(INDENT + "Got it. I've added this task:");
         System.out.println(INDENT + INDENT +  t.getTaskString());
@@ -115,7 +117,7 @@ public class Bingus {
     private static void listTasks() {
         System.out.println(INDENT + "Here are the tasks in your list:");
         for (int id = 0; id < inputListSize; id++) {
-            System.out.println(INDENT + (id + 1) + "." + inputList[id].getTaskString());
+            System.out.println(INDENT + (id + 1) + "." + inputList.get(id).getTaskString());
         }
         System.out.println(LINE);
     }
@@ -127,7 +129,7 @@ public class Bingus {
      */
     private static void markTask(int inputId) {
         // TODO: consider invalid inputId, to be done in future level
-        Task task = inputList[inputId - 1];
+        Task task = inputList.get(inputId - 1);
         task.mark();
         System.out.println(INDENT + "Nice! I've marked this task as done : ) ");
         System.out.println(INDENT + INDENT + task.getTaskString());
@@ -168,7 +170,7 @@ public class Bingus {
      * @param inputId one-based task number entered by the user
      */
     private static void unmarkTask(int inputId) {
-        Task task = inputList[inputId - 1];
+        Task task = inputList.get(inputId - 1);
         task.unmark();
         System.out.println(INDENT + "OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
@@ -226,7 +228,7 @@ public class Bingus {
         String to = startAndEnd[1].trim();
         if (from.isEmpty()){
             throw new BingusException("From cannot be empty! " + correctFormatMessage);
-        };
+        }
         if (to.isEmpty()){
             throw new BingusException("`To` cannot be empty! " + correctFormatMessage);
         }
