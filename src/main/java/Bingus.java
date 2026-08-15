@@ -82,13 +82,28 @@ public class Bingus {
                 }
                 case "deadline": {
                     String[] details = parts[1].split("/by");
-                    Deadline d = new Deadline(details[0], details[1]);
+                    Deadline d = new Deadline(details[0].trim(), details[1].trim());
                     inputList[inputListSize] = d;
                     inputListSize++;
                     System.out.println("Got it. I've adding this task:");
                     System.out.println(INDENT + d.getTaskString());
                     printTaskCount();
                     System.out.println(LINE);
+                    break;
+                }
+                case "event" : {
+                    // Format of parts [desc] /from [from] /to [to
+                    String[] descAndTimes = parts[1].split("/from");
+                    String description = descAndTimes[0];
+                    String[]  times = descAndTimes[1].split("/to");
+                    Event e = new Event(description.trim(), times[0].trim(), times[1].trim());
+                    inputList[inputListSize] = e;
+                    inputListSize++;
+                    System.out.println("Got it. I've adding this task:");
+                    System.out.println(INDENT + e.getTaskString());
+                    printTaskCount();
+                    System.out.println(LINE);
+                    break;
                 }
                 default:
                     // there is no default behavior
@@ -102,6 +117,7 @@ public class Bingus {
     }
 
     private static void listTasks(){
+        
         for (int id = 0; id < inputListSize; id++){
             System.out.println(INDENT + (id + 1) + "." + inputList[id].getTaskString());
         }
