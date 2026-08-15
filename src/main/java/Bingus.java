@@ -267,5 +267,6 @@ public class Bingus {
         System.out.println(INDENT + "Noted! I've removed this task: ");
         System.out.println(INDENT + INDENT + t.getTaskString());
         System.out.println("Now you have " + inputListSize + " tasks in the list.");
+        System.out.println(LINE);
     }
 }
