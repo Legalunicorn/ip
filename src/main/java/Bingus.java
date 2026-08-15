@@ -6,7 +6,13 @@ import java.util.Scanner;
 public class Bingus {
 
 
+    // String constants
     private static final String line = "____________________________________________________________";
+    private static final String indent = "    ";
+
+    // Manage input list for Level-2
+    private static final String[] inputList = new String[100];
+    private static int inputListSize = 0;
 
     /**
      * Displays the welcome message, echoes commands, and exits on {@code bye}.
@@ -29,13 +35,13 @@ public class Bingus {
         System.out.println("What can I do for you?");
         System.out.println(line);
 
-        Echo();
+        addAndList();
     }
 
     /**
      * Method to handle echo commands. Repeats the input and exist on {@code bye}
      */
-    private static void Echo() {
+    private static void addAndList() {
         Scanner scanner = new Scanner(System.in);
         while(scanner.hasNextLine()) {
             String userInput = scanner.nextLine();
@@ -45,8 +51,17 @@ public class Bingus {
                 System.out.println(line);
                 // Exit out of echo
                 return;
+            } else if (userInput.equals("list")){
+                // Print out each item in the list
+                for (int id = 0; id < inputListSize; id ++){
+                    System.out.println(indent + (id + 1) + ". " + inputList[id]);
+                }
+                System.out.println(line);
             } else {
-                System.out.println("  " + userInput);
+                // Default behavior for Level-2: add message to a list
+                inputList[inputListSize] = userInput;
+                inputListSize++;
+                System.out.println(indent + "added: " + userInput);
                 System.out.println(line);
             }
         }
