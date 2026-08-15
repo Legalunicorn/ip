@@ -6,16 +6,20 @@ import java.util.Scanner;
 public class Bingus {
 
 
-    // String constants
+    /** Divider printed above and below each response. */
     private static final String LINE = "____________________________________________________________";
+
+    /** Standard indentation used in console output. */
     private static final String INDENT = "    ";
 
-    // Manage input list for Level-2
+    /** Tasks currently stored by the application. */
     private static final Task[] inputList = new Task[100];
+
+    /** Number of tasks currently stored in {@link #inputList}. */
     private static int inputListSize = 0;
 
     /**
-     * Displays the welcome message, echoes commands, and exits on {@code bye}.
+     * Displays the welcome message and starts processing user commands.
      *
      * @param args command-line arguments, which are not used
      */
@@ -39,7 +43,7 @@ public class Bingus {
     }
 
     /**
-     * Method to handle echo commands. Repeats the input and exist on {@code bye}
+     * Processes commands until the user enters {@code bye}.
      */
     private static void startTaskLoop() {
         Scanner scanner = new Scanner(System.in);
@@ -97,6 +101,11 @@ public class Bingus {
         }
     }
 
+    /**
+     * Stores a task and displays its add confirmation.
+     *
+     * @param t task to store
+     */
     private static void addTask(Task t) {
         inputList[inputListSize] = t;
         inputListSize++;
@@ -106,11 +115,13 @@ public class Bingus {
         System.out.println(LINE);
     }
 
+    /** Displays the farewell message. */
     private static void exitChat(){
         System.out.println("Bye! Visit me again when you're free :) ");
         System.out.println(LINE);
     }
 
+    /** Displays all tasks currently stored in the list. */
     private static void listTasks(){
         System.out.println(INDENT + "Here are the tasks in your list:");
         for (int id = 0; id < inputListSize; id++){
@@ -119,6 +130,11 @@ public class Bingus {
         System.out.println(LINE);
     }
 
+    /**
+     * Marks the task with the given user-facing number as complete.
+     *
+     * @param inputId one-based task number entered by the user
+     */
     private static void markTask(int inputId) {
         // TODO: consider invalid inputId, to be done in future level
         Task task = inputList[inputId - 1];
@@ -128,6 +144,11 @@ public class Bingus {
         System.out.println(LINE);
     }
 
+    /**
+     * Marks the task with the given user-facing number as incomplete.
+     *
+     * @param inputId one-based task number entered by the user
+     */
     private static void unmarkTask(int inputId) {
         Task task = inputList[inputId - 1];
         task.unmark();
