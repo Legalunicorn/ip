@@ -5,17 +5,10 @@ import java.util.Scanner;
  */
 public class Bingus {
 
-
-    /** Divider printed above and below each response. */
     private static final String LINE = "____________________________________________________________";
-
-    /** Standard indentation used in console output. */
     private static final String INDENT = "    ";
 
-    /** Tasks currently stored by the application. */
     private static final Task[] inputList = new Task[100];
-
-    /** Number of tasks currently stored in {@link #inputList}. */
     private static int inputListSize = 0;
 
     /**
@@ -115,16 +108,20 @@ public class Bingus {
         System.out.println(LINE);
     }
 
-    /** Displays the farewell message. */
-    private static void exitChat(){
+    /**
+     * Displays the farewell message.
+     */
+    private static void exitChat() {
         System.out.println("Bye! Visit me again when you're free :) ");
         System.out.println(LINE);
     }
 
-    /** Displays all tasks currently stored in the list. */
-    private static void listTasks(){
+    /**
+     * Displays all tasks currently stored in the list.
+     */
+    private static void listTasks() {
         System.out.println(INDENT + "Here are the tasks in your list:");
-        for (int id = 0; id < inputListSize; id++){
+        for (int id = 0; id < inputListSize; id++) {
             System.out.println(INDENT + (id + 1) + "." + inputList[id].getTaskString());
         }
         System.out.println(LINE);
@@ -145,6 +142,34 @@ public class Bingus {
     }
 
     /**
+     * Handle input validation before marking/unmarking a task
+     *
+     * @param parts  command + parameters as an array
+     * @param isMark true if request to mark, false if request to unmark
+     * @throws BingusException if taskId is invalid range or not a number
+     */
+    private static void handleMark(String[] parts, boolean isMark) throws BingusException {
+        if (parts.length < 2){
+            String action = (isMark ? "Mark": "Unmark");
+            throw new BingusException(action+" must be followed by a number!");
+        }
+        try {
+            String input = parts[1];
+            int taskId = Integer.parseInt(input.trim());
+            if (taskId < 1 || taskId > inputListSize) {
+                throw new BingusException("Given task number does not exist in your list :(");
+            }
+            if (isMark) {
+                markTask(taskId);
+            } else {
+                unmarkTask(taskId);
+            }
+        } catch (NumberFormatException e) {
+            throw new BingusException("Invalid mark command! Usage: `mark [TASK_NUMER]`");
+        }
+    }
+
+    /**
      * Marks the task with the given user-facing number as incomplete.
      *
      * @param inputId one-based task number entered by the user
@@ -155,5 +180,66 @@ public class Bingus {
         System.out.println("OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
+    }
+
+    private static void handleTodo(String[] parts) throws BingusException {
+        if (parts.length < 2) {
+            throw new BingusException("Please give your todo a task description! Usage `todo [DESCRIPTION]`.");
+        }
+        String desc = parts[1].trim();
+        if (desc.isEmpty()) {
+            throw new BingusException("Please give your todo a task description! Usage `todo [DESCRIPTION]`.");
+        }
+        addTask(new Todo(desc));
+    }
+
+    private static void handleDeadline(String[] parts) throws BingusException {
+        String correctFormatMessage = "Please use `deadline [DESCIPTION] /by [DATETIME]`.";
+        if (parts.length < 2) {
+            throw new BingusException("Missing command arguments :( " + correctFormatMessage);
+        }
+        // Format: [desc] /by [date]
+        String[] split = parts[1].split("/by");
+        if (split.length != 2) {
+            throw new BingusException("Wrong format for deadline :( " + correctFormatMessage);
+        }
+        String taskDesc = split[0].trim();
+        String by = split[1].trim();
+        if (taskDesc.isEmpty()) {
+            throw new BingusException("Task description cannot be empty. " + correctFormatMessage);
+        }
+        if (by.isEmpty()){
+            throw new BingusException("Deadline cannot be empty. " + correctFormatMessage);
+        }
+        addTask(new Deadline(taskDesc, by));
+    }
+
+    private static void handleEvent(String[] parts) throws BingusException {
+        String correctFormatMessage = "Please use `event [DESCRIPTION] /from [FROM_DATE] /to [TO_DATE]`";
+        if (parts.length < 2) {
+            throw new BingusException("Missing event arguments :( " + correctFormatMessage);
+        }
+        String[] descAndTimes = parts[1].split("/from");
+        if (descAndTimes.length != 2) {
+            throw new BingusException(correctFormatMessage);
+        }
+
+        String[] startAndEnd = descAndTimes[1].split("/to");
+        if (startAndEnd.length != 2){
+            throw new BingusException(correctFormatMessage);
+        }
+        String desc = descAndTimes[0].trim();
+        String from = startAndEnd[0].trim();
+        String to = startAndEnd[1].trim();
+        if (from.isEmpty()){
+            throw new BingusException("From cannot be empty! " + correctFormatMessage);
+        };
+        if (to.isEmpty()){
+            throw new BingusException("`To` cannot be empty! " + correctFormatMessage);
+        }
+        if (desc.isEmpty()){
+            throw new BingusException("`Desciption` of event cannot be empty! " + correctFormatMessage);
+        }
+        addTask(new Event(desc, from, to));
     }
 }
