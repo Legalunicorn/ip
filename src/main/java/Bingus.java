@@ -1,3 +1,4 @@
+import java.security.spec.RSAOtherPrimeInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -77,6 +78,10 @@ public class Bingus {
                     }
                     case "event": {
                         handleEvent(parts);
+                        break;
+                    }
+                    case "delete" : {
+                        handleDelete(parts);
                         break;
                     }
                     default:
@@ -236,5 +241,31 @@ public class Bingus {
             throw new BingusException("`Description` of event cannot be empty! " + correctFormatMessage);
         }
         addTask(new Event(desc, from, to));
+    }
+
+    private static void handleDelete(String[] parts) throws BingusException {
+        if (parts.length < 2) {
+            throw new BingusException("Missing delete number! Usage `delete [TASK_NUMBER]`. ");
+        }
+        try {
+            String input = parts[1];
+            int taskId = Integer.parseInt(input.trim());
+            if (taskId < 1 || taskId > inputListSize) {
+                throw new BingusException("Given task number does not exist in your list :(");
+            }
+            // call delete function
+            delete(taskId);
+        } catch (NumberFormatException e) {
+            throw new BingusException("Invalid mark command! Usage: `mark [TASK_NUMBER]`");
+        }
+    }
+
+    private static void delete(int pos) {
+        Task t = inputList.get(pos - 1);
+        inputList.remove(pos - 1);
+        inputListSize--;
+        System.out.println(INDENT + "Noted! I've removed this task: ");
+        System.out.println(INDENT + INDENT + t.getTaskString());
+        System.out.println("Now you have " + inputListSize + " tasks in the list.");
     }
 }
