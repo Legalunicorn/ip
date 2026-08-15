@@ -35,35 +35,61 @@ public class Bingus {
         System.out.println("What can I do for you?");
         System.out.println(LINE);
 
-        addAndList();
+        startTaskLoop();
     }
 
     /**
      * Method to handle echo commands. Repeats the input and exist on {@code bye}
      */
-    private static void addAndList() {
+    private static void startTaskLoop() {
         Scanner scanner = new Scanner(System.in);
         while(scanner.hasNextLine()) {
             String userInput = scanner.nextLine();
+            // Split into 2 parts, the command
+            String[] parts = userInput.split("\\s+",  2);
+            String command = parts[0];
+
             System.out.println(LINE);
-            if (userInput.equals("bye")) {
-                System.out.println("Bye! Visit me again when you're free :) ");
-                System.out.println(LINE);
-                // Exit out of echo
-                return;
-            } else if (userInput.equals("list")){
-                // Print out each item in the list
-                for (int id = 0; id < inputListSize; id ++){
-                    System.out.println(INDENT + (id + 1) + ". " + inputList[id]);
-                }
-                System.out.println(LINE);
-            } else {
-                // Default behavior for Level-2: add message to a list
-                inputList[inputListSize] = userInput;
-                inputListSize++;
-                System.out.println(INDENT + "added: " + userInput);
-                System.out.println(LINE);
+            switch (command){
+                case "bye":
+                    exitChat();
+                    return;
+                case "list":
+                    listTasks();
+                    break;
+                case "mark":
+                    // TODO: consider when argument is invalid. ie not a number, or no number
+                    // For now assume that all input is valid
+                    int taskNumber = Integer.parseInt(parts[1]);
+                    markTask(taskNumber);
+                    break;
+                default:
+                    Task newTask = new Task(userInput);
+                    inputList[inputListSize] = newTask;
+                    inputListSize++;
+                    System.out.println(INDENT + "added: " + userInput);
+                    System.out.println(LINE);
             }
         }
+    }
+
+    private static void exitChat(){
+        System.out.println("Bye! Visit me again when you're free :) ");
+        System.out.println(LINE);
+    }
+
+    private static void listTasks(){
+        for (int id = 0; id < inputListSize; id++){
+            System.out.println(INDENT + (id + 1) + "." + inputList[id].getTaskString());
+        }
+        System.out.println(LINE);
+    }
+
+    private static void markTask(int inputId) {
+        // TODO: consider invalid inputId, to be done in future level
+        Task task = inputList[inputId - 1];
+        task.mark();
+        System.out.println(INDENT + "Nice! I've marked this task as done : ) ");
+        System.out.println(INDENT + INDENT + task.getTaskString());
     }
 }
