@@ -78,10 +78,10 @@ public class Bingus {
                         break;
                     }
                     default:
-                        throw new BingusException("I don't recongise this command :/ ");
+                        throw new BingusException("I don't recognise this command :/ ");
                 }
             } catch (BingusException e) {
-                System.out.println(" " + e.getMessage());
+                System.out.println(INDENT + e.getMessage());
                 System.out.println(LINE);
             }
         }
@@ -95,9 +95,9 @@ public class Bingus {
     private static void addTask(Task t) {
         inputList[inputListSize] = t;
         inputListSize++;
-        System.out.println("Got it. I've added this task:");
-        System.out.println(INDENT + t.getTaskString());
-        System.out.println("Now you have " + inputListSize + " tasks in the list.");
+        System.out.println(INDENT + "Got it. I've added this task:");
+        System.out.println(INDENT + INDENT +  t.getTaskString());
+        System.out.println(INDENT + "Now you have " + inputListSize + " tasks in the list.");
         System.out.println(LINE);
     }
 
@@ -105,7 +105,7 @@ public class Bingus {
      * Displays the farewell message.
      */
     private static void exitChat() {
-        System.out.println("Bye! Visit me again when you're free :) ");
+        System.out.println(INDENT + "Bye! Visit me again when you're free :) ");
         System.out.println(LINE);
     }
 
@@ -158,7 +158,7 @@ public class Bingus {
                 unmarkTask(taskId);
             }
         } catch (NumberFormatException e) {
-            throw new BingusException("Invalid mark command! Usage: `mark [TASK_NUMER]`");
+            throw new BingusException("Invalid mark command! Usage: `mark [TASK_NUMBER]`");
         }
     }
 
@@ -170,7 +170,7 @@ public class Bingus {
     private static void unmarkTask(int inputId) {
         Task task = inputList[inputId - 1];
         task.unmark();
-        System.out.println("OK, I've marked this task as not done yet: ");
+        System.out.println(INDENT + "OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
     }
@@ -187,7 +187,7 @@ public class Bingus {
     }
 
     private static void handleDeadline(String[] parts) throws BingusException {
-        String correctFormatMessage = "Please use `deadline [DESCIPTION] /by [DATETIME]`.";
+        String correctFormatMessage = "Please use `deadline [DESCRIPTION] /by [DATETIME]`.";
         if (parts.length < 2) {
             throw new BingusException("Missing command arguments :( " + correctFormatMessage);
         }
@@ -231,7 +231,7 @@ public class Bingus {
             throw new BingusException("`To` cannot be empty! " + correctFormatMessage);
         }
         if (desc.isEmpty()){
-            throw new BingusException("`Desciption` of event cannot be empty! " + correctFormatMessage);
+            throw new BingusException("`Description` of event cannot be empty! " + correctFormatMessage);
         }
         addTask(new Event(desc, from, to));
     }
