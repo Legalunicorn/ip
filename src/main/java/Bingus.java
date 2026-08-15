@@ -109,7 +109,7 @@ public class Bingus {
     private static void addTask(Task t) {
         inputList[inputListSize] = t;
         inputListSize++;
-        System.out.println("Got it. I've adding this task:");
+        System.out.println("Got it. I've added this task:");
         System.out.println(INDENT + t.getTaskString());
         System.out.println("Now you have " + inputListSize + " tasks in the list.");
         System.out.println(LINE);
