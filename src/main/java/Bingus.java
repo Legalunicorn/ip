@@ -7,6 +7,15 @@ public class Bingus {
                 + " | |_) | | | | | (_| | |_| \\__ \\\n"
                 + " |____/|_|_| |_|\\__, |\\__,_|___/\n"
                 + "                |___/           \n";
-        System.out.println(banner);
+        String line = "____________________________________________________________";
+
+        //Message sequence
+        System.out.println(line);
+        System.out.print(banner);
+        System.out.println("Hello! I'm Bingus.");
+        System.out.println("What can I do for you?");
+        System.out.println(line);
+        System.out.println("Bye. Hope to see you again soon!");
+        System.out.println(line);
     }
 }
