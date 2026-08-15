@@ -1,29 +1,26 @@
 public class Task {
-    private String description;
-    private boolean isMarked;
+    protected String description;
+    protected boolean isDone;
 
     public Task(String description) {
         description = description;
         // Default task to be uncompleted
-        isMarked = false;
+        isDone = false;
     }
 
-    // Getters and setters
-    public String getDescription() {
-        return description;
+    public String getTaskString() {
+        return getStatusIcon() + description;
     }
 
-    public boolean isMarked() {
-        return isMarked;
+    public String getStatusIcon() {
+        return (isDone ? "X" : " ");
     }
 
     public void mark() {
-       isMarked = true;
+       isDone = true;
     }
 
     public void unmark() {
-        isMarked = false;
+        isDone = false;
     }
-
-
 }

@@ -11,7 +11,7 @@ public class Bingus {
     private static final String INDENT = "    ";
 
     // Manage input list for Level-2
-    private static final String[] inputList = new String[100];
+    private static final Task[] inputList = new Task[100];
     private static int inputListSize = 0;
 
     /**
