@@ -7,8 +7,8 @@ public class Bingus {
 
 
     // String constants
-    private static final String line = "____________________________________________________________";
-    private static final String indent = "    ";
+    private static final String LINE = "____________________________________________________________";
+    private static final String INDENT = "    ";
 
     // Manage input list for Level-2
     private static final String[] inputList = new String[100];
@@ -29,11 +29,11 @@ public class Bingus {
                 + "                |___/           \n";
 
         //Message sequence
-        System.out.println(line);
+        System.out.println(LINE);
         System.out.print(banner);
         System.out.println("Hello! I'm Bingus.");
         System.out.println("What can I do for you?");
-        System.out.println(line);
+        System.out.println(LINE);
 
         addAndList();
     }
@@ -45,24 +45,24 @@ public class Bingus {
         Scanner scanner = new Scanner(System.in);
         while(scanner.hasNextLine()) {
             String userInput = scanner.nextLine();
-            System.out.println(line);
+            System.out.println(LINE);
             if (userInput.equals("bye")) {
                 System.out.println("Bye! Visit me again when you're free :) ");
-                System.out.println(line);
+                System.out.println(LINE);
                 // Exit out of echo
                 return;
             } else if (userInput.equals("list")){
                 // Print out each item in the list
                 for (int id = 0; id < inputListSize; id ++){
-                    System.out.println(indent + (id + 1) + ". " + inputList[id]);
+                    System.out.println(INDENT + (id + 1) + ". " + inputList[id]);
                 }
-                System.out.println(line);
+                System.out.println(LINE);
             } else {
                 // Default behavior for Level-2: add message to a list
                 inputList[inputListSize] = userInput;
                 inputListSize++;
-                System.out.println(indent + "added: " + userInput);
-                System.out.println(line);
+                System.out.println(INDENT + "added: " + userInput);
+                System.out.println(LINE);
             }
         }
     }
