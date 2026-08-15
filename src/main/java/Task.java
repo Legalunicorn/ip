@@ -7,14 +7,16 @@ public class Task {
 
     /** Whether this task has been completed. */
     protected boolean isDone;
+    private final TaskType type;
 
     /**
      * Creates an incomplete task with the given description.
      *
      * @param description description displayed for this task
      */
-    public Task(String description) {
+    public Task(String description, TaskType type) {
         this.description = description;
+        this.type = type;
         // Default task to be uncompleted
         isDone = false;
     }
@@ -25,7 +27,7 @@ public class Task {
      * @return formatted task text
      */
     public String getTaskString() {
-        return "[" + getStatusIcon() + "] " + description;
+        return "[" + type.getSymbol() + "]" + "[" + getStatusIcon() + "] " + description;
     }
 
     /**

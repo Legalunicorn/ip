@@ -13,12 +13,7 @@ public class Deadline extends Task {
      * @param by deadline text supplied by the user
      */
     public Deadline(String description, String by) {
-        super(description);
+        super(description, TaskType.DEADLINE);
         this.by = by;
-    }
-
-    @Override
-    public String getTaskString() {
-        return "[D]" + super.getTaskString() + " (by: " + by + ")";
     }
 }
