@@ -36,60 +36,53 @@ public class Bingus {
     }
 
     /**
-     * Processes commands until the user enters {@code bye}.
+     * Read the command input from user and delegate to respective helper methods
      */
     private static void startTaskLoop() {
         Scanner scanner = new Scanner(System.in);
-        while(scanner.hasNextLine()) {
+        while (scanner.hasNextLine()) {
             String userInput = scanner.nextLine();
-            // Split into 2 parts, the command
-            String[] parts = userInput.split("\\s+",  2);
-            String command = parts[0];
+            try {
+                // Split into 2 parts, the command
+                String[] parts = userInput.split("\\s+", 2);
+                String command = parts[0];
 
-            System.out.println(LINE);
-            switch (command){
-                case "bye":
-                    exitChat();
-                    return;
-                case "list":
-                    listTasks();
-                    break;
-                case "mark": {
-                    // TODO: consider when argument is invalid. ie not a number, or no number
-                    // For now assume that all input is valid
-                    int taskNumber = Integer.parseInt(parts[1]);
-                    markTask(taskNumber);
-                    break;
+                // parts must be size > 1, unless its a bye commajds
+
+                System.out.println(LINE);
+                switch (command) {
+                    case "bye":
+                        exitChat();
+                        return;
+                    case "list":
+                        listTasks();
+                        break;
+                    case "mark": {
+                        handleMark(parts, true);
+                        break;
+                    }
+                    case "unmark": {
+                        handleMark(parts, false);
+                        break;
+                    }
+                    case "todo": {
+                        handleTodo(parts);
+                        break;
+                    }
+                    case "deadline": {
+                        handleDeadline(parts);
+                        break;
+                    }
+                    case "event": {
+                        handleEvent(parts);
+                        break;
+                    }
+                    default:
+                        throw new BingusException("I don't recongise this command :/ ");
                 }
-                case "unmark": {
-                    // TODO: consider when argument is invalid, such as not as number
-                    int taskNumber = Integer.parseInt(parts[1]);
-                    unmarkTask(taskNumber);
-                    break;
-                }
-                case "todo": {
-                    Todo t = new Todo(parts[1]);
-                    addTask(t);
-                    break;
-                }
-                case "deadline": {
-                    String[] details = parts[1].split("/by");
-                    Deadline d = new Deadline(details[0].trim(), details[1].trim());
-                    addTask(d);
-                    break;
-                }
-                case "event" : {
-                    // Format of parts [desc] /from [from] /to [to
-                    String[] descAndTimes = parts[1].split("/from");
-                    String description = descAndTimes[0];
-                    String[]  times = descAndTimes[1].split("/to");
-                    // Trim to remove spaces previous around commands
-                    Event e = new Event(description.trim(), times[0].trim(), times[1].trim());
-                    addTask(e);
-                    break;
-                }
-                default:
-                    // there is no default behavior
+            } catch (BingusException e) {
+                System.out.println(" " + e.getMessage());
+                System.out.println(LINE);
             }
         }
     }
