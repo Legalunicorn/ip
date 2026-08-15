@@ -117,7 +117,7 @@ public class Bingus {
     }
 
     private static void listTasks(){
-        
+        System.out.println(INDENT + "Here are the tasks in your list:");
         for (int id = 0; id < inputListSize; id++){
             System.out.println(INDENT + (id + 1) + "." + inputList[id].getTaskString());
         }
