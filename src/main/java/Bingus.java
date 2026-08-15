@@ -57,12 +57,19 @@ public class Bingus {
                 case "list":
                     listTasks();
                     break;
-                case "mark":
+                case "mark": {
                     // TODO: consider when argument is invalid. ie not a number, or no number
                     // For now assume that all input is valid
                     int taskNumber = Integer.parseInt(parts[1]);
                     markTask(taskNumber);
                     break;
+                }
+                case "unmark": {
+                    // TODO: consider when argument is invalid, such as not as number
+                    int taskNumber = Integer.parseInt(parts[1]);
+                    unmarkTask(taskNumber);
+                    break;
+                }
                 default:
                     Task newTask = new Task(userInput);
                     inputList[inputListSize] = newTask;
@@ -90,6 +97,13 @@ public class Bingus {
         Task task = inputList[inputId - 1];
         task.mark();
         System.out.println(INDENT + "Nice! I've marked this task as done : ) ");
+        System.out.println(INDENT + INDENT + task.getTaskString());
+    }
+
+    private static void unmarkTask(int inputId) {
+        Task task = inputList[inputId - 1];
+        task.unmark();
+        System.out.println("OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
     }
 }
