@@ -3,13 +3,13 @@ public class Task {
     protected boolean isDone;
 
     public Task(String description) {
-        description = description;
+        this.description = description;
         // Default task to be uncompleted
         isDone = false;
     }
 
     public String getTaskString() {
-        return getStatusIcon() + description;
+        return "[" + getStatusIcon() + "] " + description;
     }
 
     public String getStatusIcon() {
