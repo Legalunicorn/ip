@@ -70,12 +70,17 @@ public class Bingus {
                     unmarkTask(taskNumber);
                     break;
                 }
-                default:
-                    Task newTask = new Task(userInput);
-                    inputList[inputListSize] = newTask;
+                case "todo": {
+                    Todo t = new Todo(parts[1]);
+                    inputList[inputListSize] = t;
                     inputListSize++;
-                    System.out.println(INDENT + "added: " + userInput);
+                    System.out.println("Got it. I've adding this task:");
+                    System.out.println(INDENT +  t.getTaskString());
+                    printTaskCount();
                     System.out.println(LINE);
+                }
+                default:
+                    // there is no default behavior
             }
         }
     }
@@ -98,6 +103,7 @@ public class Bingus {
         task.mark();
         System.out.println(INDENT + "Nice! I've marked this task as done : ) ");
         System.out.println(INDENT + INDENT + task.getTaskString());
+        System.out.println(LINE);
     }
 
     private static void unmarkTask(int inputId) {
@@ -105,5 +111,10 @@ public class Bingus {
         task.unmark();
         System.out.println("OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
+        System.out.println(LINE);
+    }
+
+    private static void printTaskCount(){
+        System.out.println("Now you have " + inputListSize + " tasks in the list.");
     }
 }
