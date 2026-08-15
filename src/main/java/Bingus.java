@@ -78,6 +78,17 @@ public class Bingus {
                     System.out.println(INDENT +  t.getTaskString());
                     printTaskCount();
                     System.out.println(LINE);
+                    break;
+                }
+                case "deadline": {
+                    String[] details = parts[1].split("/by");
+                    Deadline d = new Deadline(details[0], details[1]);
+                    inputList[inputListSize] = d;
+                    inputListSize++;
+                    System.out.println("Got it. I've adding this task:");
+                    System.out.println(INDENT + d.getTaskString());
+                    printTaskCount();
+                    System.out.println(LINE);
                 }
                 default:
                     // there is no default behavior
