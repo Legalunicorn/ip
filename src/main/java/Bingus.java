@@ -72,23 +72,13 @@ public class Bingus {
                 }
                 case "todo": {
                     Todo t = new Todo(parts[1]);
-                    inputList[inputListSize] = t;
-                    inputListSize++;
-                    System.out.println("Got it. I've adding this task:");
-                    System.out.println(INDENT +  t.getTaskString());
-                    printTaskCount();
-                    System.out.println(LINE);
+                    addTask(t);
                     break;
                 }
                 case "deadline": {
                     String[] details = parts[1].split("/by");
                     Deadline d = new Deadline(details[0].trim(), details[1].trim());
-                    inputList[inputListSize] = d;
-                    inputListSize++;
-                    System.out.println("Got it. I've adding this task:");
-                    System.out.println(INDENT + d.getTaskString());
-                    printTaskCount();
-                    System.out.println(LINE);
+                    addTask(d);
                     break;
                 }
                 case "event" : {
@@ -96,19 +86,24 @@ public class Bingus {
                     String[] descAndTimes = parts[1].split("/from");
                     String description = descAndTimes[0];
                     String[]  times = descAndTimes[1].split("/to");
+                    // Trim to remove spaces previous around commands
                     Event e = new Event(description.trim(), times[0].trim(), times[1].trim());
-                    inputList[inputListSize] = e;
-                    inputListSize++;
-                    System.out.println("Got it. I've adding this task:");
-                    System.out.println(INDENT + e.getTaskString());
-                    printTaskCount();
-                    System.out.println(LINE);
+                    addTask(e);
                     break;
                 }
                 default:
                     // there is no default behavior
             }
         }
+    }
+
+    private static void addTask(Task t) {
+        inputList[inputListSize] = t;
+        inputListSize++;
+        System.out.println("Got it. I've adding this task:");
+        System.out.println(INDENT + t.getTaskString());
+        System.out.println("Now you have " + inputListSize + " tasks in the list.");
+        System.out.println(LINE);
     }
 
     private static void exitChat(){
@@ -139,9 +134,5 @@ public class Bingus {
         System.out.println("OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
-    }
-
-    private static void printTaskCount(){
-        System.out.println("Now you have " + inputListSize + " tasks in the list.");
     }
 }
