@@ -1,5 +1,11 @@
-import java.security.spec.RSAOtherPrimeInfo;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
 
@@ -10,9 +16,11 @@ public class Bingus {
 
     private static final String LINE = "____________________________________________________________";
     private static final String INDENT = "    ";
+    private static final Path SAVE_FILE = Path.of("data", "bingus.txt");
 
     private static final List<Task> inputList = new ArrayList<>();
     private static int inputListSize = 0;
+    private static String loadErrorMessage;
 
     /**
      * Displays the welcome message and starts processing user commands.
@@ -28,12 +36,18 @@ public class Bingus {
                 + " |____/|_|_| |_|\\__, |\\__,_|___/\n"
                 + "                |___/           \n";
 
+        loadTasks();
+
         //Message sequence
         System.out.println(LINE);
         System.out.print(banner);
         System.out.println("Hello! I'm Bingus.");
         System.out.println("What can I do for you?");
         System.out.println(LINE);
+        if (loadErrorMessage != null) {
+            System.out.println(INDENT + loadErrorMessage);
+            System.out.println(LINE);
+        }
 
         startTaskLoop();
     }
@@ -99,9 +113,16 @@ public class Bingus {
      *
      * @param t task to store
      */
-    private static void addTask(Task t) {
+    private static void addTask(Task t) throws BingusException {
         inputList.add(t);
         inputListSize++;
+        try {
+            saveTasks();
+        } catch (BingusException e) {
+            inputList.remove(inputListSize - 1);
+            inputListSize--;
+            throw e;
+        }
         System.out.println(INDENT + "Got it. I've added this task:");
         System.out.println(INDENT + INDENT +  t.getTaskString());
         System.out.println(INDENT + "Now you have " + inputListSize + " tasks in the list.");
@@ -132,10 +153,16 @@ public class Bingus {
      *
      * @param inputId one-based task number entered by the user
      */
-    private static void markTask(int inputId) {
+    private static void markTask(int inputId) throws BingusException {
         // TODO: consider invalid inputId, to be done in future level
         Task task = inputList.get(inputId - 1);
         task.mark();
+        try {
+            saveTasks();
+        } catch (BingusException e) {
+            task.unmark();
+            throw e;
+        }
         System.out.println(INDENT + "Nice! I've marked this task as done : ) ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
@@ -174,9 +201,15 @@ public class Bingus {
      *
      * @param inputId one-based task number entered by the user
      */
-    private static void unmarkTask(int inputId) {
+    private static void unmarkTask(int inputId) throws BingusException {
         Task task = inputList.get(inputId - 1);
         task.unmark();
+        try {
+            saveTasks();
+        } catch (BingusException e) {
+            task.mark();
+            throw e;
+        }
         System.out.println(INDENT + "OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
@@ -260,13 +293,176 @@ public class Bingus {
         }
     }
 
-    private static void delete(int pos) {
+    private static void delete(int pos) throws BingusException {
         Task t = inputList.get(pos - 1);
         inputList.remove(pos - 1);
         inputListSize--;
+        try {
+            saveTasks();
+        } catch (BingusException e) {
+            inputList.add(pos - 1, t);
+            inputListSize++;
+            throw e;
+        }
         System.out.println(INDENT + "Noted! I've removed this task: ");
         System.out.println(INDENT + INDENT + t.getTaskString());
         System.out.println("Now you have " + inputListSize + " tasks in the list.");
         System.out.println(LINE);
+    }
+
+    /**
+     * Writes the complete task list to disk. Text fields are Base64 encoded so
+     * the record separator cannot conflict with text entered by the user.
+     */
+    private static void saveTasks() throws BingusException {
+        List<String> savedTasks = new ArrayList<>();
+        for (Task task : inputList) {
+            savedTasks.add(toSaveRecord(task));
+        }
+
+        Path temporaryFile = null;
+        try {
+            Files.createDirectories(SAVE_FILE.getParent());
+            temporaryFile = Files.createTempFile(SAVE_FILE.getParent(), "bingus-", ".tmp");
+            Files.write(temporaryFile, savedTasks, StandardCharsets.UTF_8);
+            moveSaveFile(temporaryFile);
+        } catch (IOException | SecurityException e) {
+            throw new BingusException("I couldn't save your tasks. Your task list was not changed.");
+        } finally {
+            if (temporaryFile != null) {
+                try {
+                    Files.deleteIfExists(temporaryFile);
+                } catch (IOException | SecurityException ignored) {
+                    // A later run can safely remove an unused temporary file.
+                }
+            }
+        }
+    }
+
+    /**
+     * Replaces the save file with a complete temporary file, avoiding a
+     * partially written save file if writing is interrupted.
+     *
+     * @param temporaryFile complete temporary save file
+     * @throws IOException if the file cannot be replaced
+     */
+    private static void moveSaveFile(Path temporaryFile) throws IOException {
+        try {
+            Files.move(temporaryFile, SAVE_FILE, StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(temporaryFile, SAVE_FILE, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /**
+     * Loads all tasks from the save file when it is valid. If the file cannot
+     * be read or contains invalid data, leaves the task list empty.
+     */
+    private static void loadTasks() {
+        if (Files.notExists(SAVE_FILE)) {
+            return;
+        }
+
+        try {
+            List<Task> loadedTasks = new ArrayList<>();
+            for (String savedTask : Files.readAllLines(SAVE_FILE, StandardCharsets.UTF_8)) {
+                loadedTasks.add(fromSaveRecord(savedTask));
+            }
+            inputList.addAll(loadedTasks);
+            inputListSize = inputList.size();
+        } catch (IOException | IllegalArgumentException | IllegalStateException | SecurityException e) {
+            loadErrorMessage = "I couldn't load your saved tasks. Starting with an empty list.";
+        }
+    }
+
+    /**
+     * Converts one task to a delimiter-safe record for the save file.
+     *
+     * @param task task to convert
+     * @return save-file record
+     */
+    private static String toSaveRecord(Task task) {
+        String done = task.isDone() ? "1" : "0";
+        String description = encode(task.getDescription());
+        switch (task.getType()) {
+            case TODO:
+                return "T|" + done + "|" + description;
+            case DEADLINE:
+                Deadline deadline = (Deadline) task;
+                return "D|" + done + "|" + description + "|" + encode(deadline.getBy());
+            case EVENT:
+                Event event = (Event) task;
+                return "E|" + done + "|" + description + "|" + encode(event.getFrom()) + "|" + encode(event.getTo());
+            default:
+                throw new IllegalStateException("Unsupported task type: " + task.getType());
+        }
+    }
+
+    /**
+     * Reconstructs a task from one delimiter-safe save-file record.
+     *
+     * @param savedTask task record from the save file
+     * @return reconstructed task
+     */
+    private static Task fromSaveRecord(String savedTask) {
+        String[] fields = savedTask.split("\\|", -1);
+        Task task;
+        switch (fields[0]) {
+        case "T":
+            requireFieldCount(fields, 3, savedTask);
+            task = new Todo(decode(fields[2]));
+            break;
+        case "D":
+            requireFieldCount(fields, 4, savedTask);
+            task = new Deadline(decode(fields[2]), decode(fields[3]));
+            break;
+        case "E":
+            requireFieldCount(fields, 5, savedTask);
+            task = new Event(decode(fields[2]), decode(fields[3]), decode(fields[4]));
+            break;
+        default:
+            throw new IllegalStateException("Unknown task type in save file: " + fields[0]);
+        }
+
+        if (fields[1].equals("1")) {
+            task.mark();
+        } else if (!fields[1].equals("0")) {
+            throw new IllegalStateException("Invalid completion status in save file: " + fields[1]);
+        }
+        return task;
+    }
+
+    /**
+     * Ensures a record has the expected number of fields before it is decoded.
+     *
+     * @param fields fields in the record
+     * @param expectedCount expected number of fields
+     * @param savedTask original save-file record
+     */
+    private static void requireFieldCount(String[] fields, int expectedCount, String savedTask) {
+        if (fields.length != expectedCount) {
+            throw new IllegalStateException("Invalid task record in save file: " + savedTask);
+        }
+    }
+
+    /**
+     * Encodes arbitrary task text for safe storage in a pipe-separated record.
+     *
+     * @param value text to encode
+     * @return Base64 representation of {@code value}
+     */
+    private static String encode(String value) {
+        return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Decodes text that was Base64 encoded before being saved.
+     *
+     * @param value Base64 text from the save file
+     * @return original task text
+     */
+    private static String decode(String value) {
+        return new String(Base64.getDecoder().decode(value), StandardCharsets.UTF_8);
     }
 }

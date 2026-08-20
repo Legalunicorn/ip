@@ -22,4 +22,22 @@ public class Event extends Task {
         this.from = from;
         this.to = to;
     }
+
+    /**
+     * Returns the event's start time text.
+     *
+     * @return start time text
+     */
+    public String getFrom() {
+        return from;
+    }
+
+    /**
+     * Returns the event's end time text.
+     *
+     * @return end time text
+     */
+    public String getTo() {
+        return to;
+    }
 }
