@@ -1,8 +1,9 @@
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -19,6 +20,7 @@ public class Bingus {
 
     private static final List<Task> inputList = new ArrayList<>();
     private static int inputListSize = 0;
+    private static String loadErrorMessage;
 
     /**
      * Displays the welcome message and starts processing user commands.
@@ -42,6 +44,10 @@ public class Bingus {
         System.out.println("Hello! I'm Bingus.");
         System.out.println("What can I do for you?");
         System.out.println(LINE);
+        if (loadErrorMessage != null) {
+            System.out.println(INDENT + loadErrorMessage);
+            System.out.println(LINE);
+        }
 
         startTaskLoop();
     }
@@ -107,10 +113,16 @@ public class Bingus {
      *
      * @param t task to store
      */
-    private static void addTask(Task t) {
+    private static void addTask(Task t) throws BingusException {
         inputList.add(t);
         inputListSize++;
-        saveTasks();
+        try {
+            saveTasks();
+        } catch (BingusException e) {
+            inputList.remove(inputListSize - 1);
+            inputListSize--;
+            throw e;
+        }
         System.out.println(INDENT + "Got it. I've added this task:");
         System.out.println(INDENT + INDENT +  t.getTaskString());
         System.out.println(INDENT + "Now you have " + inputListSize + " tasks in the list.");
@@ -141,11 +153,16 @@ public class Bingus {
      *
      * @param inputId one-based task number entered by the user
      */
-    private static void markTask(int inputId) {
+    private static void markTask(int inputId) throws BingusException {
         // TODO: consider invalid inputId, to be done in future level
         Task task = inputList.get(inputId - 1);
         task.mark();
-        saveTasks();
+        try {
+            saveTasks();
+        } catch (BingusException e) {
+            task.unmark();
+            throw e;
+        }
         System.out.println(INDENT + "Nice! I've marked this task as done : ) ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
@@ -184,10 +201,15 @@ public class Bingus {
      *
      * @param inputId one-based task number entered by the user
      */
-    private static void unmarkTask(int inputId) {
+    private static void unmarkTask(int inputId) throws BingusException {
         Task task = inputList.get(inputId - 1);
         task.unmark();
-        saveTasks();
+        try {
+            saveTasks();
+        } catch (BingusException e) {
+            task.mark();
+            throw e;
+        }
         System.out.println(INDENT + "OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
@@ -271,11 +293,17 @@ public class Bingus {
         }
     }
 
-    private static void delete(int pos) {
+    private static void delete(int pos) throws BingusException {
         Task t = inputList.get(pos - 1);
         inputList.remove(pos - 1);
         inputListSize--;
-        saveTasks();
+        try {
+            saveTasks();
+        } catch (BingusException e) {
+            inputList.add(pos - 1, t);
+            inputListSize++;
+            throw e;
+        }
         System.out.println(INDENT + "Noted! I've removed this task: ");
         System.out.println(INDENT + INDENT + t.getTaskString());
         System.out.println("Now you have " + inputListSize + " tasks in the list.");
@@ -286,36 +314,65 @@ public class Bingus {
      * Writes the complete task list to disk. Text fields are Base64 encoded so
      * the record separator cannot conflict with text entered by the user.
      */
-    private static void saveTasks() {
+    private static void saveTasks() throws BingusException {
         List<String> savedTasks = new ArrayList<>();
         for (Task task : inputList) {
             savedTasks.add(toSaveRecord(task));
         }
 
+        Path temporaryFile = null;
         try {
             Files.createDirectories(SAVE_FILE.getParent());
-            Files.write(SAVE_FILE, savedTasks, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Unable to save tasks to " + SAVE_FILE, e);
+            temporaryFile = Files.createTempFile(SAVE_FILE.getParent(), "bingus-", ".tmp");
+            Files.write(temporaryFile, savedTasks, StandardCharsets.UTF_8);
+            moveSaveFile(temporaryFile);
+        } catch (IOException | SecurityException e) {
+            throw new BingusException("I couldn't save your tasks. Your task list was not changed.");
+        } finally {
+            if (temporaryFile != null) {
+                try {
+                    Files.deleteIfExists(temporaryFile);
+                } catch (IOException | SecurityException ignored) {
+                    // A later run can safely remove an unused temporary file.
+                }
+            }
         }
     }
 
     /**
-     * Loads tasks from the save file when one exists.
+     * Replaces the save file with a complete temporary file, avoiding a
+     * partially written save file if writing is interrupted.
+     *
+     * @param temporaryFile complete temporary save file
+     * @throws IOException if the file cannot be replaced
+     */
+    private static void moveSaveFile(Path temporaryFile) throws IOException {
+        try {
+            Files.move(temporaryFile, SAVE_FILE, StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(temporaryFile, SAVE_FILE, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /**
+     * Loads all tasks from the save file when it is valid. If the file cannot
+     * be read or contains invalid data, leaves the task list empty.
      */
     private static void loadTasks() {
-        if (!Files.exists(SAVE_FILE)) {
+        if (Files.notExists(SAVE_FILE)) {
             return;
         }
 
         try {
+            List<Task> loadedTasks = new ArrayList<>();
             for (String savedTask : Files.readAllLines(SAVE_FILE, StandardCharsets.UTF_8)) {
-                Task task = fromSaveRecord(savedTask);
-                inputList.add(task);
-                inputListSize++;
+                loadedTasks.add(fromSaveRecord(savedTask));
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException("Unable to load tasks from " + SAVE_FILE, e);
+            inputList.addAll(loadedTasks);
+            inputListSize = inputList.size();
+        } catch (IOException | IllegalArgumentException | IllegalStateException | SecurityException e) {
+            loadErrorMessage = "I couldn't load your saved tasks. Starting with an empty list.";
         }
     }
 

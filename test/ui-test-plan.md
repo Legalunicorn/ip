@@ -284,6 +284,38 @@ bye
 
 ```text
     ____________________________________________________________
-     Bye! Visit me again when you're free :)
+    Bye! Visit me again when you're free :)
+    ____________________________________________________________
+```
+
+## Test 6: Start safely with a corrupted save file
+
+Aim: Verify that Bingus reports a corrupted save file and starts with an empty task list.
+
+### Setup
+
+Create `data/bingus.txt` with this invalid content before starting Bingus:
+
+```text
+T|1|not-valid-base64!
+```
+
+On startup, Bingus should display:
+
+```text
+    I couldn't load your saved tasks. Starting with an empty list.
+```
+
+### Input
+
+```text
+list
+```
+
+### Expected output
+
+```text
+    ____________________________________________________________
+    Here are the tasks in your list:
     ____________________________________________________________
 ```
