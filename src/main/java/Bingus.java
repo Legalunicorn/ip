@@ -4,6 +4,7 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -25,6 +26,13 @@ public class Bingus {
     private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd HHmm")
             .withResolverStyle(ResolverStyle.STRICT);
+    /** Strict format accepted when filtering tasks by date. */
+    private static final DateTimeFormatter INPUT_DATE_FORMAT = DateTimeFormatter
+            .ofPattern("uuuu-MM-dd")
+            .withResolverStyle(ResolverStyle.STRICT);
+    /** Format used when showing the selected date in a filtered task list. */
+    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d uuuu");
 
     private static final List<Task> inputList = new ArrayList<>();
     private static int inputListSize = 0;
@@ -80,7 +88,7 @@ public class Bingus {
                         exitChat();
                         return;
                     case "list":
-                        listTasks();
+                        handleList(parts);
                         break;
                     case "mark": {
                         handleMark(parts, true);
@@ -154,6 +162,63 @@ public class Bingus {
             System.out.println(INDENT + (id + 1) + "." + inputList.get(id).getTaskString());
         }
         System.out.println(LINE);
+    }
+
+    /**
+     * Lists all tasks, or dated tasks occurring on a requested date.
+     *
+     * @param parts command and optional date filter
+     * @throws BingusException if the requested date is invalid
+     */
+    private static void handleList(String[] parts) throws BingusException {
+        if (parts.length == 1) {
+            listTasks();
+            return;
+        }
+
+        try {
+            LocalDate date = LocalDate.parse(parts[1].trim(), INPUT_DATE_FORMAT);
+            listTasksOn(date);
+        } catch (DateTimeParseException e) {
+            throw new BingusException("Invalid list date. Please use yyyy-MM-dd, e.g. 2019-12-02.");
+        }
+    }
+
+    /**
+     * Displays deadlines due or events occurring on the specified date.
+     *
+     * @param date calendar date used to filter dated tasks
+     */
+    private static void listTasksOn(LocalDate date) {
+        System.out.println(INDENT + "Here are the tasks on " + date.format(DISPLAY_DATE_FORMAT) + ":");
+        for (int id = 0; id < inputListSize; id++) {
+            Task task = inputList.get(id);
+            if (occursOn(task, date)) {
+                System.out.println(INDENT + (id + 1) + "." + task.getTaskString());
+            }
+        }
+        System.out.println(LINE);
+    }
+
+    /**
+     * Returns whether a dated task occurs on the specified date.
+     *
+     * @param task task to check
+     * @param date calendar date to compare against
+     * @return true if a deadline is due or an event overlaps the date
+     */
+    private static boolean occursOn(Task task, LocalDate date) {
+        if (task instanceof Deadline) {
+            Deadline deadline = (Deadline) task;
+            return deadline.getBy().toLocalDate().equals(date);
+        }
+        if (task instanceof Event) {
+            Event event = (Event) task;
+            LocalDate startDate = event.getFrom().toLocalDate();
+            LocalDate endDate = event.getTo().toLocalDate();
+            return !date.isBefore(startDate) && !date.isAfter(endDate);
+        }
+        return false;
     }
 
     /**

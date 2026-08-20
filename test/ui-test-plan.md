@@ -217,3 +217,35 @@ ____________________________________________________________
     Bye! Visit me again when you're free :)
 ____________________________________________________________
 ```
+
+## Test 8: List tasks occurring on a date
+
+### Setup
+
+Create these tasks before running the command:
+
+```text
+todo read book
+deadline return book /by 2019-12-02 1800
+event project meeting /from 2019-12-02 1400 /to 2019-12-03 1600
+```
+
+### Input
+
+```text
+list 2019-12-02
+bye
+```
+
+### Expected output
+
+```text
+____________________________________________________________
+    Here are the tasks on Dec 2 2019:
+    2.[D][ ] return book (by: Dec 2 2019, 6:00 pm)
+    3.[E][ ] project meeting (from: Dec 2 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
+____________________________________________________________
+____________________________________________________________
+    Bye! Visit me again when you're free :)
+____________________________________________________________
+```
