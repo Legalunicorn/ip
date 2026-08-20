@@ -76,7 +76,7 @@ public class Storage {
      * @param temporaryFile complete temporary save file
      * @throws IOException if the file cannot be replaced
      */
-    private  void moveSaveFile(Path temporaryFile) throws IOException {
+    private void moveSaveFile(Path temporaryFile) throws IOException {
         try {
             Files.move(temporaryFile, saveFile, StandardCopyOption.ATOMIC_MOVE,
                     StandardCopyOption.REPLACE_EXISTING);

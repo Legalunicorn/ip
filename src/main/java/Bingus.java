@@ -22,14 +22,18 @@ public class Bingus {
     private static final String LINE = "____________________________________________________________";
     private static final String INDENT = "    ";
     private static final Path SAVE_FILE = Path.of("data", "bingus.txt");
+    private static final Storage storage = new Storage("data/bingus.txt");
+
     /** Strict format accepted for deadline and event date/time input. */
     private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd HHmm")
             .withResolverStyle(ResolverStyle.STRICT);
+
     /** Strict format accepted when filtering tasks by date. */
     private static final DateTimeFormatter INPUT_DATE_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
+
     /** Format used when showing the selected date in a filtered task list. */
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu");
@@ -52,7 +56,13 @@ public class Bingus {
                 + " |____/|_|_| |_|\\__, |\\__,_|___/\n"
                 + "                |___/           \n";
 
-        loadTasks();
+        // loadTasks();
+        try {
+            inputList.addAll(storage.loadTasks());
+            inputListSize = inputList.size();
+        } catch (BingusException e) {
+            loadErrorMessage = "I couldn't load your save tasks, Sorry! Starting with an empty list";
+        }
 
         //Message sequence
         System.out.println(LINE);
@@ -133,7 +143,8 @@ public class Bingus {
         inputList.add(t);
         inputListSize++;
         try {
-            saveTasks();
+//            saveTasks();
+
         } catch (BingusException e) {
             inputList.remove(inputListSize - 1);
             inputListSize--;
@@ -231,7 +242,8 @@ public class Bingus {
         Task task = inputList.get(inputId - 1);
         task.mark();
         try {
-            saveTasks();
+//            saveTasks();
+            storage.saveTasks(inputList);
         } catch (BingusException e) {
             task.unmark();
             throw e;
@@ -278,7 +290,8 @@ public class Bingus {
         Task task = inputList.get(inputId - 1);
         task.unmark();
         try {
-            saveTasks();
+            //saveTasks();
+            storage.saveTasks(inputList);
         } catch (BingusException e) {
             task.mark();
             throw e;
@@ -387,7 +400,8 @@ public class Bingus {
         inputList.remove(pos - 1);
         inputListSize--;
         try {
-            saveTasks();
+            //saveTasks();
+            storage.saveTasks(inputList);
         } catch (BingusException e) {
             inputList.add(pos - 1, t);
             inputListSize++;
