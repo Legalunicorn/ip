@@ -243,6 +243,47 @@ bye
 
 ```text
     ____________________________________________________________
+    Bye! Visit me again when you're free :)
+    ____________________________________________________________
+```
+
+## Test 5: Load saved task records at startup
+
+Aim: Verify that a completed todo task saved in `data/bingus.txt` is restored when Bingus starts.
+
+### Setup
+
+Create `data/bingus.txt` with this content before starting Bingus:
+
+```text
+T|1|cGxhbiB8IHJldmlzZQ==
+```
+
+### Input
+
+```text
+list
+```
+
+### Expected output
+
+```text
+    ____________________________________________________________
+     Here are the tasks in your list:
+     1.[T][X] plan | revise
+    ____________________________________________________________
+```
+
+### Input
+
+```text
+bye
+```
+
+### Expected output
+
+```text
+    ____________________________________________________________
      Bye! Visit me again when you're free :)
     ____________________________________________________________
 ```

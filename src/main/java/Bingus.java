@@ -34,6 +34,8 @@ public class Bingus {
                 + " |____/|_|_| |_|\\__, |\\__,_|___/\n"
                 + "                |___/           \n";
 
+        loadTasks();
+
         //Message sequence
         System.out.println(LINE);
         System.out.print(banner);
@@ -299,6 +301,25 @@ public class Bingus {
     }
 
     /**
+     * Loads tasks from the save file when one exists.
+     */
+    private static void loadTasks() {
+        if (!Files.exists(SAVE_FILE)) {
+            return;
+        }
+
+        try {
+            for (String savedTask : Files.readAllLines(SAVE_FILE, StandardCharsets.UTF_8)) {
+                Task task = fromSaveRecord(savedTask);
+                inputList.add(task);
+                inputListSize++;
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("Unable to load tasks from " + SAVE_FILE, e);
+        }
+    }
+
+    /**
      * Converts one task to a delimiter-safe record for the save file.
      *
      * @param task task to convert
@@ -322,6 +343,53 @@ public class Bingus {
     }
 
     /**
+     * Reconstructs a task from one delimiter-safe save-file record.
+     *
+     * @param savedTask task record from the save file
+     * @return reconstructed task
+     */
+    private static Task fromSaveRecord(String savedTask) {
+        String[] fields = savedTask.split("\\|", -1);
+        Task task;
+        switch (fields[0]) {
+        case "T":
+            requireFieldCount(fields, 3, savedTask);
+            task = new Todo(decode(fields[2]));
+            break;
+        case "D":
+            requireFieldCount(fields, 4, savedTask);
+            task = new Deadline(decode(fields[2]), decode(fields[3]));
+            break;
+        case "E":
+            requireFieldCount(fields, 5, savedTask);
+            task = new Event(decode(fields[2]), decode(fields[3]), decode(fields[4]));
+            break;
+        default:
+            throw new IllegalStateException("Unknown task type in save file: " + fields[0]);
+        }
+
+        if (fields[1].equals("1")) {
+            task.mark();
+        } else if (!fields[1].equals("0")) {
+            throw new IllegalStateException("Invalid completion status in save file: " + fields[1]);
+        }
+        return task;
+    }
+
+    /**
+     * Ensures a record has the expected number of fields before it is decoded.
+     *
+     * @param fields fields in the record
+     * @param expectedCount expected number of fields
+     * @param savedTask original save-file record
+     */
+    private static void requireFieldCount(String[] fields, int expectedCount, String savedTask) {
+        if (fields.length != expectedCount) {
+            throw new IllegalStateException("Invalid task record in save file: " + savedTask);
+        }
+    }
+
+    /**
      * Encodes arbitrary task text for safe storage in a pipe-separated record.
      *
      * @param value text to encode
@@ -329,5 +397,15 @@ public class Bingus {
      */
     private static String encode(String value) {
         return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Decodes text that was Base64 encoded before being saved.
+     *
+     * @param value Base64 text from the save file
+     * @return original task text
+     */
+    private static String decode(String value) {
+        return new String(Base64.getDecoder().decode(value), StandardCharsets.UTF_8);
     }
 }
