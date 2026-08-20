@@ -16,4 +16,13 @@ public class Deadline extends Task {
         super(description, TaskType.DEADLINE);
         this.by = by;
     }
+
+    /**
+     * Returns the deadline text stored for this task.
+     *
+     * @return deadline text
+     */
+    public String getBy() {
+        return by;
+    }
 }

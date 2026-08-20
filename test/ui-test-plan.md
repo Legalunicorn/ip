@@ -206,3 +206,43 @@ bye
      Bye! Visit me again when you're free :)
     ____________________________________________________________
 ```
+
+## Test 4: Persist task text containing the record delimiter
+
+Aim: Verify that task changes are written to `data/bingus.txt` and a description containing `|` remains intact.
+
+### Input
+
+```text
+todo plan | revise
+```
+
+### Expected output
+
+```text
+    ____________________________________________________________
+     Got it. I've added this task:
+       [T][ ] plan | revise
+     Now you have 1 tasks in the list.
+    ____________________________________________________________
+```
+
+After this command, verify that `data/bingus.txt` contains this record:
+
+```text
+T|0|cGxhbiB8IHJldmlzZQ==
+```
+
+### Input
+
+```text
+bye
+```
+
+### Expected output
+
+```text
+    ____________________________________________________________
+     Bye! Visit me again when you're free :)
+    ____________________________________________________________
+```

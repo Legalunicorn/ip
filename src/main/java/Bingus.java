@@ -1,5 +1,10 @@
-import java.security.spec.RSAOtherPrimeInfo;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
 
@@ -10,6 +15,7 @@ public class Bingus {
 
     private static final String LINE = "____________________________________________________________";
     private static final String INDENT = "    ";
+    private static final Path SAVE_FILE = Path.of("data", "bingus.txt");
 
     private static final List<Task> inputList = new ArrayList<>();
     private static int inputListSize = 0;
@@ -102,6 +108,7 @@ public class Bingus {
     private static void addTask(Task t) {
         inputList.add(t);
         inputListSize++;
+        saveTasks();
         System.out.println(INDENT + "Got it. I've added this task:");
         System.out.println(INDENT + INDENT +  t.getTaskString());
         System.out.println(INDENT + "Now you have " + inputListSize + " tasks in the list.");
@@ -136,6 +143,7 @@ public class Bingus {
         // TODO: consider invalid inputId, to be done in future level
         Task task = inputList.get(inputId - 1);
         task.mark();
+        saveTasks();
         System.out.println(INDENT + "Nice! I've marked this task as done : ) ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
@@ -177,6 +185,7 @@ public class Bingus {
     private static void unmarkTask(int inputId) {
         Task task = inputList.get(inputId - 1);
         task.unmark();
+        saveTasks();
         System.out.println(INDENT + "OK, I've marked this task as not done yet: ");
         System.out.println(INDENT + INDENT + task.getTaskString());
         System.out.println(LINE);
@@ -264,9 +273,61 @@ public class Bingus {
         Task t = inputList.get(pos - 1);
         inputList.remove(pos - 1);
         inputListSize--;
+        saveTasks();
         System.out.println(INDENT + "Noted! I've removed this task: ");
         System.out.println(INDENT + INDENT + t.getTaskString());
         System.out.println("Now you have " + inputListSize + " tasks in the list.");
         System.out.println(LINE);
+    }
+
+    /**
+     * Writes the complete task list to disk. Text fields are Base64 encoded so
+     * the record separator cannot conflict with text entered by the user.
+     */
+    private static void saveTasks() {
+        List<String> savedTasks = new ArrayList<>();
+        for (Task task : inputList) {
+            savedTasks.add(toSaveRecord(task));
+        }
+
+        try {
+            Files.createDirectories(SAVE_FILE.getParent());
+            Files.write(SAVE_FILE, savedTasks, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Unable to save tasks to " + SAVE_FILE, e);
+        }
+    }
+
+    /**
+     * Converts one task to a delimiter-safe record for the save file.
+     *
+     * @param task task to convert
+     * @return save-file record
+     */
+    private static String toSaveRecord(Task task) {
+        String done = task.isDone() ? "1" : "0";
+        String description = encode(task.getDescription());
+        switch (task.getType()) {
+            case TODO:
+                return "T|" + done + "|" + description;
+            case DEADLINE:
+                Deadline deadline = (Deadline) task;
+                return "D|" + done + "|" + description + "|" + encode(deadline.getBy());
+            case EVENT:
+                Event event = (Event) task;
+                return "E|" + done + "|" + description + "|" + encode(event.getFrom()) + "|" + encode(event.getTo());
+            default:
+                throw new IllegalStateException("Unsupported task type: " + task.getType());
+        }
+    }
+
+    /**
+     * Encodes arbitrary task text for safe storage in a pipe-separated record.
+     *
+     * @param value text to encode
+     * @return Base64 representation of {@code value}
+     */
+    private static String encode(String value) {
+        return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 }

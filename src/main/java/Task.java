@@ -40,6 +40,33 @@ public class Task {
     }
 
     /**
+     * Returns the description stored for this task.
+     *
+     * @return task description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Returns this task's type.
+     *
+     * @return task type
+     */
+    public TaskType getType() {
+        return type;
+    }
+
+    /**
+     * Returns whether this task is complete.
+     *
+     * @return {@code true} if the task is complete
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /**
      * Marks this task as complete.
      */
     public void mark() {
