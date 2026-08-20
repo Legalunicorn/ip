@@ -4,6 +4,10 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -17,6 +21,10 @@ public class Bingus {
     private static final String LINE = "____________________________________________________________";
     private static final String INDENT = "    ";
     private static final Path SAVE_FILE = Path.of("data", "bingus.txt");
+    /** Strict format accepted for deadline and event date/time input. */
+    private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT = DateTimeFormatter
+            .ofPattern("uuuu-MM-dd HHmm")
+            .withResolverStyle(ResolverStyle.STRICT);
 
     private static final List<Task> inputList = new ArrayList<>();
     private static int inputListSize = 0;
@@ -244,7 +252,13 @@ public class Bingus {
         if (by.isEmpty()){
             throw new BingusException("Deadline cannot be empty. " + correctFormatMessage);
         }
-        addTask(new Deadline(taskDesc, by));
+        try {
+            LocalDateTime deadlineDateTime = LocalDateTime.parse(by, INPUT_DATE_TIME_FORMAT);
+            addTask(new Deadline(taskDesc, deadlineDateTime));
+        } catch (DateTimeParseException e) {
+            throw new BingusException("Invalid deadline date/time. Please use yyyy-MM-dd HHmm, "
+                    + "e.g. 2019-12-02 1800.");
+        }
     }
 
     private static void handleEvent(String[] parts) throws BingusException {
@@ -273,7 +287,17 @@ public class Bingus {
         if (desc.isEmpty()){
             throw new BingusException("`Description` of event cannot be empty! " + correctFormatMessage);
         }
-        addTask(new Event(desc, from, to));
+        try {
+            LocalDateTime fromDateTime = LocalDateTime.parse(from, INPUT_DATE_TIME_FORMAT);
+            LocalDateTime toDateTime = LocalDateTime.parse(to, INPUT_DATE_TIME_FORMAT);
+            if (!toDateTime.isAfter(fromDateTime)) {
+                throw new BingusException("Event end date/time must be after its start date/time.");
+            }
+            addTask(new Event(desc, fromDateTime, toDateTime));
+        } catch (DateTimeParseException e) {
+            throw new BingusException("Invalid event date/time. Please use yyyy-MM-dd HHmm, "
+                    + "e.g. 2019-12-02 1800.");
+        }
     }
 
     private static void handleDelete(String[] parts) throws BingusException {
@@ -390,10 +414,11 @@ public class Bingus {
                 return "T|" + done + "|" + description;
             case DEADLINE:
                 Deadline deadline = (Deadline) task;
-                return "D|" + done + "|" + description + "|" + encode(deadline.getBy());
+                return "D|" + done + "|" + description + "|" + encode(deadline.getBy().toString());
             case EVENT:
                 Event event = (Event) task;
-                return "E|" + done + "|" + description + "|" + encode(event.getFrom()) + "|" + encode(event.getTo());
+                return "E|" + done + "|" + description + "|" + encode(event.getFrom().toString())
+                        + "|" + encode(event.getTo().toString());
             default:
                 throw new IllegalStateException("Unsupported task type: " + task.getType());
         }
@@ -415,11 +440,12 @@ public class Bingus {
             break;
         case "D":
             requireFieldCount(fields, 4, savedTask);
-            task = new Deadline(decode(fields[2]), decode(fields[3]));
+            task = new Deadline(decode(fields[2]), LocalDateTime.parse(decode(fields[3])));
             break;
         case "E":
             requireFieldCount(fields, 5, savedTask);
-            task = new Event(decode(fields[2]), decode(fields[3]), decode(fields[4]));
+            task = new Event(decode(fields[2]), LocalDateTime.parse(decode(fields[3])),
+                    LocalDateTime.parse(decode(fields[4])));
             break;
         default:
             throw new IllegalStateException("Unknown task type in save file: " + fields[0]);

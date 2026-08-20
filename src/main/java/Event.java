@@ -1,43 +1,61 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Represents a task that starts and ends at specified times.
  */
 public class Event extends Task {
 
-    /** Start time text displayed for this event. */
-    protected String from;
+    /** Formatter used to present event times in task output. */
+    private static final DateTimeFormatter DISPLAY_DATE_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a");
 
-    /** End time text displayed for this event. */
-    protected String to;
+    /** Date and time at which this event begins. */
+    protected LocalDateTime from;
+
+    /** Date and time at which this event ends. */
+    protected LocalDateTime to;
 
 
     /**
      * Creates an event task.
      *
      * @param description description of the event
-     * @param from event start time text
-     * @param to event end time text
+     * @param from date and time at which the event starts
+     * @param to date and time at which the event ends
      */
-    public Event(String description, String from, String to) {
+    public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description, TaskType.EVENT);
         this.from = from;
         this.to = to;
     }
 
     /**
-     * Returns the event's start time text.
+     * Returns the event's start date and time.
      *
-     * @return start time text
+     * @return start date and time
      */
-    public String getFrom() {
+    public LocalDateTime getFrom() {
         return from;
     }
 
     /**
-     * Returns the event's end time text.
+     * Returns the event's end date and time.
      *
-     * @return end time text
+     * @return end date and time
      */
-    public String getTo() {
+    public LocalDateTime getTo() {
         return to;
+    }
+
+    /**
+     * Returns this event in the format used for display.
+     *
+     * @return formatted event task text
+     */
+    @Override
+    public String getTaskString() {
+        return super.getTaskString() + " (from: " + from.format(DISPLAY_DATE_TIME_FORMAT)
+                + " to: " + to.format(DISPLAY_DATE_TIME_FORMAT) + ")";
     }
 }
