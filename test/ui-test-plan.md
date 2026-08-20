@@ -31,8 +31,8 @@ ____________________________________________________________
 ### Input
 
 ```text
-deadline return book /by Sunday
-event project meeting /from Mon 2pm /to 4pm
+deadline return book /by 2019-12-02 1800
+event project meeting /from 2019-12-03 1400 /to 2019-12-03 1600
 bye
 ```
 
@@ -41,12 +41,12 @@ bye
 ```text
 ____________________________________________________________
     Got it. I've added this task:
-        [D][ ] return book
+        [D][ ] return book (by: Dec 2 2019, 6:00 pm)
     Now you have 1 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
     Got it. I've added this task:
-        [E][ ] project meeting
+        [E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
     Now you have 2 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
@@ -60,8 +60,8 @@ ____________________________________________________________
 
 ```text
 todo read book
-deadline return book /by June 6th
-event project meeting /from Aug 6th 2pm /to 4pm
+deadline return book /by 2019-12-02 1800
+event project meeting /from 2019-12-03 1400 /to 2019-12-03 1600
 list
 mark 2
 list
@@ -78,29 +78,29 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
     Got it. I've added this task:
-        [D][ ] return book
+        [D][ ] return book (by: Dec 2 2019, 6:00 pm)
     Now you have 2 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
     Got it. I've added this task:
-        [E][ ] project meeting
+        [E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
     Now you have 3 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
     Here are the tasks in your list:
     1.[T][ ] read book
-    2.[D][ ] return book
-    3.[E][ ] project meeting
+    2.[D][ ] return book (by: Dec 2 2019, 6:00 pm)
+    3.[E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
 ____________________________________________________________
 ____________________________________________________________
     Nice! I've marked this task as done : ) 
-        [D][X] return book
+        [D][X] return book (by: Dec 2 2019, 6:00 pm)
 ____________________________________________________________
 ____________________________________________________________
     Here are the tasks in your list:
     1.[T][ ] read book
-    2.[D][X] return book
-    3.[E][ ] project meeting
+    2.[D][X] return book (by: Dec 2 2019, 6:00 pm)
+    3.[E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
 ____________________________________________________________
 ____________________________________________________________
     Bye! Visit me again when you're free :) 
@@ -191,5 +191,61 @@ ____________________________________________________________
 ____________________________________________________________
 ____________________________________________________________
     Bye! Visit me again when you're free :) 
+____________________________________________________________
+```
+
+## Test 7: Validate date and time input
+
+### Input
+
+```text
+deadline return book /by 2019-02-29 1800
+event meeting /from 2019-12-03 1600 /to 2019-12-03 1400
+bye
+```
+
+### Expected output
+
+```text
+____________________________________________________________
+    Invalid deadline date/time. Please use yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.
+____________________________________________________________
+____________________________________________________________
+    Event end date/time must be after its start date/time.
+____________________________________________________________
+____________________________________________________________
+    Bye! Visit me again when you're free :)
+____________________________________________________________
+```
+
+## Test 8: List tasks occurring on a date
+
+### Setup
+
+Create these tasks before running the command:
+
+```text
+todo read book
+deadline return book /by 2019-12-02 1800
+event project meeting /from 2019-12-02 1400 /to 2019-12-03 1600
+```
+
+### Input
+
+```text
+list 2019-12-02
+bye
+```
+
+### Expected output
+
+```text
+____________________________________________________________
+    Here are the tasks on Dec 2 2019:
+    2.[D][ ] return book (by: Dec 2 2019, 6:00 pm)
+    3.[E][ ] project meeting (from: Dec 2 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
+____________________________________________________________
+____________________________________________________________
+    Bye! Visit me again when you're free :)
 ____________________________________________________________
 ```
