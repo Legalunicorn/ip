@@ -23,6 +23,13 @@ Unless the user says otherwise, assume that you are assisting a student working 
   * When faced with a design choice, choose the simplest option that is sufficient for the requirements, while briefly explaining relevant more advanced alternatives.
 
 # Project-specific requirements
+## Java coding standard
+
+For every Java code change in this project, agents must follow the
+project-specific `seedu-java-coding-standard` skill in
+`.codex/skills/seedu-java-coding-standard/`. Apply its SE-EDU-based rules when
+creating, editing, or reviewing Java source and test files.
+
 ## Java version:
 
 Ensure that Java 25 is used when running the application or build tasks. On macOS, use `sdk use java 25.0.3.fx-zulu` to switch to Java 25 if needed.

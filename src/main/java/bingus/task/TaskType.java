@@ -1,15 +1,14 @@
 package bingus.task;
 
 public enum TaskType {
-    // types with their constructors
     TODO("T"),
     DEADLINE("D"),
     EVENT("E");
 
     private final String symbol;
 
-    TaskType(String symobol) {
-        this.symbol = symobol;
+    TaskType(String symbol) {
+        this.symbol = symbol;
     }
 
     public String getSymbol() {

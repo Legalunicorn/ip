@@ -6,9 +6,9 @@ import bingus.task.TaskList;
 import bingus.ui.Ui;
 
 /**
- * Ends chat with bingus.Bingus
+ * Ends the Bingus application after showing a farewell message.
  */
-public class ExitCommand extends Command{
+public class ExitCommand extends Command {
 
     @Override
     public boolean isExit() {

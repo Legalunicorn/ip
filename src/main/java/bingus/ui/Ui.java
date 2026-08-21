@@ -22,7 +22,7 @@ public class Ui {
         scanner = new Scanner(System.in);
     }
 
-    public boolean hasNextCommand(){
+    public boolean hasNextCommand() {
         return scanner.hasNextLine();
     }
 
