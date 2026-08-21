@@ -1,3 +1,8 @@
+package bingus.ui;
+
+import bingus.task.Task;
+import bingus.task.TaskList;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
@@ -9,8 +14,7 @@ import java.util.Scanner;
 public class Ui {
     private static final String LINE = "____________________________________________________________";
     private static final String INDENT = "    ";
-    private static Scanner scanner;
-    private static String loadErrorMessage;
+    private final Scanner scanner;
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu");
 
@@ -40,7 +44,7 @@ public class Ui {
                 + "                |___/           \n";
         System.out.println(LINE);
         System.out.print(banner);
-        System.out.println("Hello! I'm Bingus.");
+        System.out.println("Hello! I'm bingus.Bingus.");
         System.out.println("What can I do for you?");
         System.out.println(LINE);
     }

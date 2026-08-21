@@ -1,3 +1,5 @@
+package bingus.task;
+
 import java.time.LocalDate;
 
 /**
@@ -5,10 +7,10 @@ import java.time.LocalDate;
  */
 public class Task {
     /** Description displayed for this task. */
-    protected String description;
+    private String description;
 
     /** Whether this task has been completed. */
-    protected boolean isDone;
+    private boolean isDone;
     private final TaskType type;
 
     /**
@@ -16,7 +18,7 @@ public class Task {
      *
      * @param description description displayed for this task
      */
-    public Task(String description, TaskType type) {
+    protected Task(String description, TaskType type) {
         this.description = description;
         this.type = type;
         // Default task to be uncompleted

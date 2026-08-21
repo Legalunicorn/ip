@@ -1,5 +1,12 @@
+package bingus.command;
+
+import bingus.exception.BingusException;
+import bingus.storage.Storage;
+import bingus.task.TaskList;
+import bingus.ui.Ui;
+
 /**
- * Ends chat with Bingus
+ * Ends chat with bingus.Bingus
  */
 public class ExitCommand extends Command{
 

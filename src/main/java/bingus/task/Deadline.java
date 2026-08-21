@@ -1,3 +1,5 @@
+package bingus.task;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,7 +14,7 @@ public class Deadline extends Task {
             DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a");
 
     /** Date and time by which this task must be completed. */
-    protected LocalDateTime by;
+    private final LocalDateTime by;
 
     /**
      * Creates a deadline task.
