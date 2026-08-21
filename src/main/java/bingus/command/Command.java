@@ -18,6 +18,7 @@ public abstract class Command {
      * @throws BingusException If the command cannot be completed.
      */
     public abstract void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException;
+
     public boolean isExit() {
         return false;
     }

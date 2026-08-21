@@ -17,7 +17,7 @@ public class ListCommand extends Command {
     /**
      * Creates a command that displays every task.
      */
-    public ListCommand()  {
+    public ListCommand() {
         this.date = null;
     }
     
