@@ -1,8 +1,10 @@
 package bingus.parser;
 
+import bingus.command.FindCommand;
 import bingus.exception.BingusException;
 import bingus.task.Deadline;
 import bingus.task.Event;
+import bingus.task.TaskList;
 import bingus.task.Todo;
 import org.junit.jupiter.api.Test;
 
@@ -10,10 +12,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ParserTest {
 
+    @Test
+    void parseFind_validKeyword_returnsFindCommand() {
+        Parser parser = new Parser();
+
+        assertInstanceOf(FindCommand.class, parser.parse("find book", new TaskList()));
+    }
+
+    @Test
+    void parseFind_missingKeyword_throwsException() {
+        Parser parser = new Parser();
+
+        assertThrows(BingusException.class, () -> parser.parse("find", new TaskList()));
+    }
 
     @Test
     void parseDeadline_inputsLengthOne_throwsException() {

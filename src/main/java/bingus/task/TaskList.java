@@ -2,6 +2,7 @@ package bingus.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents a collections of Tasks.
@@ -81,6 +82,22 @@ public class TaskList {
      */
     public List<Task> getAllTasks() {
         return List.copyOf(tasks);
+    }
+
+    /**
+     * Returns tasks whose descriptions contain the specified word, ignoring case.
+     *
+     * @param word word to search for
+     * @return matching tasks in their current order
+     */
+    public List<Task> findByWord(String word) {
+        String normalizedWord = word.toLowerCase(Locale.ROOT);
+
+        return tasks.stream()
+                .filter(task -> task.getDescription()
+                        .toLowerCase(Locale.ROOT)
+                        .contains(normalizedWord))
+                .toList();
     }
 
 }

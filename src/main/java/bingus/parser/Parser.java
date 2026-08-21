@@ -1,11 +1,6 @@
 package bingus.parser;
 
-import bingus.command.AddCommand;
-import bingus.command.Command;
-import bingus.command.DeleteCommand;
-import bingus.command.ExitCommand;
-import bingus.command.ListCommand;
-import bingus.command.MarkCommand;
+import bingus.command.*;
 import bingus.exception.BingusException;
 import bingus.task.Deadline;
 import bingus.task.Event;
@@ -64,20 +59,28 @@ public class Parser {
                 return new MarkCommand(parseRequiredTaskId(parts, tasks.size(), "Unmark"), false);
             case "delete":
                 return new DeleteCommand(parseDeleteTaskId(parts, tasks.size()));
+            case "find":
+                return new FindCommand(parseFindKeyword(parts));
             default:
                 throw new BingusException("I don't recognise this command :/ ");
         }
     }
 
     /**
-     * Parses a required task number for a command that changes a task's status.
+     * Parses the required search word for a find command.
      *
      * @param parts command and arguments split into at most two parts
-     * @param taskCount current number of tasks
-     * @param action action name used in an error message
-     * @return validated one-based task number
-     * @throws BingusException if the number is missing or invalid
+     * @return validated search word
+     * @throws BingusException if the search word is missing
      */
+    private String parseFindKeyword(String[] parts) throws BingusException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new BingusException("Please provide a keyword. Usage `find [KEYWORD]`.");
+        }
+
+        return parts[1].trim();
+    }
+
     private int parseRequiredTaskId(String[] parts, int taskCount, String action) throws BingusException {
         if (parts.length < 2) {
             throw new BingusException(action + " must be followed by a number!");

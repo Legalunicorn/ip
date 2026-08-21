@@ -5,6 +5,7 @@ import bingus.task.TaskList;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -162,5 +163,23 @@ public class Ui {
     public void showByeMessage() {
         System.out.println(INDENT + "Bye! Hope you visit me again :> ");
         showLine();
+    }
+
+    /**
+     * Displays tasks whose descriptions match a search word.
+     *
+     * @param tasks matching tasks to display
+     * @param word word used to search for tasks
+     */
+    public void showMatchingTasks(List<Task> tasks, String word) {
+        System.out.println(INDENT + "Here are the matching tasks in your list:");
+        for (int index = 0; index < tasks.size(); index++) {
+            System.out.println(INDENT + (index + 1) + "." + tasks.get(index).getTaskString());
+        }
+
+        if (tasks.isEmpty()) {
+            System.out.println(INDENT + "There were no matches for `" + word + "`.");
+        }
+        System.out.println(LINE);
     }
 }
