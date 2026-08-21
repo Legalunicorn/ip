@@ -14,9 +14,10 @@ public class Task {
     private final TaskType type;
 
     /**
-     * Creates an incomplete task with the given description.
+     * Creates an incomplete task of the given type.
      *
      * @param description description displayed for this task
+     * @param type type of this task
      */
     protected Task(String description, TaskType type) {
         this.description = description;
