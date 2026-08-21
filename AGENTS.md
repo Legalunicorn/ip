@@ -32,3 +32,9 @@ Ensure that Java 25 is used when running the application or build tasks. On macO
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
+
+## Testing
+
+Maintain JUnit coverage for approximately the highest-value 50% of public behaviour, prioritising complex,
+core, and critical business logic over trivial accessors or boilerplate. Update or add the relevant JUnit tests
+whenever production code changes, so this coverage target remains satisfied.
