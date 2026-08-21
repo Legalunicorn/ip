@@ -19,6 +19,49 @@ public class Parser {
             .ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
 
+
+    public Command parse(String userInput, TaskList tasks) throws BingusException {
+        String[]  parts = splitCommand(userInput);
+        String cmd = parts[0];
+        switch (cmd) {
+            case "bye":
+                return new ExitCommand();
+            case "list":
+                return parts.length == 1
+                        ? new ListCommand()
+                        : new ListCommand(parseListDate(parts[1]));
+            case "todo":
+                return new AddCommand(parseTodo(parts));
+            case "deadline":
+                return new AddCommand(parseDeadline(parts));
+            case "event":
+                return new AddCommand(parseEvent(parts));
+            case "mark":
+                return new MarkCommand(parseRequiredTaskId(parts, tasks.size(), "Mark"), true);
+            case "unmark":
+                return new MarkCommand(parseRequiredTaskId(parts, tasks.size(), "Unmark"), false);
+            case "delete":
+                return new DeleteCommand(parseDeleteTaskId(parts, tasks.size()));
+            default:
+                throw new BingusException("I don't recognise this command :/ ");
+        }
+    }
+
+    private int parseRequiredTaskId(String[] parts, int taskCount, String action) throws BingusException{
+        if (parts.length < 2) {
+            throw new BingusException(action + " must be followed by a number!");
+        }
+        return parseTaskId(parts[1], taskCount);
+    }
+
+    private int parseDeleteTaskId(String[] parts, int taskCount) throws BingusException {
+       if (parts.length < 2) {
+           throw new BingusException("Missing delete number! Usage`delete [TASK_NUMER]`.");
+       }
+       return parseTaskId(parts[1], taskCount);
+    }
+
+
     /**
      * Splits a user command into its command word and remaining arguments.
      *
