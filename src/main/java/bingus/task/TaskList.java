@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the ordered collection of tasks managed by the application.
+ * Represents a collections of Tasks.
  */
 public class TaskList {
 
@@ -18,18 +18,18 @@ public class TaskList {
     }
 
     /**
-     * Creates a task list containing copies of the supplied task references.
+     * Creates a task list containing the supplied tasks.
      *
-     * @param tasks tasks initially contained in the list
+     * @param tasks Tasks initially contained in the list.
      */
     public TaskList(List<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
     }
 
     /**
-     * Appends a task to the end of this list.
+     * Adds a task to the end of this list.
      *
-     * @param task task to add
+     * @param task Task to add.
      */
     public void add(Task task) {
         this.tasks.add(task);
@@ -38,28 +38,28 @@ public class TaskList {
     /**
      * Adds a task at the specified zero-based position.
      *
-     * @param id zero-based position at which to add the task
-     * @param task task to add
+     * @param id Zero-based position at which to add the task.
+     * @param task Task to add.
      */
     public void add(int id, Task task) {
         this.tasks.add(id, task);
     }
 
     /**
-     * Returns the task at the specified zero-based position.
+     * Returns the task at the specified position.
      *
-     * @param id zero-based position of the task
-     * @return task at the specified position
+     * @param id Zero-based position of the task.
+     * @return Task at the specified position.
      */
     public Task get(int id) {
         return this.tasks.get(id);
     }
 
     /**
-     * Removes and returns the task at the specified zero-based position.
+     * Removes and returns the task at the specified position.
      *
-     * @param id zero-based position of the task to remove
-     * @return removed task
+     * @param id Zero-based position of the task.
+     * @return Removed task.
      */
     public Task remove(int id) {
         return tasks.remove(id);
@@ -68,7 +68,7 @@ public class TaskList {
     /**
      * Returns the number of tasks in this list.
      *
-     * @return number of tasks
+     * @return Number of tasks.
      */
     public int size() {
         return tasks.size();
@@ -77,7 +77,7 @@ public class TaskList {
     /**
      * Returns an unmodifiable snapshot of the tasks in this list.
      *
-     * @return tasks in their current order
+     * @return Tasks in their current order.
      */
     public List<Task> getAllTasks() {
         return List.copyOf(tasks);

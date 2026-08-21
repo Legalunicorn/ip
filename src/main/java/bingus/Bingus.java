@@ -59,7 +59,7 @@ public class Bingus {
     /**
      * Repeatedly read command from user and execute them
      */
-    private  void startTaskLoop() {
+    private void startTaskLoop() {
         boolean isExit = false;
         while (!isExit && ui.hasNextCommand()) {
             try {

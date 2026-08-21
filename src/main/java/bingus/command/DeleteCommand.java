@@ -9,13 +9,13 @@ import bingus.ui.Ui;
 /**
  * Deletes one task from the task list and persists the updated list.
  */
-public class DeleteCommand extends Command{
+public class DeleteCommand extends Command {
     private final int taskId;
 
     /**
-     * Creates a command that deletes the task with the specified one-based number.
+     * Creates a command that deletes the specified task.
      *
-     * @param taskId one-based number of the task to delete
+     * @param taskId One-based number of the task to delete.
      */
     public DeleteCommand(int taskId) {
         this.taskId = taskId;

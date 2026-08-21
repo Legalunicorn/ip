@@ -7,18 +7,18 @@ import bingus.task.TaskList;
 import bingus.ui.Ui;
 
 /**
- * Marks or unmarks a task and persists the updated list.
+ * Marks or unmarks a task.
  */
-public class MarkCommand extends Command{
+public class MarkCommand extends Command {
 
-    private final int  taskId;
+    private final int taskId;
     private final boolean isToMark;
 
     /**
-     * Creates a command that changes the completion status of a task.
+     * Creates a command that changes a task's completion status.
      *
-     * @param taskId one-based number of the task to update
-     * @param isToMark whether the task should be marked complete
+     * @param taskId One-based number of the task to update.
+     * @param isToMark Whether the task should be marked complete.
      */
     public MarkCommand(int taskId, boolean isToMark) {
         this.taskId = taskId;

@@ -4,7 +4,6 @@ package bingus.task;
  * Identifies the supported task categories and their display symbols.
  */
 public enum TaskType {
-    // types with their constructors
     TODO("T"),
     DEADLINE("D"),
     EVENT("E");
@@ -16,8 +15,8 @@ public enum TaskType {
      *
      * @param symbol symbol displayed for this type
      */
-    TaskType(String symobol) {
-        this.symbol = symobol;
+    TaskType(String symbol) {
+        this.symbol = symbol;
     }
 
     /**

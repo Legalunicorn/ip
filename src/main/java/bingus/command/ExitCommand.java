@@ -8,7 +8,7 @@ import bingus.ui.Ui;
 /**
  * Ends the Bingus application after showing a farewell message.
  */
-public class ExitCommand extends Command{
+public class ExitCommand extends Command {
 
     /**
      * Returns that this command ends the application.

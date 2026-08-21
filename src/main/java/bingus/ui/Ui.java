@@ -8,7 +8,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 /**
- * Handles terminal input and output for the application.
+ * Represents the layer that iterate with the users
+ * through receiving input and printing output
  */
 public class Ui {
     private static final String LINE = "____________________________________________________________";
@@ -29,7 +30,7 @@ public class Ui {
      *
      * @return {@code true} if a command can be read
      */
-    public boolean hasNextCommand(){
+    public boolean hasNextCommand() {
         return scanner.hasNextLine();
     }
 

@@ -10,12 +10,12 @@ import bingus.ui.Ui;
  */
 public abstract class Command {
     /**
-     * Executes this command using the application's current collaborators.
+     * Executes this command using the current application collaborators.
      *
-     * @param tasks current task list
-     * @param ui user interface used to display command output
-     * @param storage persistent task storage
-     * @throws BingusException if the command cannot be completed
+     * @param tasks Current task list.
+     * @param ui User interface used to display command output.
+     * @param storage Persistent task storage.
+     * @throws BingusException If the command cannot be completed.
      */
     public abstract void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException;
 

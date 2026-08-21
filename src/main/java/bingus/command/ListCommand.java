@@ -10,7 +10,7 @@ import java.time.LocalDate;
 /**
  * Displays all tasks, or only tasks related to a specified date.
  */
-public class ListCommand  extends Command{
+public class ListCommand extends Command {
    
     private final LocalDate date;
 
@@ -24,7 +24,7 @@ public class ListCommand  extends Command{
     /**
      * Creates a command that displays tasks associated with a date.
      *
-     * @param date date used to filter tasks
+     * @param date Date used to filter tasks.
      */
     public ListCommand(LocalDate date) {
         this.date = date;

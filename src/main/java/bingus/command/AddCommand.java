@@ -9,14 +9,14 @@ import bingus.ui.Ui;
 /**
  * Adds one task to the task list and persists the updated list.
  */
-public class AddCommand extends Command{
+public class AddCommand extends Command {
 
     private final Task task;
 
     /**
      * Creates a command that adds the specified task.
      *
-     * @param task task to add
+     * @param task Task to add.
      */
     public AddCommand(Task task) {
         this.task = task;

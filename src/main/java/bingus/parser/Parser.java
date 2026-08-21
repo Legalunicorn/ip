@@ -1,6 +1,11 @@
 package bingus.parser;
 
-import bingus.command.*;
+import bingus.command.AddCommand;
+import bingus.command.Command;
+import bingus.command.DeleteCommand;
+import bingus.command.ExitCommand;
+import bingus.command.ListCommand;
+import bingus.command.MarkCommand;
 import bingus.exception.BingusException;
 import bingus.task.Deadline;
 import bingus.task.Event;
@@ -38,7 +43,7 @@ public class Parser {
      * @throws BingusException if the command or its arguments are invalid
      */
     public Command parse(String userInput, TaskList tasks) throws BingusException {
-        String[]  parts = splitCommand(userInput);
+        String[] parts = splitCommand(userInput);
         String cmd = parts[0];
         switch (cmd) {
             case "bye":
@@ -89,10 +94,10 @@ public class Parser {
      * @throws BingusException if the number is missing or invalid
      */
     private int parseDeleteTaskId(String[] parts, int taskCount) throws BingusException {
-       if (parts.length < 2) {
-           throw new BingusException("Missing delete number! Usage `delete [TASK_NUMBER]`.");
-       }
-       return parseTaskId(parts[1], taskCount);
+        if (parts.length < 2) {
+            throw new BingusException("Missing delete number! Usage `delete [TASK_NUMBER]`.");
+        }
+        return parseTaskId(parts[1], taskCount);
     }
 
 
