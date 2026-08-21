@@ -1,6 +1,3 @@
-import java.time.LocalDate;
-import java.util.Scanner;
-
 /**
  * Starts Bingus and handles simple commands entered at the terminal.
  */
