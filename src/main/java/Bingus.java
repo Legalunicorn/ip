@@ -6,30 +6,26 @@ import java.util.Scanner;
  */
 public class Bingus {
 
-    private static final Storage storage = new Storage("data/bingus.txt");
+    private final Storage storage;
+    private String loadErrorMessage;
+    private TaskList tasks;
+    private final Parser parser;
+    private final Ui ui;
 
-    /** Format used when showing the selected date in a filtered task list. */
-
-    private static String loadErrorMessage;
-
-    private static TaskList tasks = new TaskList();
-    private static final Parser parser = new Parser();
-    private static final Ui ui = new Ui();
-
-
-    /**
-     * Displays the welcome message and starts processing user commands.
-     *
-     * @param args command-line arguments, which are not used
-     */
-    public static void main(String[] args) {
+    public Bingus(String filePath) {
+        storage = new Storage(filePath);
         try {
             tasks = new TaskList(storage.loadTasks());
         } catch (BingusException e) {
             loadErrorMessage = "I couldn't load your save tasks, Sorry! Starting with an empty list";
             tasks = new TaskList();
         }
+        parser = new Parser();
+        ui = new Ui();
 
+    }
+
+    public void run() {
         ui.showWelcome();
         if (loadErrorMessage != null) {
             ui.showError(loadErrorMessage);
@@ -38,12 +34,20 @@ public class Bingus {
     }
 
     /**
+     * Displays the welcome message and starts processing user commands.
+     *
+     * @param args command-line arguments, which are not used
+     */
+    public static void main(String[] args) {
+        new Bingus("data/bingus.txt").run();
+    }
+
+    /**
      * Read the command input from user and delegate to respective helper methods
      */
-    private static void startTaskLoop() {
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNextLine()) {
-            String userInput = scanner.nextLine();
+    private  void startTaskLoop() {
+        while (ui.hasNextCommand()) {
+            String userInput = ui.readCommand();
             try {
                 String[] parts = parser.splitCommand(userInput);
                 String command = parts[0];
@@ -93,7 +97,7 @@ public class Bingus {
      *
      * @param t task to store
      */
-    private static void addTask(Task t) throws BingusException {
+    private  void addTask(Task t) throws BingusException {
         tasks.add(t);
         try {
             storage.saveTasks(tasks.getAllTasks());
@@ -107,14 +111,14 @@ public class Bingus {
     /**
      * Displays the farewell message.
      */
-    private static void exitChat() {
+    private  void exitChat() {
         ui.showByeMessage();
     }
 
     /**
      * Displays all tasks currently stored in the list.
      */
-    private static void listTasks() {
+    private  void listTasks() {
         ui.showTaskList(tasks);
     }
 
@@ -124,7 +128,7 @@ public class Bingus {
      * @param parts command and optional date filter
      * @throws BingusException if the requested date is invalid
      */
-    private static void handleList(String[] parts) throws BingusException {
+    private  void handleList(String[] parts) throws BingusException {
         if (parts.length == 1) {
             listTasks();
             return;
@@ -139,7 +143,7 @@ public class Bingus {
      *
      * @param date calendar date used to filter dated tasks
      */
-    private static void listTasksOn(LocalDate date) {
+    private void listTasksOn(LocalDate date) {
         ui.showFilteredTaskList(tasks, date);
     }
 
@@ -148,7 +152,7 @@ public class Bingus {
      *
      * @param inputId one-based task number entered by the user
      */
-    private static void markTask(int inputId) throws BingusException {
+    private  void markTask(int inputId) throws BingusException {
         // TODO: consider invalid inputId, to be done in future level
         Task task = tasks.get(inputId - 1);
         task.mark();
@@ -168,7 +172,7 @@ public class Bingus {
      * @param isMark true if request to mark, false if request to unmark
      * @throws BingusException if taskId is invalid range or not a number
      */
-    private static void handleMark(String[] parts, boolean isMark) throws BingusException {
+    private  void handleMark(String[] parts, boolean isMark) throws BingusException {
         if (parts.length < 2){
             String action = (isMark ? "Mark": "Unmark");
             throw new BingusException(action+" must be followed by a number!");
@@ -186,7 +190,7 @@ public class Bingus {
      *
      * @param inputId one-based task number entered by the user
      */
-    private static void unmarkTask(int inputId) throws BingusException {
+    private  void unmarkTask(int inputId) throws BingusException {
         Task task = tasks.get(inputId - 1);
         task.unmark();
         try {
@@ -198,19 +202,19 @@ public class Bingus {
         ui.showTaskUnmarked(task);
     }
 
-    private static void handleTodo(String[] parts) throws BingusException {
+    private  void handleTodo(String[] parts) throws BingusException {
         addTask(parser.parseTodo(parts));
     }
 
-    private static void handleDeadline(String[] parts) throws BingusException {
+    private  void handleDeadline(String[] parts) throws BingusException {
         addTask(parser.parseDeadline(parts));
     }
 
-    private static void handleEvent(String[] parts) throws BingusException {
+    private  void handleEvent(String[] parts) throws BingusException {
         addTask(parser.parseEvent(parts));
     }
 
-    private static void handleDelete(String[] parts) throws BingusException {
+    private  void handleDelete(String[] parts) throws BingusException {
         if (parts.length < 2) {
             throw new BingusException("Missing delete number! Usage `delete [TASK_NUMBER]`. ");
         }
@@ -218,7 +222,7 @@ public class Bingus {
         delete(taskId);
     }
 
-    private static void delete(int pos) throws BingusException {
+    private  void delete(int pos) throws BingusException {
         int id = pos - 1;
         Task t = tasks.remove(id);
         try {
