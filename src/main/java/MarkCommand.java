@@ -31,5 +31,11 @@ public class MarkCommand extends Command{
             }
             throw e;
         }
+
+        if (isToMark) {
+            ui.showTaskMarked(task);
+        } else {
+            ui.showTaskUnmarked(task);
+        }
     }
 }
