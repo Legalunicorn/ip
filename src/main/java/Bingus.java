@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class Bingus {
 
     private static final String LINE = "____________________________________________________________";
+
     private static final String INDENT = "    ";
     private static final Storage storage = new Storage("data/bingus.txt");
 
