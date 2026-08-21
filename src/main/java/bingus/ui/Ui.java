@@ -14,8 +14,7 @@ import java.util.Scanner;
 public class Ui {
     private static final String LINE = "____________________________________________________________";
     private static final String INDENT = "    ";
-    private static Scanner scanner;
-    private static String loadErrorMessage;
+    private final Scanner scanner;
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu");
 

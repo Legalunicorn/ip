@@ -14,10 +14,10 @@ public class Event extends Task {
             DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a");
 
     /** Date and time at which this event begins. */
-    protected LocalDateTime from;
+    private final LocalDateTime from;
 
     /** Date and time at which this event ends. */
-    protected LocalDateTime to;
+    private final LocalDateTime to;
 
 
     /**

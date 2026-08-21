@@ -1,4 +1,4 @@
-# Bingus UI Test Plan
+# bingus.Bingus UI Test Plan
 
 All divider lines begin at column one. Ordinary response lines have four leading spaces, and newly added task lines have eight.
 
@@ -211,7 +211,7 @@ ____________________________________________________________
     Invalid deadline date/time. Please use yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.
 ____________________________________________________________
 ____________________________________________________________
-    Event end date/time must be after its start date/time.
+    bingus.task.Event end date/time must be after its start date/time.
 ____________________________________________________________
 ____________________________________________________________
     Bye! Hope you visit me again :> 
