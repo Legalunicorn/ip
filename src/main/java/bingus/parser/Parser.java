@@ -1,3 +1,12 @@
+package bingus.parser;
+
+import bingus.command.*;
+import bingus.exception.BingusException;
+import bingus.task.Deadline;
+import bingus.task.Event;
+import bingus.task.TaskList;
+import bingus.task.Todo;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -47,7 +56,7 @@ public class Parser {
         }
     }
 
-    private int parseRequiredTaskId(String[] parts, int taskCount, String action) throws BingusException{
+    private int parseRequiredTaskId(String[] parts, int taskCount, String action) throws BingusException {
         if (parts.length < 2) {
             throw new BingusException(action + " must be followed by a number!");
         }
@@ -107,10 +116,10 @@ public class Parser {
         String description = split[0].trim();
         String by = split[1].trim();
         if (description.isEmpty()) {
-            throw new BingusException("Task description cannot be empty. " + correctFormatMessage);
+            throw new BingusException("bingus.task.Task description cannot be empty. " + correctFormatMessage);
         }
         if (by.isEmpty()) {
-            throw new BingusException("Deadline cannot be empty. " + correctFormatMessage);
+            throw new BingusException("bingus.task.Deadline cannot be empty. " + correctFormatMessage);
         }
 
         try {
@@ -162,7 +171,7 @@ public class Parser {
             LocalDateTime fromDateTime = LocalDateTime.parse(from, INPUT_DATE_TIME_FORMAT);
             LocalDateTime toDateTime = LocalDateTime.parse(to, INPUT_DATE_TIME_FORMAT);
             if (!toDateTime.isAfter(fromDateTime)) {
-                throw new BingusException("Event end date/time must be after its start date/time.");
+                throw new BingusException("bingus.task.Event end date/time must be after its start date/time.");
             }
             return new Event(description, fromDateTime, toDateTime);
         } catch (DateTimeParseException e) {
@@ -187,7 +196,7 @@ public class Parser {
             }
             return taskId;
         } catch (NumberFormatException e) {
-            throw new BingusException("Task number must be a whole number.");
+            throw new BingusException("bingus.task.Task number must be a whole number.");
         }
     }
 

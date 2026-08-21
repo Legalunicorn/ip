@@ -1,3 +1,5 @@
+package bingus.task;
+
 import java.util.ArrayList;
 import java.util.List;
 

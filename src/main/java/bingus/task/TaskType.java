@@ -1,3 +1,5 @@
+package bingus.task;
+
 public enum TaskType {
     // types with their constructors
     TODO("T"),

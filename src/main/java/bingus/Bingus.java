@@ -1,5 +1,14 @@
+package bingus;
+
+import bingus.command.Command;
+import bingus.exception.BingusException;
+import bingus.parser.Parser;
+import bingus.storage.Storage;
+import bingus.task.TaskList;
+import bingus.ui.Ui;
+
 /**
- * Starts Bingus and handles simple commands entered at the terminal.
+ * Starts bingus.Bingus and handles simple commands entered at the terminal.
  */
 public class Bingus {
 

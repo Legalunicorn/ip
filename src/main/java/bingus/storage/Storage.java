@@ -1,3 +1,11 @@
+package bingus.storage;
+
+import bingus.exception.BingusException;
+import bingus.task.Deadline;
+import bingus.task.Event;
+import bingus.task.Task;
+import bingus.task.Todo;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
