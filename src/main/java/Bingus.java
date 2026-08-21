@@ -3,8 +3,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -30,9 +28,10 @@ public class Bingus {
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu");
 
-    private static final List<Task> inputList = new ArrayList<>();
-    private static int inputListSize = 0;
     private static String loadErrorMessage;
+
+    private static TaskList tasks = new TaskList();
+
 
     /**
      * Displays the welcome message and starts processing user commands.
@@ -49,10 +48,10 @@ public class Bingus {
                 + "                |___/           \n";
 
         try {
-            inputList.addAll(storage.loadTasks());
-            inputListSize = inputList.size();
+            tasks = new TaskList(storage.loadTasks());
         } catch (BingusException e) {
             loadErrorMessage = "I couldn't load your save tasks, Sorry! Starting with an empty list";
+            tasks = new TaskList();
         }
 
         //Message sequence
@@ -131,18 +130,16 @@ public class Bingus {
      * @param t task to store
      */
     private static void addTask(Task t) throws BingusException {
-        inputList.add(t);
-        inputListSize++;
+        tasks.add(t);
         try {
-            storage.saveTasks(inputList);
+            storage.saveTasks(tasks.getAllTasks());
         } catch (BingusException e) {
-            inputList.remove(inputListSize - 1);
-            inputListSize--;
+            tasks.remove(tasks.size() - 1);
             throw e;
         }
         System.out.println(INDENT + "Got it. I've added this task:");
         System.out.println(INDENT + INDENT +  t.getTaskString());
-        System.out.println(INDENT + "Now you have " + inputListSize + " tasks in the list.");
+        System.out.println(INDENT + "Now you have " + tasks.size() + " tasks in the list.");
         System.out.println(LINE);
     }
 
@@ -159,8 +156,8 @@ public class Bingus {
      */
     private static void listTasks() {
         System.out.println(INDENT + "Here are the tasks in your list:");
-        for (int id = 0; id < inputListSize; id++) {
-            System.out.println(INDENT + (id + 1) + "." + inputList.get(id).getTaskString());
+        for (int id = 0; id < tasks.size(); id++) {
+            System.out.println(INDENT + (id + 1) + "." + tasks.get(id).getTaskString());
         }
         System.out.println(LINE);
     }
@@ -192,34 +189,13 @@ public class Bingus {
      */
     private static void listTasksOn(LocalDate date) {
         System.out.println(INDENT + "Here are the tasks on " + date.format(DISPLAY_DATE_FORMAT) + ":");
-        for (int id = 0; id < inputListSize; id++) {
-            Task task = inputList.get(id);
-            if (occursOn(task, date)) {
+        for (int id = 0; id < tasks.size(); id++) {
+            Task task = tasks.get(id);
+            if (task.matchesDate(date)) {
                 System.out.println(INDENT + (id + 1) + "." + task.getTaskString());
             }
         }
         System.out.println(LINE);
-    }
-
-    /**
-     * Returns whether a dated task occurs on the specified date.
-     *
-     * @param task task to check
-     * @param date calendar date to compare against
-     * @return true if a deadline is due or an event overlaps the date
-     */
-    private static boolean occursOn(Task task, LocalDate date) {
-        if (task instanceof Deadline) {
-            Deadline deadline = (Deadline) task;
-            return deadline.getBy().toLocalDate().equals(date);
-        }
-        if (task instanceof Event) {
-            Event event = (Event) task;
-            LocalDate startDate = event.getFrom().toLocalDate();
-            LocalDate endDate = event.getTo().toLocalDate();
-            return !date.isBefore(startDate) && !date.isAfter(endDate);
-        }
-        return false;
     }
 
     /**
@@ -229,10 +205,10 @@ public class Bingus {
      */
     private static void markTask(int inputId) throws BingusException {
         // TODO: consider invalid inputId, to be done in future level
-        Task task = inputList.get(inputId - 1);
+        Task task = tasks.get(inputId - 1);
         task.mark();
         try {
-            storage.saveTasks(inputList);
+            storage.saveTasks(tasks.getAllTasks());
         } catch (BingusException e) {
             task.unmark();
             throw e;
@@ -257,7 +233,7 @@ public class Bingus {
         try {
             String input = parts[1];
             int taskId = Integer.parseInt(input.trim());
-            if (taskId < 1 || taskId > inputListSize) {
+            if (taskId < 1 || taskId > tasks.size()) {
                 throw new BingusException("Given task number does not exist in your list :(");
             }
             if (isMark) {
@@ -276,10 +252,10 @@ public class Bingus {
      * @param inputId one-based task number entered by the user
      */
     private static void unmarkTask(int inputId) throws BingusException {
-        Task task = inputList.get(inputId - 1);
+        Task task = tasks.get(inputId - 1);
         task.unmark();
         try {
-            storage.saveTasks(inputList);
+            storage.saveTasks(tasks.getAllTasks());
         } catch (BingusException e) {
             task.mark();
             throw e;
@@ -373,7 +349,7 @@ public class Bingus {
         try {
             String input = parts[1];
             int taskId = Integer.parseInt(input.trim());
-            if (taskId < 1 || taskId > inputListSize) {
+            if (taskId < 1 || taskId > tasks.size()) {
                 throw new BingusException("Given task number does not exist in your list :(");
             }
             // call delete function
@@ -384,19 +360,17 @@ public class Bingus {
     }
 
     private static void delete(int pos) throws BingusException {
-        Task t = inputList.get(pos - 1);
-        inputList.remove(pos - 1);
-        inputListSize--;
+        int id = pos - 1;
+        Task t = tasks.remove(id);
         try {
-            storage.saveTasks(inputList);
+            storage.saveTasks(tasks.getAllTasks());
         } catch (BingusException e) {
-            inputList.add(pos - 1, t);
-            inputListSize++;
+            tasks.add(id, t);
             throw e;
         }
         System.out.println(INDENT + "Noted! I've removed this task: ");
         System.out.println(INDENT + INDENT + t.getTaskString());
-        System.out.println("Now you have " + inputListSize + " tasks in the list.");
+        System.out.println("Now you have " + tasks.size() + " tasks in the list.");
         System.out.println(LINE);
     }
 
