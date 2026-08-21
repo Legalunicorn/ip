@@ -20,6 +20,16 @@ public class Parser {
             .withResolverStyle(ResolverStyle.STRICT);
 
     /**
+     * Splits a user command into its command word and remaining arguments.
+     *
+     * @param userInput complete command line entered by the user
+     * @return command and arguments split into at most two parts
+     */
+    public String[] splitCommand(String userInput) {
+        return userInput.split("\\s+", 2);
+    }
+
+    /**
      * Parses the arguments of a todo command.
      *
      * @param parts command and arguments split into at most two parts
