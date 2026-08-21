@@ -18,12 +18,17 @@ import java.util.Base64;
 import java.util.List;
 
 /**
- * Utility class for persistent storage using files
+ * Loads and saves tasks in a delimiter-safe text file.
  */
 public class Storage {
 
     private final Path saveFile;
 
+    /**
+     * Creates storage backed by the specified save-file path.
+     *
+     * @param filePath path of the save file
+     */
     public Storage(String filePath) {
         this.saveFile = Path.of(filePath);
     }

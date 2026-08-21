@@ -7,15 +7,28 @@ import bingus.task.TaskList;
 import bingus.ui.Ui;
 
 /**
- * Deletes one task from the task list
+ * Deletes one task from the task list and persists the updated list.
  */
 public class DeleteCommand extends Command{
     private final int taskId;
 
+    /**
+     * Creates a command that deletes the task with the specified one-based number.
+     *
+     * @param taskId one-based number of the task to delete
+     */
     public DeleteCommand(int taskId) {
         this.taskId = taskId;
     }
 
+    /**
+     * Removes the task, saves the list, and reports the result to the user.
+     *
+     * @param tasks task list to update
+     * @param ui user interface used to display the result
+     * @param storage persistent task storage
+     * @throws BingusException if the updated list cannot be saved
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         int idx = taskId - 1;

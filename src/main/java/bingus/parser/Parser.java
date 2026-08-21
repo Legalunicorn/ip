@@ -29,6 +29,14 @@ public class Parser {
             .withResolverStyle(ResolverStyle.STRICT);
 
 
+    /**
+     * Converts one command line into the corresponding command object.
+     *
+     * @param userInput complete command line entered by the user
+     * @param tasks current task list, used to validate task numbers
+     * @return command represented by the input
+     * @throws BingusException if the command or its arguments are invalid
+     */
     public Command parse(String userInput, TaskList tasks) throws BingusException {
         String[]  parts = splitCommand(userInput);
         String cmd = parts[0];
@@ -56,6 +64,15 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses a required task number for a command that changes a task's status.
+     *
+     * @param parts command and arguments split into at most two parts
+     * @param taskCount current number of tasks
+     * @param action action name used in an error message
+     * @return validated one-based task number
+     * @throws BingusException if the number is missing or invalid
+     */
     private int parseRequiredTaskId(String[] parts, int taskCount, String action) throws BingusException {
         if (parts.length < 2) {
             throw new BingusException(action + " must be followed by a number!");
@@ -63,6 +80,14 @@ public class Parser {
         return parseTaskId(parts[1], taskCount);
     }
 
+    /**
+     * Parses a required task number for a delete command.
+     *
+     * @param parts command and arguments split into at most two parts
+     * @param taskCount current number of tasks
+     * @return validated one-based task number
+     * @throws BingusException if the number is missing or invalid
+     */
     private int parseDeleteTaskId(String[] parts, int taskCount) throws BingusException {
        if (parts.length < 2) {
            throw new BingusException("Missing delete number! Usage `delete [TASK_NUMBER]`.");

@@ -4,20 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a collections of Tasks.
+ * Represents the ordered collection of tasks managed by the application.
  */
 public class TaskList {
 
     private final List<Task> tasks;
 
+    /**
+     * Creates an empty task list.
+     */
     public TaskList() {
         this.tasks = new ArrayList<>();
     }
 
+    /**
+     * Creates a task list containing copies of the supplied task references.
+     *
+     * @param tasks tasks initially contained in the list
+     */
     public TaskList(List<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
     }
 
+    /**
+     * Appends a task to the end of this list.
+     *
+     * @param task task to add
+     */
     public void add(Task task) {
         this.tasks.add(task);
     }
@@ -32,18 +45,40 @@ public class TaskList {
         this.tasks.add(id, task);
     }
 
+    /**
+     * Returns the task at the specified zero-based position.
+     *
+     * @param id zero-based position of the task
+     * @return task at the specified position
+     */
     public Task get(int id) {
         return this.tasks.get(id);
     }
 
+    /**
+     * Removes and returns the task at the specified zero-based position.
+     *
+     * @param id zero-based position of the task to remove
+     * @return removed task
+     */
     public Task remove(int id) {
         return tasks.remove(id);
     }
 
+    /**
+     * Returns the number of tasks in this list.
+     *
+     * @return number of tasks
+     */
     public int size() {
         return tasks.size();
     }
 
+    /**
+     * Returns an unmodifiable snapshot of the tasks in this list.
+     *
+     * @return tasks in their current order
+     */
     public List<Task> getAllTasks() {
         return List.copyOf(tasks);
     }

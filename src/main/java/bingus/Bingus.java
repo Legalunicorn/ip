@@ -8,7 +8,7 @@ import bingus.task.TaskList;
 import bingus.ui.Ui;
 
 /**
- * Starts bingus.Bingus and handles simple commands entered at the terminal.
+ * Coordinates command parsing, task storage, and terminal interaction.
  */
 public class Bingus {
 
@@ -18,6 +18,11 @@ public class Bingus {
     private final Parser parser;
     private final Ui ui;
 
+    /**
+     * Creates the application using the specified task save file.
+     *
+     * @param filePath path of the task save file
+     */
     public Bingus(String filePath) {
         storage = new Storage(filePath);
         try {
@@ -31,6 +36,9 @@ public class Bingus {
 
     }
 
+    /**
+     * Starts the user interface and processes commands until the session ends.
+     */
     public void run() {
         ui.showWelcome();
         if (loadErrorMessage != null) {
