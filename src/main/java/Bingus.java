@@ -1,8 +1,5 @@
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
 import java.util.Scanner;
 
 /**
@@ -14,16 +11,6 @@ public class Bingus {
     private static final String INDENT = "    ";
     private static final Storage storage = new Storage("data/bingus.txt");
 
-    /** Strict format accepted for deadline and event date/time input. */
-    private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT = DateTimeFormatter
-            .ofPattern("uuuu-MM-dd HHmm")
-            .withResolverStyle(ResolverStyle.STRICT);
-
-    /** Strict format accepted when filtering tasks by date. */
-    private static final DateTimeFormatter INPUT_DATE_FORMAT = DateTimeFormatter
-            .ofPattern("uuuu-MM-dd")
-            .withResolverStyle(ResolverStyle.STRICT);
-
     /** Format used when showing the selected date in a filtered task list. */
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu");
@@ -31,6 +18,7 @@ public class Bingus {
     private static String loadErrorMessage;
 
     private static TaskList tasks = new TaskList();
+    private static final Parser parser = new Parser();
 
 
     /**
@@ -76,8 +64,7 @@ public class Bingus {
         while (scanner.hasNextLine()) {
             String userInput = scanner.nextLine();
             try {
-                // Split into 2 parts, the command
-                String[] parts = userInput.split("\\s+", 2);
+                String[] parts = parser.splitCommand(userInput);
                 String command = parts[0];
 
                 // parts must be size > 1, unless it's a bye command
@@ -174,12 +161,8 @@ public class Bingus {
             return;
         }
 
-        try {
-            LocalDate date = LocalDate.parse(parts[1].trim(), INPUT_DATE_FORMAT);
-            listTasksOn(date);
-        } catch (DateTimeParseException e) {
-            throw new BingusException("Invalid list date. Please use yyyy-MM-dd, e.g. 2019-12-02.");
-        }
+        LocalDate date = parser.parseListDate(parts[1]);
+        listTasksOn(date);
     }
 
     /**
@@ -230,19 +213,11 @@ public class Bingus {
             String action = (isMark ? "Mark": "Unmark");
             throw new BingusException(action+" must be followed by a number!");
         }
-        try {
-            String input = parts[1];
-            int taskId = Integer.parseInt(input.trim());
-            if (taskId < 1 || taskId > tasks.size()) {
-                throw new BingusException("Given task number does not exist in your list :(");
-            }
-            if (isMark) {
-                markTask(taskId);
-            } else {
-                unmarkTask(taskId);
-            }
-        } catch (NumberFormatException e) {
-            throw new BingusException("Invalid mark command! Usage: `mark [TASK_NUMBER]`");
+        int taskId = parser.parseTaskId(parts[1], tasks.size());
+        if (isMark) {
+            markTask(taskId);
+        } else {
+            unmarkTask(taskId);
         }
     }
 
@@ -266,97 +241,23 @@ public class Bingus {
     }
 
     private static void handleTodo(String[] parts) throws BingusException {
-        if (parts.length < 2) {
-            throw new BingusException("Please give your todo a task description! Usage `todo [DESCRIPTION]`.");
-        }
-        String desc = parts[1].trim();
-        if (desc.isEmpty()) {
-            throw new BingusException("Please give your todo a task description! Usage `todo [DESCRIPTION]`.");
-        }
-        addTask(new Todo(desc));
+        addTask(parser.parseTodo(parts));
     }
 
     private static void handleDeadline(String[] parts) throws BingusException {
-        String correctFormatMessage = "Please use `deadline [DESCRIPTION] /by [DATETIME]`.";
-        if (parts.length < 2) {
-            throw new BingusException("Missing command arguments :( " + correctFormatMessage);
-        }
-        // Format: [desc] /by [date]
-        String[] split = parts[1].split("/by");
-        if (split.length != 2) {
-            throw new BingusException("Wrong format for deadline :( " + correctFormatMessage);
-        }
-        String taskDesc = split[0].trim();
-        String by = split[1].trim();
-        if (taskDesc.isEmpty()) {
-            throw new BingusException("Task description cannot be empty. " + correctFormatMessage);
-        }
-        if (by.isEmpty()){
-            throw new BingusException("Deadline cannot be empty. " + correctFormatMessage);
-        }
-        try {
-            LocalDateTime deadlineDateTime = LocalDateTime.parse(by, INPUT_DATE_TIME_FORMAT);
-            addTask(new Deadline(taskDesc, deadlineDateTime));
-        } catch (DateTimeParseException e) {
-            throw new BingusException("Invalid deadline date/time. Please use yyyy-MM-dd HHmm, "
-                    + "e.g. 2019-12-02 1800.");
-        }
+        addTask(parser.parseDeadline(parts));
     }
 
     private static void handleEvent(String[] parts) throws BingusException {
-        String correctFormatMessage = "Please use `event [DESCRIPTION] /from [FROM_DATE] /to [TO_DATE]`";
-        if (parts.length < 2) {
-            throw new BingusException("Missing event arguments :( " + correctFormatMessage);
-        }
-        String[] descAndTimes = parts[1].split("/from");
-        if (descAndTimes.length != 2) {
-            throw new BingusException(correctFormatMessage);
-        }
-
-        String[] startAndEnd = descAndTimes[1].split("/to");
-        if (startAndEnd.length != 2){
-            throw new BingusException(correctFormatMessage);
-        }
-        String desc = descAndTimes[0].trim();
-        String from = startAndEnd[0].trim();
-        String to = startAndEnd[1].trim();
-        if (from.isEmpty()){
-            throw new BingusException("From cannot be empty! " + correctFormatMessage);
-        }
-        if (to.isEmpty()){
-            throw new BingusException("`To` cannot be empty! " + correctFormatMessage);
-        }
-        if (desc.isEmpty()){
-            throw new BingusException("`Description` of event cannot be empty! " + correctFormatMessage);
-        }
-        try {
-            LocalDateTime fromDateTime = LocalDateTime.parse(from, INPUT_DATE_TIME_FORMAT);
-            LocalDateTime toDateTime = LocalDateTime.parse(to, INPUT_DATE_TIME_FORMAT);
-            if (!toDateTime.isAfter(fromDateTime)) {
-                throw new BingusException("Event end date/time must be after its start date/time.");
-            }
-            addTask(new Event(desc, fromDateTime, toDateTime));
-        } catch (DateTimeParseException e) {
-            throw new BingusException("Invalid event date/time. Please use yyyy-MM-dd HHmm, "
-                    + "e.g. 2019-12-02 1800.");
-        }
+        addTask(parser.parseEvent(parts));
     }
 
     private static void handleDelete(String[] parts) throws BingusException {
         if (parts.length < 2) {
             throw new BingusException("Missing delete number! Usage `delete [TASK_NUMBER]`. ");
         }
-        try {
-            String input = parts[1];
-            int taskId = Integer.parseInt(input.trim());
-            if (taskId < 1 || taskId > tasks.size()) {
-                throw new BingusException("Given task number does not exist in your list :(");
-            }
-            // call delete function
-            delete(taskId);
-        } catch (NumberFormatException e) {
-            throw new BingusException("Invalid mark command! Usage: `mark [TASK_NUMBER]`");
-        }
+        int taskId = parser.parseTaskId(parts[1], tasks.size());
+        delete(taskId);
     }
 
     private static void delete(int pos) throws BingusException {
