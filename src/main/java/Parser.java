@@ -56,7 +56,7 @@ public class Parser {
 
     private int parseDeleteTaskId(String[] parts, int taskCount) throws BingusException {
        if (parts.length < 2) {
-           throw new BingusException("Missing delete number! Usage`delete [TASK_NUMER]`.");
+           throw new BingusException("Missing delete number! Usage `delete [TASK_NUMBER]`.");
        }
        return parseTaskId(parts[1], taskCount);
     }
