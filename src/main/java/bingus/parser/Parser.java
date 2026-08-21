@@ -51,9 +51,26 @@ public class Parser {
                 return new MarkCommand(parseRequiredTaskId(parts, tasks.size(), "Unmark"), false);
             case "delete":
                 return new DeleteCommand(parseDeleteTaskId(parts, tasks.size()));
+            case "find":
+                return new FindCommand(parseFindKeyword(parts));
             default:
                 throw new BingusException("I don't recognise this command :/ ");
         }
+    }
+
+    /**
+     * Parses the required search word for a find command.
+     *
+     * @param parts command and arguments split into at most two parts
+     * @return validated search word
+     * @throws BingusException if the search word is missing
+     */
+    private String parseFindKeyword(String[] parts) throws BingusException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new BingusException("Please provide a keyword. Usage `find [KEYWORD]`.");
+        }
+
+        return parts[1].trim();
     }
 
     private int parseRequiredTaskId(String[] parts, int taskCount, String action) throws BingusException {
