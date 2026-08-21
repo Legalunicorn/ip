@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -46,6 +47,19 @@ public class Event extends Task {
      */
     public LocalDateTime getTo() {
         return to;
+    }
+
+    /**
+     * Returns whether this event overlaps the specified calendar date.
+     *
+     * @param date date to check
+     * @return true if the event occurs on the date
+     */
+    @Override
+    public boolean matchesDate(LocalDate date) {
+        LocalDate startDate = from.toLocalDate();
+        LocalDate endDate = to.toLocalDate();
+        return !date.isBefore(startDate) && !date.isAfter(endDate);
     }
 
     /**

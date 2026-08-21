@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+
 /**
  * Represents a task with a description that can be marked as complete or incomplete.
  */
@@ -78,5 +80,14 @@ public class Task {
      */
     public void unmark() {
         isDone = false;
+    }
+
+    /**
+     * Returns whether a task is associated with this date
+     * @param date date as a java LocalDate
+     * @return {@code true} if the tasks is associated with this date
+     */
+    public boolean matchesDate(LocalDate date) {
+       return false;
     }
 }
