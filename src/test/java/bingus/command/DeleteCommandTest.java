@@ -5,13 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import bingus.storage.Storage;
 import bingus.task.Task;
 import bingus.task.TaskList;
 import bingus.task.Todo;
 import bingus.ui.Ui;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests the state changes performed by {@link DeleteCommand}.
