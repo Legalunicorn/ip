@@ -41,7 +41,7 @@ public class Task {
      * @return {@code "X"} if complete, or a space if incomplete
      */
     public String getStatusIcon() {
-        return (isDone ? "X" : " ");
+        return (isDone ? "✓" : "○");
     }
 
     /**
