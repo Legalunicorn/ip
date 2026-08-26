@@ -19,7 +19,7 @@ class TodoTest {
     }
 
     @Test
-    void getStatisIcon_TodoMarked_returnsMarkedIcon() {
+    void getStatisIcon_todoMarked_returnsMarkedIcon() {
         Todo todo = new Todo("");
         todo.mark();
         assertEquals("X", todo.getStatusIcon());

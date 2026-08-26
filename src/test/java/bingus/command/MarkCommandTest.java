@@ -5,12 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import bingus.storage.Storage;
 import bingus.task.TaskList;
 import bingus.task.Todo;
 import bingus.ui.Ui;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests the state changes performed by {@link MarkCommand}.

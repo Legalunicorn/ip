@@ -1,19 +1,22 @@
 package bingus.parser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.Test;
+
 import bingus.command.FindCommand;
 import bingus.exception.BingusException;
 import bingus.task.Deadline;
 import bingus.task.Event;
 import bingus.task.TaskList;
 import bingus.task.Todo;
-import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ParserTest {
 
@@ -39,10 +42,10 @@ public class ParserTest {
     }
 
     @Test
-    void parseDeadline_inputWithoutDelimiter_throwsException(){
-       Parser p = new Parser();
-       String[] parts = {"deadline", "no-delimiter"};
-       assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+    void parseDeadline_inputWithoutDelimiter_throwsException() {
+        Parser p = new Parser();
+        String[] parts = {"deadline", "no-delimiter"};
+        assertThrows(BingusException.class, () -> p.parseDeadline(parts));
     }
 
     @Test

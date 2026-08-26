@@ -8,12 +8,13 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import bingus.task.Deadline;
 import bingus.task.Event;
 import bingus.task.Task;
 import bingus.task.Todo;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests saving and loading task data through {@link Storage}.
