@@ -14,6 +14,7 @@ public class Bingus {
 
     private final Storage storage;
     private String loadErrorMessage;
+    private String commandType;
     private TaskList tasks;
     private final Parser parser;
     private final Ui ui;
@@ -57,7 +58,8 @@ public class Bingus {
     }
 
     /**
-     * Repeatedly read command from user and execute them
+     * Repeatedly read command from user and execute them.
+     * This is used for the CLI Bingus program.
      */
     private void startTaskLoop() {
         boolean isExit = false;
@@ -73,4 +75,28 @@ public class Bingus {
             }
         }
     }
+
+    /**
+     * Return a response based on a command. This is used for the GUI program.
+     * @param input by the user.
+     * @return String to output by the program
+     */
+    public String getResponse(String input) {
+        try {
+            Command c = parser.parse(input, tasks);
+            commandType = c.getClass().getSimpleName();
+            return c.execute(tasks, ui, storage);
+        } catch (BingusException e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Return the type of the latest command.
+     * @return String of the command type
+     */
+    public String getCommandType() {
+        return commandType;
+    }
+
 }
