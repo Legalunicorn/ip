@@ -1,26 +1,26 @@
 package bingus.command;
 
+import java.time.LocalDate;
+
 import bingus.exception.BingusException;
 import bingus.storage.Storage;
 import bingus.task.TaskList;
 import bingus.ui.Ui;
 
-import java.time.LocalDate;
-
 /**
  * Displays all tasks, or only tasks related to a specified date.
  */
 public class ListCommand extends Command {
-   
+
     private final LocalDate date;
 
     /**
      * Creates a command that displays every task.
      */
-    public ListCommand()  {
+    public ListCommand() {
         this.date = null;
     }
-    
+
     /**
      * Creates a command that displays tasks associated with a date.
      *

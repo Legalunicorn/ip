@@ -1,11 +1,5 @@
 package bingus.storage;
 
-import bingus.exception.BingusException;
-import bingus.task.Deadline;
-import bingus.task.Event;
-import bingus.task.Task;
-import bingus.task.Todo;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
@@ -16,6 +10,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+
+import bingus.exception.BingusException;
+import bingus.task.Deadline;
+import bingus.task.Event;
+import bingus.task.Task;
+import bingus.task.Todo;
 
 /**
  * Loads and saves tasks in a delimiter-safe text file.
