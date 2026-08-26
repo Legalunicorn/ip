@@ -70,7 +70,7 @@ public class DialogBox extends HBox {
             case "AddCommand":
                 dialog.getStyleClass().add("add-label");
                 break;
-            case "ChangeMarkCommand":
+            case "MarkCommand":
                 dialog.getStyleClass().add("marked-label");
                 break;
             case "DeleteCommand":

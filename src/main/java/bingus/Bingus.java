@@ -87,6 +87,7 @@ public class Bingus {
             commandType = c.getClass().getSimpleName();
             return c.execute(tasks, ui, storage);
         } catch (BingusException e) {
+            commandType = "";
             return "Error: " + e.getMessage();
         }
     }
