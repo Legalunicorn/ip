@@ -21,14 +21,15 @@ public class FindCommand extends Command {
     }
 
     /**
-     * Finds matching tasks and displays them to the user.
+     * Finds matching tasks and returns them as a message.
      *
      * @param tasks task list to search
-     * @param ui user interface used to display results
+     * @param ui user interface used to format results
      * @param storage persistent task storage, which is not changed
+     * @return matching-tasks message
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
-        ui.showMatchingTasks(tasks.findByWord(word), word);
+    public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
+        return ui.getMatchingTasksMessage(tasks.findByWord(word), word);
     }
 }

@@ -31,18 +31,19 @@ public class ListCommand extends Command {
     }
 
     /**
-     * Displays the complete or date-filtered task list.
+     * Returns the complete or date-filtered task list.
      *
      * @param tasks task list to display
-     * @param ui user interface used to display the list
+     * @param ui user interface used to format the list
      * @param storage persistent task storage, which is not changed
+     * @return task-list message
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
+    public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         if (date == null) {
-            ui.showTaskList(tasks);
+            return ui.getTaskListMessage(tasks);
         } else {
-            ui.showFilteredTaskList(tasks, date);
+            return ui.getFilteredTaskListMessage(tasks, date);
         }
     }
 }

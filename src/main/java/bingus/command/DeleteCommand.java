@@ -22,15 +22,16 @@ public class DeleteCommand extends Command {
     }
 
     /**
-     * Removes the task, saves the list, and reports the result to the user.
+     * Removes the task, saves the list, and returns the result message.
      *
      * @param tasks task list to update
-     * @param ui user interface used to display the result
+     * @param ui user interface used to format the result
      * @param storage persistent task storage
+     * @return task-deleted message
      * @throws BingusException if the updated list cannot be saved
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
+    public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         int idx = taskId - 1;
         Task deletedTask = tasks.remove(idx);
 
@@ -41,7 +42,6 @@ public class DeleteCommand extends Command {
             tasks.add(idx, deletedTask);
             throw e;
         }
-        ui.showDeleteTask(deletedTask, tasks.size());
-
+        return ui.getDeleteTaskMessage(deletedTask, tasks.size());
     }
 }
