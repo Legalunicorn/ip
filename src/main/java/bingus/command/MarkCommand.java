@@ -26,15 +26,16 @@ public class MarkCommand extends Command {
     }
 
     /**
-     * Updates the task's completion status, saves the list, and displays the result.
+     * Updates the task's completion status, saves the list, and returns the result message.
      *
      * @param tasks task list containing the task to update
-     * @param ui user interface used to display the result
+     * @param ui user interface used to format the result
      * @param storage persistent task storage
+     * @return task-marked or task-unmarked message
      * @throws BingusException if the updated list cannot be saved
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
+    public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         Task task = tasks.get(taskId - 1);
         if (isToMark) {
             task.mark();
@@ -55,9 +56,9 @@ public class MarkCommand extends Command {
         }
 
         if (isToMark) {
-            ui.showTaskMarked(task);
+            return ui.getTaskMarkedMessage(task);
         } else {
-            ui.showTaskUnmarked(task);
+            return ui.getTaskUnmarkedMessage(task);
         }
     }
 }

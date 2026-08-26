@@ -21,14 +21,15 @@ public class ExitCommand extends Command {
     }
 
     /**
-     * Displays the farewell message.
+     * Returns the farewell message.
      *
      * @param tasks current task list, which is not changed
-     * @param ui user interface used to display the message
+     * @param ui user interface used to format the message
      * @param storage persistent task storage, which is not changed
+     * @return farewell message
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
-        ui.showByeMessage();
+    public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
+        return ui.getByeMessage();
     }
 }

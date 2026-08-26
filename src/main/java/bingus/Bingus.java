@@ -8,12 +8,13 @@ import bingus.task.TaskList;
 import bingus.ui.Ui;
 
 /**
- * Coordinates command parsing, task storage, and terminal interaction.
+ * Coordinates command parsing, task storage, and user-interface responses.
  */
 public class Bingus {
 
     private final Storage storage;
     private String loadErrorMessage;
+    private String commandType;
     private TaskList tasks;
     private final Parser parser;
     private final Ui ui;
@@ -57,7 +58,8 @@ public class Bingus {
     }
 
     /**
-     * Repeatedly read command from user and execute them
+     * Repeatedly read command from user and execute them.
+     * This is used for the CLI Bingus program.
      */
     private void startTaskLoop() {
         boolean isExit = false;
@@ -73,4 +75,31 @@ public class Bingus {
             }
         }
     }
+
+    /**
+     * Returns a response for a command submitted through the GUI.
+     *
+     * @param input command entered by the user
+     * @return response message for the user
+     */
+    public String getResponse(String input) {
+        try {
+            Command c = parser.parse(input, tasks);
+            commandType = c.getClass().getSimpleName();
+            return c.execute(tasks, ui, storage);
+        } catch (BingusException e) {
+            commandType = "";
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Returns the type of the latest successfully parsed command.
+     *
+     * @return simple class name of the latest command, or an empty string after an invalid command
+     */
+    public String getCommandType() {
+        return commandType;
+    }
+
 }

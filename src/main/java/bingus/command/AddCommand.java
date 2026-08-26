@@ -23,15 +23,16 @@ public class AddCommand extends Command {
     }
 
     /**
-     * Adds the task, saves the list, and reports the result to the user.
+     * Adds the task, saves the list, and returns the result message.
      *
      * @param tasks task list to update
-     * @param ui user interface used to display the result
+     * @param ui user interface used to format the result
      * @param storage persistent task storage
+     * @return task-added message
      * @throws BingusException if the updated list cannot be saved
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
+    public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         tasks.add(task);
         try {
             storage.saveTasks(tasks.getAllTasks());
@@ -39,6 +40,6 @@ public class AddCommand extends Command {
             tasks.remove(tasks.size() - 1); // undo the failed save
             throw e;
         }
-        ui.showTaskAdded(task, tasks.size());
+        return ui.getTaskAddedMessage(task, tasks.size());
     }
 }
