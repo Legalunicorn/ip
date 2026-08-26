@@ -7,6 +7,7 @@ import bingus.Bingus;
 import javafx.animation.Interpolator;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -62,7 +63,14 @@ public class MainWindow extends AnchorPane {
         addDialogWithAnimation(userDialog);
 
         PauseTransition replyDelay = new PauseTransition(Duration.millis(250));
-        replyDelay.setOnFinished(event -> addDialogWithAnimation(botDialog));
+        replyDelay.setOnFinished(event -> {
+            addDialogWithAnimation(botDialog);
+            if ("ExitCommand".equals(commandType)) {
+                PauseTransition closeDelay = new PauseTransition(Duration.seconds(1));
+                closeDelay.setOnFinished(closeEvent -> Platform.exit());
+                closeDelay.play();
+            }
+        });
         replyDelay.play();
 
         userInput.clear();
