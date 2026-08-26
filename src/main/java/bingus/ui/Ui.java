@@ -1,12 +1,12 @@
 package bingus.ui;
 
-import bingus.task.Task;
-import bingus.task.TaskList;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
+
+import bingus.task.Task;
+import bingus.task.TaskList;
 
 /**
  * Represents the layer that iterate with the users
@@ -15,9 +15,9 @@ import java.util.Scanner;
 public class Ui {
     private static final String LINE = "____________________________________________________________";
     private static final String INDENT = "    ";
-    private final Scanner scanner;
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu");
+    private final Scanner scanner;
 
     /**
      * Creates a user interface that reads commands from standard input.
@@ -87,7 +87,7 @@ public class Ui {
      */
     public void showTaskAdded(Task t, int taskCount) {
         System.out.println(INDENT + "Got it. I've added this task:");
-        System.out.println(INDENT + INDENT +  t.getTaskString());
+        System.out.println(INDENT + INDENT + t.getTaskString());
         System.out.println(INDENT + "Now you have " + taskCount + " tasks in the list.");
         System.out.println(LINE);
     }
