@@ -15,9 +15,9 @@ import bingus.task.Deadline;
 import bingus.task.Event;
 import bingus.task.TaskList;
 import bingus.task.Todo;
-
-
-
+/**
+ * Tests command parsing and validation.
+ */
 public class ParserTest {
 
     @Test

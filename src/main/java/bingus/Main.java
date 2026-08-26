@@ -29,7 +29,7 @@ public class Main extends Application {
             stage.sizeToScene();
             stage.setMinHeight(stage.getHeight());
             stage.setMinWidth(stage.getWidth());
-            fxmlLoader.<MainWindow>getController().setDuke(bingus);
+            fxmlLoader.<MainWindow>getController().setBingus(bingus);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

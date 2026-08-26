@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests date matching for {@link Event} tasks.
+ */
 public class EventTest {
 
     @Test

@@ -72,7 +72,7 @@ public class DialogBox extends HBox {
      * @param commandType type of command that produced the response
      * @return dialog box for the Bingus response
      */
-    public static DialogBox getDukeDialog(String text, Image img, String commandType) {
+    public static DialogBox getBingusDialog(String text, Image img, String commandType) {
         var db = new DialogBox(text, img);
         db.flip();
         db.changeDialogStyle(commandType);
@@ -81,7 +81,7 @@ public class DialogBox extends HBox {
 
     /** Applies a response style based on the command type. */
     private void changeDialogStyle(String commandType) {
-        switch(commandType) {
+        switch (commandType) {
             case "AddCommand":
                 dialog.getStyleClass().add("add-label");
                 break;

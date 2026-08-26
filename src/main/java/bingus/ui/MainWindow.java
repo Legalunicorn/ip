@@ -33,8 +33,11 @@ public class MainWindow extends AnchorPane {
     private Bingus bingus;
 
     private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image dukeImage = new Image(this.getClass().getResourceAsStream("/images/DaBingus.png"));
+    private Image bingusImage = new Image(this.getClass().getResourceAsStream("/images/DaBingus.png"));
 
+    /**
+     * Initializes automatic scrolling for new chat messages.
+     */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
@@ -43,10 +46,10 @@ public class MainWindow extends AnchorPane {
     /**
      * Injects the Bingus instance used to process user commands.
      *
-     * @param b Bingus instance to use
+     * @param bingus Bingus instance to use
      */
-    public void setDuke(Bingus b) {
-        bingus = b;
+    public void setBingus(Bingus bingus) {
+        this.bingus = bingus;
     }
 
     /**
@@ -59,7 +62,7 @@ public class MainWindow extends AnchorPane {
         String response = bingus.getResponse(input);
         String commandType = bingus.getCommandType();
         DialogBox userDialog = DialogBox.getUserDialog(input, userImage);
-        DialogBox botDialog = DialogBox.getDukeDialog(response, dukeImage, commandType);
+        DialogBox botDialog = DialogBox.getBingusDialog(response, bingusImage, commandType);
 
         addDialogWithAnimation(userDialog);
 
@@ -74,7 +77,6 @@ public class MainWindow extends AnchorPane {
         });
         replyDelay.play();
 
-        userInput.clear();
         userInput.clear();
     }
 
