@@ -4,6 +4,9 @@
 package bingus.ui;
 
 import bingus.Bingus;
+import javafx.animation.Interpolator;
+import javafx.animation.PauseTransition;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -11,6 +14,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+
 /**
  * Controller for the main GUI.
  * This code was taken from JavaFx tutorial and modified for bingus
@@ -51,10 +56,27 @@ public class MainWindow extends AnchorPane {
         userInput.setPromptText("Type here...");
         String response = bingus.getResponse(input);
         String commandType = bingus.getCommandType();
-        dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getDukeDialog(response, dukeImage, commandType)
-        );
+        DialogBox userDialog = DialogBox.getUserDialog(input, userImage);
+        DialogBox botDialog = DialogBox.getDukeDialog(response, dukeImage, commandType);
+
+        addDialogWithAnimation(userDialog);
+
+        PauseTransition replyDelay = new PauseTransition(Duration.millis(250));
+        replyDelay.setOnFinished(event -> addDialogWithAnimation(botDialog));
+        replyDelay.play();
+
         userInput.clear();
+        userInput.clear();
+    }
+
+    private void addDialogWithAnimation(DialogBox dialogBox) {
+        dialogBox.setTranslateY(16);
+
+        dialogContainer.getChildren().add(dialogBox);
+
+        TranslateTransition slideUp = new TranslateTransition(Duration.millis(180), dialogBox);
+        slideUp.setToY(0);
+        slideUp.setInterpolator(Interpolator.EASE_OUT);
+        slideUp.play();
     }
 }
