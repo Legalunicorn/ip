@@ -75,7 +75,7 @@ public class Task {
      * Marks this task as complete.
      */
     public void mark() {
-       isDone = true;
+        isDone = true;
     }
 
     /**
@@ -91,6 +91,6 @@ public class Task {
      * @return {@code true} if the tasks is associated with this date
      */
     public boolean matchesDate(LocalDate date) {
-       return false;
+        return false;
     }
 }
