@@ -9,12 +9,12 @@
 }
 
 .text-field {
-    -fx-background-color: #d9ffe2;
+    -fx-background-color: #ffedd9;
     -fx-font: 20px "Arial";
 }
 
 .button {
-    -fx-background-color: mediumspringgreen;
+    -fx-background-color: #e8bd90;
     -fx-font: italic bold 16px "Arial";
 }
 
