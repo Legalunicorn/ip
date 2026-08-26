@@ -48,6 +48,7 @@ public class MainWindow extends AnchorPane {
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
+        userInput.setPromptText("Type here...");
         String response = bingus.getResponse(input);
         String commandType = bingus.getCommandType();
         dialogContainer.getChildren().addAll(
