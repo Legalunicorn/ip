@@ -53,10 +53,25 @@ public class DialogBox extends HBox {
         dialog.getStyleClass().add("reply-label");
     }
 
+    /**
+     * Creates a dialog box for a user message.
+     *
+     * @param text message text
+     * @param img image representing the user
+     * @return dialog box for the user message
+     */
     public static DialogBox getUserDialog(String text, Image img) {
         return new DialogBox(text, img);
     }
 
+    /**
+     * Creates a flipped dialog box for a Bingus response.
+     *
+     * @param text response text
+     * @param img image representing Bingus
+     * @param commandType type of command that produced the response
+     * @return dialog box for the Bingus response
+     */
     public static DialogBox getDukeDialog(String text, Image img, String commandType) {
         var db = new DialogBox(text, img);
         db.flip();
@@ -64,7 +79,7 @@ public class DialogBox extends HBox {
         return db;
     }
 
-    // Taken from JavaFx tutorial Part 5
+    /** Applies a response style based on the command type. */
     private void changeDialogStyle(String commandType) {
         switch(commandType) {
             case "AddCommand":

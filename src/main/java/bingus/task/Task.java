@@ -38,7 +38,7 @@ public class Task {
     /**
      * Returns the symbol representing this task's completion status.
      *
-     * @return {@code "X"} if complete, or a space if incomplete
+     * @return {@code "✓"} if complete, or {@code "○"} if incomplete
      */
     public String getStatusIcon() {
         return (isDone ? "✓" : "○");
@@ -86,9 +86,10 @@ public class Task {
     }
 
     /**
-     * Returns whether a task is associated with this date
-     * @param date date as a java LocalDate
-     * @return {@code true} if the tasks is associated with this date
+     * Returns whether this task is associated with a date.
+     *
+     * @param date date to check
+     * @return {@code true} if this task is associated with the date
      */
     public boolean matchesDate(LocalDate date) {
         return false;

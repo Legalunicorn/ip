@@ -9,8 +9,7 @@ import bingus.task.Task;
 import bingus.task.TaskList;
 
 /**
- * Represents the layer that iterate with the users
- * through receiving input and printing output
+ * Represents the user-interface layer that reads terminal input and formats responses.
  */
 public class Ui {
     private static final String LINE = "____________________________________________________________";

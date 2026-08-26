@@ -18,9 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 /**
- * Controller for the main GUI.
- * This code was taken from JavaFx tutorial and modified for bingus
- * URL to JavaFx tutorial: https://se-education.org/guides/tutorials/javaFxPart4.html
+ * Controls the main Bingus GUI.
  */
 public class MainWindow extends AnchorPane {
     @FXML
@@ -42,14 +40,17 @@ public class MainWindow extends AnchorPane {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
-    /** Injects the Duke instance */
+    /**
+     * Injects the Bingus instance used to process user commands.
+     *
+     * @param b Bingus instance to use
+     */
     public void setDuke(Bingus b) {
         bingus = b;
     }
 
     /**
-     * Creates two dialog boxes, one echoing user input and the other containing Duke's reply and then appends them to
-     * the dialog container. Clears the user input after processing.
+     * Creates and displays a user dialog followed by the corresponding Bingus reply.
      */
     @FXML
     private void handleUserInput() {

@@ -8,7 +8,7 @@ import bingus.task.TaskList;
 import bingus.ui.Ui;
 
 /**
- * Coordinates command parsing, task storage, and terminal interaction.
+ * Coordinates command parsing, task storage, and user-interface responses.
  */
 public class Bingus {
 
@@ -77,9 +77,10 @@ public class Bingus {
     }
 
     /**
-     * Return a response based on a command. This is used for the GUI program.
-     * @param input by the user.
-     * @return String to output by the program
+     * Returns a response for a command submitted through the GUI.
+     *
+     * @param input command entered by the user
+     * @return response message for the user
      */
     public String getResponse(String input) {
         try {
@@ -93,8 +94,9 @@ public class Bingus {
     }
 
     /**
-     * Return the type of the latest command.
-     * @return String of the command type
+     * Returns the type of the latest successfully parsed command.
+     *
+     * @return simple class name of the latest command, or an empty string after an invalid command
      */
     public String getCommandType() {
         return commandType;

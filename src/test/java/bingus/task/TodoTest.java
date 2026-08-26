@@ -15,13 +15,13 @@ class TodoTest {
     void getStatusIcon_newTodo_returnsIncompleteIcon() {
         Todo todo = new Todo("read the JUnit guide");
 
-        assertEquals(" ", todo.getStatusIcon());
+        assertEquals("○", todo.getStatusIcon());
     }
 
     @Test
     void getStatisIcon_todoMarked_returnsMarkedIcon() {
         Todo todo = new Todo("");
         todo.mark();
-        assertEquals("X", todo.getStatusIcon());
+        assertEquals("✓", todo.getStatusIcon());
     }
 }
