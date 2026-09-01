@@ -23,8 +23,8 @@ public class Main extends Application {
     public void start(Stage stage) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
-            AnchorPane ap = fxmlLoader.load();
-            Scene scene = new Scene(ap);
+            AnchorPane rootPane = fxmlLoader.load();
+            Scene scene = new Scene(rootPane);
             stage.setScene(scene);
             stage.sizeToScene();
             stage.setMinHeight(stage.getHeight());

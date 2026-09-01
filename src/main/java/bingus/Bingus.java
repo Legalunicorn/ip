@@ -84,9 +84,9 @@ public class Bingus {
      */
     public String getResponse(String input) {
         try {
-            Command c = parser.parse(input, tasks);
-            commandType = c.getClass().getSimpleName();
-            return c.execute(tasks, ui, storage);
+            Command command = parser.parse(input, tasks);
+            commandType = command.getClass().getSimpleName();
+            return command.execute(tasks, ui, storage);
         } catch (BingusException e) {
             commandType = "";
             return "Error: " + e.getMessage();

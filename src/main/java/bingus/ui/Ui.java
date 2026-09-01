@@ -43,8 +43,6 @@ public class Ui {
         return scanner.nextLine();
     }
 
-    // GUI response messages
-
     /**
      * Returns the welcome message for the chatbot.
      *

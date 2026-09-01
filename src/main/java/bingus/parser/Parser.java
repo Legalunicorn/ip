@@ -45,8 +45,8 @@ public class Parser {
      */
     public Command parse(String userInput, TaskList tasks) throws BingusException {
         String[] parts = splitCommand(userInput);
-        String cmd = parts[0];
-        switch (cmd) {
+        String commandWord = parts[0];
+        switch (commandWord) {
             case "bye":
                 return new ExitCommand();
             case "list":
@@ -147,13 +147,13 @@ public class Parser {
             throw new BingusException("Missing command arguments :( " + correctFormatMessage);
         }
 
-        String[] split = parts[1].split("/by");
-        if (split.length != 2) {
+        String[] deadlineParts = parts[1].split("/by");
+        if (deadlineParts.length != 2) {
             throw new BingusException("Wrong format for deadline :( " + correctFormatMessage);
         }
 
-        String description = split[0].trim();
-        String by = split[1].trim();
+        String description = deadlineParts[0].trim();
+        String by = deadlineParts[1].trim();
         if (description.isEmpty()) {
             throw new BingusException("bingus.task.Task description cannot be empty. " + correctFormatMessage);
         }

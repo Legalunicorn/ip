@@ -46,9 +46,9 @@ public class DialogBox extends HBox {
      * Flips the dialog box such that the ImageView is on the left and text on the right.
      */
     private void flip() {
-        ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
-        Collections.reverse(tmp);
-        getChildren().setAll(tmp);
+        ObservableList<Node> reversedChildren = FXCollections.observableArrayList(this.getChildren());
+        Collections.reverse(reversedChildren);
+        getChildren().setAll(reversedChildren);
         setAlignment(Pos.TOP_LEFT);
         dialog.getStyleClass().add("reply-label");
     }
@@ -73,10 +73,10 @@ public class DialogBox extends HBox {
      * @return dialog box for the Bingus response
      */
     public static DialogBox getBingusDialog(String text, Image img, String commandType) {
-        var db = new DialogBox(text, img);
-        db.flip();
-        db.changeDialogStyle(commandType);
-        return db;
+        var bingusDialog = new DialogBox(text, img);
+        bingusDialog.flip();
+        bingusDialog.changeDialogStyle(commandType);
+        return bingusDialog;
     }
 
     /** Applies a response style based on the command type. */

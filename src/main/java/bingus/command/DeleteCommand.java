@@ -32,14 +32,13 @@ public class DeleteCommand extends Command {
      */
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
-        int idx = taskId - 1;
-        Task deletedTask = tasks.remove(idx);
+        int taskIndex = taskId - 1;
+        Task deletedTask = tasks.remove(taskIndex);
 
-        // TODO: consider roll back for each commands to be part of save action
         try {
             storage.saveTasks(tasks.getAllTasks());
         } catch (BingusException e) {
-            tasks.add(idx, deletedTask);
+            tasks.add(taskIndex, deletedTask);
             throw e;
         }
         return ui.getDeleteTaskMessage(deletedTask, tasks.size());
