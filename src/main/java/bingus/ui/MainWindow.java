@@ -21,6 +21,11 @@ import javafx.util.Duration;
  * Controls the main Bingus GUI.
  */
 public class MainWindow extends AnchorPane {
+    private static final Duration REPLY_DELAY = Duration.millis(250);
+    private static final Duration EXIT_DELAY = Duration.seconds(1);
+    private static final double DIALOG_START_OFFSET = 16;
+    private static final Duration SLIDE_DURATION = Duration.millis(180);
+
     @FXML
     private ScrollPane scrollPane;
     @FXML
@@ -66,11 +71,11 @@ public class MainWindow extends AnchorPane {
 
         addDialogWithAnimation(userDialog);
 
-        PauseTransition replyDelay = new PauseTransition(Duration.millis(250));
+        PauseTransition replyDelay = new PauseTransition(REPLY_DELAY);
         replyDelay.setOnFinished(event -> {
             addDialogWithAnimation(botDialog);
             if ("ExitCommand".equals(commandType)) {
-                PauseTransition closeDelay = new PauseTransition(Duration.seconds(1));
+                PauseTransition closeDelay = new PauseTransition(EXIT_DELAY);
                 closeDelay.setOnFinished(closeEvent -> Platform.exit());
                 closeDelay.play();
             }
@@ -81,11 +86,11 @@ public class MainWindow extends AnchorPane {
     }
 
     private void addDialogWithAnimation(DialogBox dialogBox) {
-        dialogBox.setTranslateY(16);
+        dialogBox.setTranslateY(DIALOG_START_OFFSET);
 
         dialogContainer.getChildren().add(dialogBox);
 
-        TranslateTransition slideUp = new TranslateTransition(Duration.millis(180), dialogBox);
+        TranslateTransition slideUp = new TranslateTransition(SLIDE_DURATION, dialogBox);
         slideUp.setToY(0);
         slideUp.setInterpolator(Interpolator.EASE_OUT);
         slideUp.play();
