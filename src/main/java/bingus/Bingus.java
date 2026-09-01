@@ -67,9 +67,9 @@ public class Bingus {
             try {
                 String userInput = ui.readCommand();
                 ui.showLine();
-                Command c = parser.parse(userInput, tasks);
-                c.execute(tasks, ui, storage);
-                isExit = c.isExit();
+                Command command = parser.parse(userInput, tasks);
+                command.execute(tasks, ui, storage);
+                isExit = command.isExit();
             } catch (BingusException e) {
                 ui.showError(e.getMessage());
             }

@@ -43,14 +43,13 @@ public class MarkCommand extends Command {
             task.unmark();
         }
 
-        // Maybe consider rollbacker/storage to handle roll backs
         try {
             storage.saveTasks(tasks.getAllTasks());
         } catch (BingusException e) {
             if (isToMark) {
-                task.unmark(); // reverse of mark
+                task.unmark();
             } else {
-                task.mark(); // reverse of unmark
+                task.mark();
             }
             throw e;
         }

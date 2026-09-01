@@ -22,7 +22,6 @@ public class Task {
     protected Task(String description, TaskType type) {
         this.description = description;
         this.type = type;
-        // Default task to be uncompleted
         isDone = false;
     }
 

@@ -180,7 +180,6 @@ public class Ui {
      * Displays the welcome message.
      */
     public void showWelcome() {
-        // This string was generated and formatted by Codex
         String banner = "  ____  _                       \n"
                 + " | __ )(_)_ __   __ _ _   _ ___ \n"
                 + " |  _ \\| | '_ \\ / _` | | | / __|\n"

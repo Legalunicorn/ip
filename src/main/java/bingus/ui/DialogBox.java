@@ -28,7 +28,7 @@ public class DialogBox extends HBox {
     @FXML
     private ImageView displayPicture;
 
-    private DialogBox(String text, Image img) {
+    private DialogBox(String text, Image image) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/view/DialogBox.fxml"));
             fxmlLoader.setController(this);
@@ -39,7 +39,7 @@ public class DialogBox extends HBox {
         }
 
         dialog.setText(text);
-        displayPicture.setImage(img);
+        displayPicture.setImage(image);
     }
 
     /**
@@ -57,23 +57,23 @@ public class DialogBox extends HBox {
      * Creates a dialog box for a user message.
      *
      * @param text message text
-     * @param img image representing the user
+     * @param image image representing the user
      * @return dialog box for the user message
      */
-    public static DialogBox getUserDialog(String text, Image img) {
-        return new DialogBox(text, img);
+    public static DialogBox getUserDialog(String text, Image image) {
+        return new DialogBox(text, image);
     }
 
     /**
      * Creates a flipped dialog box for a Bingus response.
      *
      * @param text response text
-     * @param img image representing Bingus
+     * @param image the image representing Bingus
      * @param commandType type of command that produced the response
      * @return dialog box for the Bingus response
      */
-    public static DialogBox getBingusDialog(String text, Image img, String commandType) {
-        var bingusDialog = new DialogBox(text, img);
+    public static DialogBox getBingusDialog(String text, Image image, String commandType) {
+        DialogBox bingusDialog = new DialogBox(text, image);
         bingusDialog.flip();
         bingusDialog.changeDialogStyle(commandType);
         return bingusDialog;
@@ -92,7 +92,7 @@ public class DialogBox extends HBox {
                 dialog.getStyleClass().add("delete-label");
                 break;
             default:
-                // Do nothing
+                // Use the default reply style.
         }
     }
 }
