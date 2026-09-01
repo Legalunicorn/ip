@@ -35,8 +35,10 @@ public class Storage {
 
 
     /**
-     * Loads all tasks from the save file when it is valid. If the file cannot
-     * be read or contains invalid data, leaves the task list empty.
+     * Loads all tasks from the save file. Returns an empty list if the file does not exist.
+     *
+     * @return loaded tasks, or an empty list if there is no save file
+     * @throws BingusException if the save file cannot be read or contains invalid data
      */
     public List<Task> loadTasks() throws BingusException {
         if (Files.notExists(saveFile)) {
