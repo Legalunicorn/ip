@@ -60,11 +60,14 @@ public class Parser {
             case "event":
                 return new AddCommand(parseEvent(parts));
             case "mark":
-                return new MarkCommand(parseRequiredTaskId(parts, tasks.size(), "Mark"), true);
+                return new MarkCommand(parseRequiredTaskId(
+                        parts, tasks.size(), "Mark must be followed by a number!"), true);
             case "unmark":
-                return new MarkCommand(parseRequiredTaskId(parts, tasks.size(), "Unmark"), false);
+                return new MarkCommand(parseRequiredTaskId(
+                        parts, tasks.size(), "Unmark must be followed by a number!"), false);
             case "delete":
-                return new DeleteCommand(parseDeleteTaskId(parts, tasks.size()));
+                return new DeleteCommand(parseRequiredTaskId(
+                        parts, tasks.size(), "Missing delete number! Usage `delete [TASK_NUMBER]`."));
             case "find":
                 return new FindCommand(parseFindKeyword(parts));
             default:
@@ -87,24 +90,19 @@ public class Parser {
         return parts[1].trim();
     }
 
-    private int parseRequiredTaskId(String[] parts, int taskCount, String action) throws BingusException {
-        if (parts.length < 2) {
-            throw new BingusException(action + " must be followed by a number!");
-        }
-        return parseTaskId(parts[1], taskCount);
-    }
-
     /**
-     * Parses a required task number for a delete command.
+     * Parses a required task number using the specified missing-argument message.
      *
      * @param parts command and arguments split into at most two parts
      * @param taskCount current number of tasks
+     * @param missingArgumentMessage message to show when the task number is missing
      * @return validated one-based task number
      * @throws BingusException if the number is missing or invalid
      */
-    private int parseDeleteTaskId(String[] parts, int taskCount) throws BingusException {
+    private int parseRequiredTaskId(String[] parts, int taskCount, String missingArgumentMessage)
+            throws BingusException {
         if (parts.length < 2) {
-            throw new BingusException("Missing delete number! Usage `delete [TASK_NUMBER]`.");
+            throw new BingusException(missingArgumentMessage);
         }
         return parseTaskId(parts[1], taskCount);
     }
@@ -154,20 +152,13 @@ public class Parser {
 
         String description = deadlineParts[0].trim();
         String by = deadlineParts[1].trim();
-        if (description.isEmpty()) {
-            throw new BingusException("bingus.task.Task description cannot be empty. " + correctFormatMessage);
-        }
-        if (by.isEmpty()) {
-            throw new BingusException("bingus.task.Deadline cannot be empty. " + correctFormatMessage);
-        }
+        requireNonEmpty(description, "bingus.task.Task description cannot be empty. " + correctFormatMessage);
+        requireNonEmpty(by, "bingus.task.Deadline cannot be empty. " + correctFormatMessage);
 
-        try {
-            LocalDateTime deadlineDateTime = LocalDateTime.parse(by, INPUT_DATE_TIME_FORMAT);
-            return new Deadline(description, deadlineDateTime);
-        } catch (DateTimeParseException e) {
-            throw new BingusException("Invalid deadline date/time. Please use yyyy-MM-dd HHmm, "
-                    + "e.g. 2019-12-02 1800.");
-        }
+        String invalidDateTimeMessage = "Invalid deadline date/time. Please use yyyy-MM-dd HHmm, "
+                + "e.g. 2019-12-02 1800.";
+        LocalDateTime deadlineDateTime = parseDateTime(by, invalidDateTimeMessage);
+        return new Deadline(description, deadlineDateTime);
     }
 
     /**
@@ -196,26 +187,46 @@ public class Parser {
         String description = descriptionAndTimes[0].trim();
         String from = startAndEnd[0].trim();
         String to = startAndEnd[1].trim();
-        if (from.isEmpty()) {
-            throw new BingusException("From cannot be empty! " + correctFormatMessage);
-        }
-        if (to.isEmpty()) {
-            throw new BingusException("`To` cannot be empty! " + correctFormatMessage);
-        }
-        if (description.isEmpty()) {
-            throw new BingusException("`Description` of event cannot be empty! " + correctFormatMessage);
-        }
+        requireNonEmpty(from, "From cannot be empty! " + correctFormatMessage);
+        requireNonEmpty(to, "`To` cannot be empty! " + correctFormatMessage);
+        requireNonEmpty(description, "`Description` of event cannot be empty! " + correctFormatMessage);
 
+        String invalidDateTimeMessage = "Invalid event date/time. Please use yyyy-MM-dd HHmm, "
+                + "e.g. 2019-12-02 1800.";
+        LocalDateTime fromDateTime = parseDateTime(from, invalidDateTimeMessage);
+        LocalDateTime toDateTime = parseDateTime(to, invalidDateTimeMessage);
+        if (!toDateTime.isAfter(fromDateTime)) {
+            throw new BingusException("bingus.task.Event end date/time must be after its start date/time.");
+        }
+        return new Event(description, fromDateTime, toDateTime);
+    }
+
+    /**
+     * Parses a date and time using the command input format.
+     *
+     * @param input date-time text to parse
+     * @param errorMessage message to show when the text is invalid
+     * @return parsed date and time
+     * @throws BingusException if the text is not a valid date and time
+     */
+    private LocalDateTime parseDateTime(String input, String errorMessage) throws BingusException {
         try {
-            LocalDateTime fromDateTime = LocalDateTime.parse(from, INPUT_DATE_TIME_FORMAT);
-            LocalDateTime toDateTime = LocalDateTime.parse(to, INPUT_DATE_TIME_FORMAT);
-            if (!toDateTime.isAfter(fromDateTime)) {
-                throw new BingusException("bingus.task.Event end date/time must be after its start date/time.");
-            }
-            return new Event(description, fromDateTime, toDateTime);
+            return LocalDateTime.parse(input, INPUT_DATE_TIME_FORMAT);
         } catch (DateTimeParseException e) {
-            throw new BingusException("Invalid event date/time. Please use yyyy-MM-dd HHmm, "
-                    + "e.g. 2019-12-02 1800.");
+            throw new BingusException(errorMessage);
+        }
+    }
+
+    /**
+     * Ensures that a required command value is not empty.
+     *
+     * @param value command value to validate
+     * @param errorMessage message to show when the value is empty
+     * @throws BingusException if the value is empty
+     */
+    private void requireNonEmpty(String value, String errorMessage) throws BingusException {
+        if (value.isEmpty()) {
+            throw new BingusException(errorMessage);
         }
     }
 
