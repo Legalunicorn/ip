@@ -32,7 +32,7 @@ public class Main extends Application {
             fxmlLoader.<MainWindow>getController().setBingus(bingus);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to load the main window layout.", e);
         }
     }
 }
