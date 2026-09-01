@@ -4,6 +4,7 @@
 package bingus.ui;
 
 import bingus.Bingus;
+import bingus.command.CommandType;
 import javafx.animation.Interpolator;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
@@ -65,7 +66,7 @@ public class MainWindow extends AnchorPane {
         String input = userInput.getText();
         userInput.setPromptText("Type here...");
         String response = bingus.getResponse(input);
-        String commandType = bingus.getCommandType();
+        CommandType commandType = bingus.getCommandType();
         DialogBox userDialog = DialogBox.getUserDialog(input, userImage);
         DialogBox botDialog = DialogBox.getBingusDialog(response, bingusImage, commandType);
 
@@ -74,7 +75,7 @@ public class MainWindow extends AnchorPane {
         PauseTransition replyDelay = new PauseTransition(REPLY_DELAY);
         replyDelay.setOnFinished(event -> {
             addDialogWithAnimation(botDialog);
-            if ("ExitCommand".equals(commandType)) {
+            if (commandType == CommandType.EXIT) {
                 PauseTransition closeDelay = new PauseTransition(EXIT_DELAY);
                 closeDelay.setOnFinished(closeEvent -> Platform.exit());
                 closeDelay.play();

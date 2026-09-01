@@ -30,6 +30,11 @@ public class ListCommand extends Command {
         this.date = date;
     }
 
+    @Override
+    public CommandType getType() {
+        return CommandType.LIST;
+    }
+
     /**
      * Returns the complete or date-filtered task list.
      *

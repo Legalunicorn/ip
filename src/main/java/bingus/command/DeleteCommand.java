@@ -21,6 +21,11 @@ public class DeleteCommand extends Command {
         this.taskId = taskId;
     }
 
+    @Override
+    public CommandType getType() {
+        return CommandType.DELETE;
+    }
+
     /**
      * Removes the task, saves the list, and returns the result message.
      *

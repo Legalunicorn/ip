@@ -10,6 +10,13 @@ import bingus.ui.Ui;
  */
 public abstract class Command {
     /**
+     * Returns this command's category.
+     *
+     * @return command category
+     */
+    public abstract CommandType getType();
+
+    /**
      * Executes this command using the current application collaborators.
      *
      * @param tasks Current task list.

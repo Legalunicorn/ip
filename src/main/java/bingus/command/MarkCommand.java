@@ -25,6 +25,11 @@ public class MarkCommand extends Command {
         this.isToMark = isToMark;
     }
 
+    @Override
+    public CommandType getType() {
+        return CommandType.MARK;
+    }
+
     /**
      * Updates the task's completion status, saves the list, and returns the result message.
      *

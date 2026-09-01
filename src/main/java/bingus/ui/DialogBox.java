@@ -7,6 +7,7 @@ package bingus.ui;
 import java.io.IOException;
 import java.util.Collections;
 
+import bingus.command.CommandType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -72,7 +73,7 @@ public class DialogBox extends HBox {
      * @param commandType type of command that produced the response
      * @return dialog box for the Bingus response
      */
-    public static DialogBox getBingusDialog(String text, Image image, String commandType) {
+    public static DialogBox getBingusDialog(String text, Image image, CommandType commandType) {
         DialogBox bingusDialog = new DialogBox(text, image);
         bingusDialog.flip();
         bingusDialog.changeDialogStyle(commandType);
@@ -80,15 +81,15 @@ public class DialogBox extends HBox {
     }
 
     /** Applies a response style based on the command type. */
-    private void changeDialogStyle(String commandType) {
+    private void changeDialogStyle(CommandType commandType) {
         switch (commandType) {
-            case "AddCommand":
+            case ADD:
                 dialog.getStyleClass().add("add-label");
                 break;
-            case "MarkCommand":
+            case MARK:
                 dialog.getStyleClass().add("marked-label");
                 break;
-            case "DeleteCommand":
+            case DELETE:
                 dialog.getStyleClass().add("delete-label");
                 break;
             default:

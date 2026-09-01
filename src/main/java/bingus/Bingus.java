@@ -1,6 +1,7 @@
 package bingus;
 
 import bingus.command.Command;
+import bingus.command.CommandType;
 import bingus.exception.BingusException;
 import bingus.parser.Parser;
 import bingus.storage.Storage;
@@ -14,7 +15,7 @@ public class Bingus {
 
     private final Storage storage;
     private String loadErrorMessage;
-    private String commandType;
+    private CommandType commandType = CommandType.NONE;
     private TaskList tasks;
     private final Parser parser;
     private final Ui ui;
@@ -85,20 +86,20 @@ public class Bingus {
     public String getResponse(String input) {
         try {
             Command command = parser.parse(input, tasks);
-            commandType = command.getClass().getSimpleName();
+            commandType = command.getType();
             return command.execute(tasks, ui, storage);
         } catch (BingusException e) {
-            commandType = "";
+            commandType = CommandType.INVALID;
             return "Error: " + e.getMessage();
         }
     }
 
     /**
-     * Returns the type of the latest successfully parsed command.
+     * Returns the type of the latest command submitted through the GUI.
      *
-     * @return simple class name of the latest command, or an empty string after an invalid command
+     * @return type of the latest command
      */
-    public String getCommandType() {
+    public CommandType getCommandType() {
         return commandType;
     }
 

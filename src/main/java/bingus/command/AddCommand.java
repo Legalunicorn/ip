@@ -22,6 +22,11 @@ public class AddCommand extends Command {
         this.task = task;
     }
 
+    @Override
+    public CommandType getType() {
+        return CommandType.ADD;
+    }
+
     /**
      * Adds the task, saves the list, and returns the result message.
      *
