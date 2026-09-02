@@ -4,12 +4,12 @@
 package bingus.ui;
 
 import bingus.Bingus;
+import bingus.command.CommandType;
 import javafx.animation.Interpolator;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -21,19 +21,22 @@ import javafx.util.Duration;
  * Controls the main Bingus GUI.
  */
 public class MainWindow extends AnchorPane {
+    private static final Duration REPLY_DELAY = Duration.millis(250);
+    private static final Duration EXIT_DELAY = Duration.seconds(1);
+    private static final double DIALOG_START_OFFSET = 16;
+    private static final Duration SLIDE_DURATION = Duration.millis(180);
+
     @FXML
     private ScrollPane scrollPane;
     @FXML
     private VBox dialogContainer;
     @FXML
     private TextField userInput;
-    @FXML
-    private Button sendButton;
 
     private Bingus bingus;
 
-    private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image bingusImage = new Image(this.getClass().getResourceAsStream("/images/DaBingus.png"));
+    private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
+    private final Image bingusImage = new Image(this.getClass().getResourceAsStream("/images/DaBingus.png"));
 
     /**
      * Initializes automatic scrolling for new chat messages.
@@ -52,6 +55,15 @@ public class MainWindow extends AnchorPane {
      */
     public void setBingus(Bingus bingus) {
         this.bingus = bingus;
+
+        String loadErrorMessage = bingus.getLoadErrorMessage();
+        if (loadErrorMessage != null) {
+            DialogBox errorDialog = DialogBox.getBingusDialog(
+                    loadErrorMessage,
+                    bingusImage,
+                    CommandType.INVALID);
+            dialogContainer.getChildren().add(errorDialog);
+        }
     }
 
     /**
@@ -64,17 +76,17 @@ public class MainWindow extends AnchorPane {
         String input = userInput.getText();
         userInput.setPromptText("Type here...");
         String response = bingus.getResponse(input);
-        String commandType = bingus.getCommandType();
+        CommandType commandType = bingus.getCommandType();
         DialogBox userDialog = DialogBox.getUserDialog(input, userImage);
         DialogBox botDialog = DialogBox.getBingusDialog(response, bingusImage, commandType);
 
         addDialogWithAnimation(userDialog);
 
-        PauseTransition replyDelay = new PauseTransition(Duration.millis(250));
+        PauseTransition replyDelay = new PauseTransition(REPLY_DELAY);
         replyDelay.setOnFinished(event -> {
             addDialogWithAnimation(botDialog);
-            if ("ExitCommand".equals(commandType)) {
-                PauseTransition closeDelay = new PauseTransition(Duration.seconds(1));
+            if (commandType == CommandType.EXIT) {
+                PauseTransition closeDelay = new PauseTransition(EXIT_DELAY);
                 closeDelay.setOnFinished(closeEvent -> Platform.exit());
                 closeDelay.play();
             }
@@ -85,11 +97,11 @@ public class MainWindow extends AnchorPane {
     }
 
     private void addDialogWithAnimation(DialogBox dialogBox) {
-        dialogBox.setTranslateY(16);
+        dialogBox.setTranslateY(DIALOG_START_OFFSET);
 
         dialogContainer.getChildren().add(dialogBox);
 
-        TranslateTransition slideUp = new TranslateTransition(Duration.millis(180), dialogBox);
+        TranslateTransition slideUp = new TranslateTransition(SLIDE_DURATION, dialogBox);
         slideUp.setToY(0);
         slideUp.setInterpolator(Interpolator.EASE_OUT);
         slideUp.play();

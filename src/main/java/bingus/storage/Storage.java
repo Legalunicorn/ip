@@ -15,12 +15,26 @@ import bingus.exception.BingusException;
 import bingus.task.Deadline;
 import bingus.task.Event;
 import bingus.task.Task;
+import bingus.task.TaskType;
 import bingus.task.Todo;
 
 /**
  * Loads and saves tasks in a delimiter-safe text file.
  */
 public class Storage {
+
+    private static final int TASK_TYPE_INDEX = 0;
+    private static final int COMPLETION_STATUS_INDEX = 1;
+    private static final int DESCRIPTION_INDEX = 2;
+    private static final int DATE_TIME_INDEX = 3;
+    private static final int EVENT_END_DATE_TIME_INDEX = 4;
+
+    private static final int TODO_FIELD_COUNT = 3;
+    private static final int DEADLINE_FIELD_COUNT = 4;
+    private static final int EVENT_FIELD_COUNT = 5;
+
+    private static final String COMPLETED_STATUS = "1";
+    private static final String INCOMPLETE_STATUS = "0";
 
     private final Path saveFile;
 
@@ -35,8 +49,10 @@ public class Storage {
 
 
     /**
-     * Loads all tasks from the save file when it is valid. If the file cannot
-     * be read or contains invalid data, leaves the task list empty.
+     * Loads all tasks from the save file. Returns an empty list if the file does not exist.
+     *
+     * @return loaded tasks, or an empty list if there is no save file
+     * @throws BingusException if the save file cannot be read or contains invalid data
      */
     public List<Task> loadTasks() throws BingusException {
         if (Files.notExists(saveFile)) {
@@ -56,6 +72,9 @@ public class Storage {
     /**
      * Writes the complete task list to disk. Text fields are Base64 encoded so
      * the record separator cannot conflict with text entered by the user.
+     *
+     * @param tasks complete task list to save
+     * @throws BingusException if the task list cannot be written
      */
     public void saveTasks(List<Task> tasks) throws BingusException {
         List<String> savedTasks = new ArrayList<>();
@@ -105,21 +124,23 @@ public class Storage {
      * @return save-file record
      */
     private static String toSaveRecord(Task task) {
-        String done = task.isDone() ? "1" : "0";
+        String taskTypeSymbol = task.getType().getSymbol();
+        String completionStatus = task.isDone() ? COMPLETED_STATUS : INCOMPLETE_STATUS;
         String description = encode(task.getDescription());
         switch (task.getType()) {
             case TODO:
                 assert task instanceof Todo : "TODO task must have type Todo";
-                return "T|" + done + "|" + description;
+                return taskTypeSymbol + "|" + completionStatus + "|" + description;
             case DEADLINE:
                 assert task instanceof Deadline : "DEADLINE task must be a Deadline";
                 Deadline deadline = (Deadline) task;
-                return "D|" + done + "|" + description + "|" + encode(deadline.getBy().toString());
+                return taskTypeSymbol + "|" + completionStatus + "|" + description
+                        + "|" + encode(deadline.getBy().toString());
             case EVENT:
                 assert task instanceof Event : "EVENT task must be an Event";
                 Event event = (Event) task;
-                return "E|" + done + "|" + description + "|" + encode(event.getFrom().toString())
-                        + "|" + encode(event.getTo().toString());
+                return taskTypeSymbol + "|" + completionStatus + "|" + description
+                        + "|" + encode(event.getFrom().toString()) + "|" + encode(event.getTo().toString());
             default:
                 throw new IllegalStateException("Unsupported task type: " + task.getType());
         }
@@ -153,29 +174,33 @@ public class Storage {
      */
     private static Task fromSaveRecord(String savedTask) {
         String[] fields = savedTask.split("\\|", -1);
+        TaskType taskType = TaskType.fromSymbol(fields[TASK_TYPE_INDEX]);
         Task task;
-        switch (fields[0]) {
-            case "T":
-                requireFieldCount(fields, 3, savedTask);
-                task = new Todo(decode(fields[2]));
+        switch (taskType) {
+            case TODO:
+                requireFieldCount(fields, TODO_FIELD_COUNT, savedTask);
+                task = new Todo(decode(fields[DESCRIPTION_INDEX]));
                 break;
-            case "D":
-                requireFieldCount(fields, 4, savedTask);
-                task = new Deadline(decode(fields[2]), LocalDateTime.parse(decode(fields[3])));
+            case DEADLINE:
+                requireFieldCount(fields, DEADLINE_FIELD_COUNT, savedTask);
+                task = new Deadline(decode(fields[DESCRIPTION_INDEX]),
+                        LocalDateTime.parse(decode(fields[DATE_TIME_INDEX])));
                 break;
-            case "E":
-                requireFieldCount(fields, 5, savedTask);
-                task = new Event(decode(fields[2]), LocalDateTime.parse(decode(fields[3])),
-                        LocalDateTime.parse(decode(fields[4])));
+            case EVENT:
+                requireFieldCount(fields, EVENT_FIELD_COUNT, savedTask);
+                task = new Event(decode(fields[DESCRIPTION_INDEX]),
+                        LocalDateTime.parse(decode(fields[DATE_TIME_INDEX])),
+                        LocalDateTime.parse(decode(fields[EVENT_END_DATE_TIME_INDEX])));
                 break;
             default:
-                throw new IllegalStateException("Unknown task type in save file: " + fields[0]);
+                throw new IllegalStateException("Unsupported task type: " + taskType);
         }
 
-        if (fields[1].equals("1")) {
+        if (fields[COMPLETION_STATUS_INDEX].equals(COMPLETED_STATUS)) {
             task.mark();
-        } else if (!fields[1].equals("0")) {
-            throw new IllegalStateException("Invalid completion status in save file: " + fields[1]);
+        } else if (!fields[COMPLETION_STATUS_INDEX].equals(INCOMPLETE_STATUS)) {
+            throw new IllegalStateException(
+                    "Invalid completion status in save file: " + fields[COMPLETION_STATUS_INDEX]);
         }
         return task;
     }

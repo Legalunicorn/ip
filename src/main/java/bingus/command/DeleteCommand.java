@@ -21,6 +21,11 @@ public class DeleteCommand extends Command {
         this.taskId = taskId;
     }
 
+    @Override
+    public CommandType getType() {
+        return CommandType.DELETE;
+    }
+
     /**
      * Removes the task, saves the list, and returns the result message.
      *
@@ -35,13 +40,13 @@ public class DeleteCommand extends Command {
         assert taskId >= 1 && taskId <= tasks.size()
                 : "Delete task ID must refer to an existing task";
         int idx = taskId - 1;
-        Task deletedTask = tasks.remove(idx);
+        int taskIndex = taskId - 1;
+        Task deletedTask = tasks.remove(taskIndex);
 
-        // TODO: consider roll back for each commands to be part of save action
         try {
             storage.saveTasks(tasks.getAllTasks());
         } catch (BingusException e) {
-            tasks.add(idx, deletedTask);
+            tasks.add(taskIndex, deletedTask);
             throw e;
         }
         return ui.getDeleteTaskMessage(deletedTask, tasks.size());
