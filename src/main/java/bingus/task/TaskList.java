@@ -100,4 +100,15 @@ public class TaskList {
                 .toList();
     }
 
+    /**
+     * Replaces the task at the specified zero-based position.
+     *
+     * @param index zero-based position of the task to replace
+     * @param replacement task to store at the specified position
+     * @return task previously stored at the specified position
+     */
+    public Task replace(int index, Task replacement) {
+        return tasks.set(index, replacement);
+    }
+
 }
