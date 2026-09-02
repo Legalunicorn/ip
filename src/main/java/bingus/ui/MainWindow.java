@@ -40,6 +40,8 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     public void initialize() {
+        assert scrollPane != null : "Scroll pane must be injected from FXML";
+        assert dialogContainer != null : "Dialog container must be injected from FXML";
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
