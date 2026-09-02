@@ -36,6 +36,8 @@ public class MarkCommand extends Command {
      */
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
+        assert taskId >= 1 && taskId <= tasks.size()
+                : "Mark task ID must refer to an existing task";
         Task task = tasks.get(taskId - 1);
         if (isToMark) {
             task.mark();

@@ -40,6 +40,8 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     public void initialize() {
+        assert scrollPane != null : "Scroll pane must be injected from FXML";
+        assert dialogContainer != null : "Dialog container must be injected from FXML";
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
@@ -57,6 +59,8 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void handleUserInput() {
+        assert bingus != null : "Bingus must be injected before users can submit commands";
+
         String input = userInput.getText();
         userInput.setPromptText("Type here...");
         String response = bingus.getResponse(input);
