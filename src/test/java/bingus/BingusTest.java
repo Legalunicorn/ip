@@ -51,6 +51,30 @@ class BingusTest {
     }
 
     /**
+     * Verifies that updating a deadline changes and persists only its due date.
+     */
+    @Test
+    void getResponse_updateDeadline_changesAndPersistsDueDate() {
+        Bingus bingus = createBingus();
+        bingus.getResponse("deadline submit report /by 2026-09-15 2359");
+        bingus.getResponse("mark 1");
+
+        String updateResponse = bingus.getResponse("update 1 /by 2026-09-20 1800");
+
+        assertEquals(CommandType.UPDATE, bingus.getCommandType());
+        assertTrue(updateResponse.contains("submit report"));
+        assertTrue(updateResponse.contains("Sep 20 2026, 6:00 PM"));
+        assertTrue(updateResponse.contains("✓"));
+
+        Bingus reloadedBingus = createBingus();
+        String listResponse = reloadedBingus.getResponse("list");
+        assertTrue(listResponse.contains("submit report"));
+        assertTrue(listResponse.contains("Sep 20 2026, 6:00 PM"));
+        assertTrue(listResponse.contains("✓"));
+        assertFalse(listResponse.contains("Sep 15 2026, 11:59 PM"));
+    }
+
+    /**
      * Verifies that adding a task produces a response and lists an incomplete task icon.
      */
     @Test

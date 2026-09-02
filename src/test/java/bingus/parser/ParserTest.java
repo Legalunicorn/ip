@@ -84,6 +84,56 @@ public class ParserTest {
     }
 
     @Test
+    void parseUpdateDeadline_validDateTime_preservesDescriptionAndUpdatesDueDate() {
+        Parser parser = new Parser();
+        LocalDateTime originalDueDate = LocalDateTime.of(2026, 9, 15, 23, 59);
+        TaskList tasks = new TaskList(List.of(new Deadline("submit report", originalDueDate)));
+
+        Command command = parser.parse("update 1 /by 2026-09-20 1800", tasks);
+        command.execute(tasks, new Ui(), createStorage());
+
+        Deadline updatedDeadline = assertInstanceOf(Deadline.class, tasks.get(0));
+        assertEquals("submit report", updatedDeadline.getDescription());
+        assertEquals(LocalDateTime.of(2026, 9, 20, 18, 0), updatedDeadline.getBy());
+    }
+
+    @Test
+    void parseUpdateDeadline_missingDateTime_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(
+                new Deadline("submit report", LocalDateTime.of(2026, 9, 15, 23, 59))));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /by", tasks));
+    }
+
+    @Test
+    void parseUpdateDeadline_invalidDateTime_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(
+                new Deadline("submit report", LocalDateTime.of(2026, 9, 15, 23, 59))));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /by 2026-02-30 1200", tasks));
+    }
+
+    @Test
+    void parseUpdateDeadline_todo_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /by 2026-09-20 1800", tasks));
+    }
+
+    @Test
+    void parseUpdateDeadline_event_throwsException() {
+        Parser parser = new Parser();
+        LocalDateTime startTime = LocalDateTime.of(2026, 9, 20, 14, 0);
+        LocalDateTime endTime = LocalDateTime.of(2026, 9, 20, 16, 0);
+        TaskList tasks = new TaskList(List.of(new Event("project meeting", startTime, endTime)));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /by 2026-09-20 1800", tasks));
+    }
+
+    @Test
     void parseUpdate_missingArguments_throwsException() {
         Parser parser = new Parser();
 
@@ -107,11 +157,11 @@ public class ParserTest {
     }
 
     @Test
-    void parseUpdate_unsupportedField_throwsException() {
+    void parseUpdate_unknownField_throwsException() {
         Parser parser = new Parser();
         TaskList tasks = new TaskList(List.of(new Todo("read book")));
 
-        assertThrows(BingusException.class, () -> parser.parse("update 1 /by 2026-09-15 2359", tasks));
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /unknown new value", tasks));
     }
 
     @Test
