@@ -17,11 +17,11 @@ public class Bingus {
     static final String DEFAULT_SAVE_FILE_PATH = "data/bingus.txt";
 
     private final Storage storage;
-    private String loadErrorMessage;
     private CommandType commandType = CommandType.NONE;
     private TaskList tasks;
     private final Parser parser;
     private final Ui ui;
+    private String loadErrorMessage;
 
     /**
      * Creates the application using the specified task save file.
@@ -33,51 +33,12 @@ public class Bingus {
         try {
             tasks = new TaskList(storage.loadTasks());
         } catch (BingusException e) {
-            loadErrorMessage = "I couldn't load your save tasks, Sorry! Starting with an empty list";
             tasks = new TaskList();
+            loadErrorMessage = e.getMessage();
         }
         parser = new Parser();
         ui = new Ui();
 
-    }
-
-    /**
-     * Starts the user interface and processes commands until the session ends.
-     */
-    public void run() {
-        ui.showWelcome();
-        if (loadErrorMessage != null) {
-            ui.showError(loadErrorMessage);
-        }
-        startTaskLoop();
-    }
-
-    /**
-     * Displays the welcome message and starts processing user commands.
-     *
-     * @param args command-line arguments, which are not used
-     */
-    public static void main(String[] args) {
-        new Bingus(DEFAULT_SAVE_FILE_PATH).run();
-    }
-
-    /**
-     * Repeatedly read command from user and execute them.
-     * This is used for the CLI Bingus program.
-     */
-    private void startTaskLoop() {
-        boolean isExit = false;
-        while (!isExit && ui.hasNextCommand()) {
-            try {
-                String userInput = ui.readCommand();
-                ui.showLine();
-                Command command = parser.parse(userInput, tasks);
-                command.execute(tasks, ui, storage);
-                isExit = command.isExit();
-            } catch (BingusException e) {
-                ui.showError(e.getMessage());
-            }
-        }
     }
 
     /**
@@ -104,6 +65,14 @@ public class Bingus {
      */
     public CommandType getCommandType() {
         return commandType;
+    }
+
+    /**
+     * Returns the load error message which can be null if there was no error.
+     * @return error message
+     */
+    public String getLoadErrorMessage() {
+        return loadErrorMessage;
     }
 
 }

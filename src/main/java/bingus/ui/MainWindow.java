@@ -56,6 +56,15 @@ public class MainWindow extends AnchorPane {
      */
     public void setBingus(Bingus bingus) {
         this.bingus = bingus;
+
+        String loadErrorMessage = bingus.getLoadErrorMessage();
+        if (loadErrorMessage != null) {
+            DialogBox errorDialog = DialogBox.getBingusDialog(
+                    loadErrorMessage,
+                    bingusImage,
+                    CommandType.INVALID);
+            dialogContainer.getChildren().add(errorDialog);
+        }
     }
 
     /**
