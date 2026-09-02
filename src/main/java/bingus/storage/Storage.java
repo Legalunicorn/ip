@@ -129,12 +129,15 @@ public class Storage {
         String description = encode(task.getDescription());
         switch (task.getType()) {
             case TODO:
+                assert task instanceof Todo : "TODO task must have type Todo";
                 return taskTypeSymbol + "|" + completionStatus + "|" + description;
             case DEADLINE:
+                assert task instanceof Deadline : "DEADLINE task must be a Deadline";
                 Deadline deadline = (Deadline) task;
                 return taskTypeSymbol + "|" + completionStatus + "|" + description
                         + "|" + encode(deadline.getBy().toString());
             case EVENT:
+                assert task instanceof Event : "EVENT task must be an Event";
                 Event event = (Event) task;
                 return taskTypeSymbol + "|" + completionStatus + "|" + description
                         + "|" + encode(event.getFrom().toString()) + "|" + encode(event.getTo().toString());
