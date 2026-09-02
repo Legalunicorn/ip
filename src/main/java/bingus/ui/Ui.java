@@ -3,7 +3,6 @@ package bingus.ui;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Scanner;
 
 import bingus.task.Task;
 import bingus.task.TaskList;
@@ -12,36 +11,8 @@ import bingus.task.TaskList;
  * Represents the user-interface layer that reads terminal input and formats responses.
  */
 public class Ui {
-    private static final String LINE = "____________________________________________________________";
-    private static final String INDENT = "    ";
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMM d uuuu");
-    private final Scanner scanner;
-
-    /**
-     * Creates a user interface that reads commands from standard input.
-     */
-    public Ui() {
-        scanner = new Scanner(System.in);
-    }
-
-    /**
-     * Returns whether another command line is available from standard input.
-     *
-     * @return {@code true} if a command can be read
-     */
-    public boolean hasNextCommand() {
-        return scanner.hasNextLine();
-    }
-
-    /**
-     * Reads one command line from standard input.
-     *
-     * @return command line entered by the user
-     */
-    public String readCommand() {
-        return scanner.nextLine();
-    }
 
     /**
      * Returns confirmation that a task was added.
@@ -160,37 +131,4 @@ public class Ui {
         return message.toString();
     }
 
-    /**
-     * Displays a separator line.
-     */
-    public void showLine() {
-        System.out.println(LINE);
-    }
-
-    /**
-     * Displays the welcome message.
-     */
-    public void showWelcome() {
-        String banner = "  ____  _                       \n"
-                + " | __ )(_)_ __   __ _ _   _ ___ \n"
-                + " |  _ \\| | '_ \\ / _` | | | / __|\n"
-                + " | |_) | | | | | (_| | |_| \\__ \\\n"
-                + " |____/|_|_| |_|\\__, |\\__,_|___/\n"
-                + "                |___/           \n";
-        System.out.println(LINE);
-        System.out.print(banner);
-        System.out.println("Hello! I'm bingus.Bingus.");
-        System.out.println("What can I do for you?");
-        System.out.println(LINE);
-    }
-
-    /**
-     * Displays an error message followed by a separator line.
-     *
-     * @param message error message to display
-     */
-    public void showError(String message) {
-        System.out.println(INDENT + message);
-        showLine();
-    }
 }

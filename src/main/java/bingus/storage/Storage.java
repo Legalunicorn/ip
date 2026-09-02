@@ -74,6 +74,9 @@ public class Storage {
     /**
      * Writes the complete task list to disk. Text fields are Base64 encoded so
      * the record separator cannot conflict with text entered by the user.
+     *
+     * @param tasks complete task list to save
+     * @throws BingusException if the task list cannot be written
      */
     public void saveTasks(List<Task> tasks) throws BingusException {
         List<String> savedTasks = new ArrayList<>();
