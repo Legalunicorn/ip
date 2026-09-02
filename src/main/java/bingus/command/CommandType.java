@@ -11,5 +11,6 @@ public enum CommandType {
     INVALID,
     LIST,
     MARK,
-    NONE
+    NONE,
+    UPDATE
 }

@@ -13,9 +13,11 @@ import bingus.command.ExitCommand;
 import bingus.command.FindCommand;
 import bingus.command.ListCommand;
 import bingus.command.MarkCommand;
+import bingus.command.UpdateCommand;
 import bingus.exception.BingusException;
 import bingus.task.Deadline;
 import bingus.task.Event;
+import bingus.task.Task;
 import bingus.task.TaskList;
 import bingus.task.Todo;
 
@@ -34,6 +36,10 @@ public class Parser {
             .ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
 
+    /** Usage guidance for updating supported task details. */
+    private static final String UPDATE_USAGE = "Please use `update [TASK_NUMBER] /desc [DESCRIPTION]`, "
+            + "`update [TASK_NUMBER] /by [DATETIME]`, `update [TASK_NUMBER] /from [DATETIME]`, "
+            + "or `update [TASK_NUMBER] /to [DATETIME]`.";
 
     /**
      * Converts one command line into the corresponding command object.
@@ -70,9 +76,131 @@ public class Parser {
                         parts, tasks.size(), "Missing delete number! Usage `delete [TASK_NUMBER]`."));
             case "find":
                 return new FindCommand(parseFindKeyword(parts));
+            case "update":
+                return parseUpdateCommand(parts, tasks);
             default:
                 throw new BingusException("I don't recognise this command :/ ");
         }
+    }
+
+    /**
+     * Parses an update command that replaces a supported task detail.
+     *
+     * @param parts command and arguments split into at most two parts
+     * @param tasks current task list, used to find the task being updated
+     * @return command containing the updated replacement task
+     * @throws BingusException if the command arguments are missing or invalid
+     */
+    private UpdateCommand parseUpdateCommand(String[] parts, TaskList tasks) throws BingusException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new BingusException("Missing update arguments. " + UPDATE_USAGE);
+        }
+
+        String[] updateParts = parts[1].trim().split("\\s+", 3);
+        int taskId = parseTaskId(updateParts[0], tasks.size());
+        if (updateParts.length < 2) {
+            throw new BingusException("Missing update field. " + UPDATE_USAGE);
+        }
+        String updateField = updateParts[1];
+        if (!updateField.equals("/desc")
+                && !updateField.equals("/by")
+                && !updateField.equals("/from")
+                && !updateField.equals("/to")) {
+            throw new BingusException("Unsupported update field. " + UPDATE_USAGE);
+        }
+        if (updateParts.length < 3 || updateParts[2].trim().isEmpty()) {
+            if (updateField.equals("/desc")) {
+                throw new BingusException("Updated description cannot be empty. " + UPDATE_USAGE);
+            }
+            throw new BingusException("Updated date/time cannot be empty. " + UPDATE_USAGE);
+        }
+
+        String updatedValue = updateParts[2].trim();
+        Task original = tasks.get(taskId - 1);
+        Task updatedTask;
+        if (updateField.equals("/desc")) {
+            updatedTask = createTaskWithUpdatedDescription(original, updatedValue);
+        } else if (updateField.equals("/by")) {
+            updatedTask = createDeadlineWithUpdatedDateTime(original, updatedValue);
+        } else {
+            updatedTask = createEventWithUpdatedDateTime(original, updateField, updatedValue);
+        }
+        return new UpdateCommand(taskId, updatedTask);
+    }
+
+    /**
+     * Creates a task of the same type with a new description and unchanged type-specific details.
+     *
+     * @param originalTask task whose type-specific details should be preserved
+     * @param updatedDescription replacement task description
+     * @return replacement task with the updated description
+     */
+    private Task createTaskWithUpdatedDescription(Task originalTask, String updatedDescription) {
+        switch (originalTask.getType()) {
+            case TODO:
+                return new Todo(updatedDescription);
+            case DEADLINE:
+                Deadline deadline = (Deadline) originalTask;
+                return new Deadline(updatedDescription, deadline.getBy());
+            case EVENT:
+                Event event = (Event) originalTask;
+                return new Event(
+                        updatedDescription,
+                        event.getFrom(),
+                        event.getTo());
+            default:
+                throw new IllegalStateException(
+                        "Unsupported task type: " + originalTask.getType());
+        }
+    }
+
+    /**
+     * Creates a deadline with a new due date and an unchanged description.
+     *
+     * @param originalTask deadline whose description should be preserved
+     * @param updatedDateTime replacement deadline date and time
+     * @return replacement deadline with the updated due date
+     * @throws BingusException if the task is not a deadline or the date and time is invalid
+     */
+    private Deadline createDeadlineWithUpdatedDateTime(Task originalTask, String updatedDateTime)
+            throws BingusException {
+        if (!(originalTask instanceof Deadline)) {
+            throw new BingusException("The `/by` field can only be used with deadlines. " + UPDATE_USAGE);
+        }
+
+        String invalidDateTimeMessage = "Invalid deadline date/time. Please use yyyy-MM-dd HHmm, "
+                + "e.g. 2019-12-02 1800.";
+        LocalDateTime updatedBy = parseDateTime(updatedDateTime, invalidDateTimeMessage);
+        return new Deadline(originalTask.getDescription(), updatedBy);
+    }
+
+    /**
+     * Creates an event with one updated endpoint and all other details unchanged.
+     *
+     * @param originalTask event whose existing details should be preserved
+     * @param updateField {@code /from} to update the start or {@code /to} to update the end
+     * @param updatedDateTime replacement event date and time
+     * @return replacement event with the updated endpoint
+     * @throws BingusException if the task is not an event, the date and time is invalid, or the range is invalid
+     */
+    private Event createEventWithUpdatedDateTime(
+            Task originalTask, String updateField, String updatedDateTime) throws BingusException {
+        assert updateField.equals("/from") || updateField.equals("/to")
+                : "Event update field must be /from or /to";
+        if (!(originalTask instanceof Event)) {
+            throw new BingusException("The `/from` and `/to` fields can only be used with events. " + UPDATE_USAGE);
+        }
+
+        Event originalEvent = (Event) originalTask;
+        String invalidDateTimeMessage = "Invalid event date/time. Please use yyyy-MM-dd HHmm, "
+                + "e.g. 2019-12-02 1800.";
+        LocalDateTime updatedDate = parseDateTime(updatedDateTime, invalidDateTimeMessage);
+        LocalDateTime updatedFrom = updateField.equals("/from") ? updatedDate : originalEvent.getFrom();
+        LocalDateTime updatedTo = updateField.equals("/to") ? updatedDate : originalEvent.getTo();
+        if (!updatedTo.isAfter(updatedFrom)) {
+            throw new BingusException("Event end date/time must be after its start date/time.");
+        }
+        return new Event(originalEvent.getDescription(), updatedFrom, updatedTo);
     }
 
     /**

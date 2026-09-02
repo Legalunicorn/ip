@@ -3,6 +3,7 @@ package bingus.ui;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 import bingus.task.Task;
 import bingus.task.TaskList;
@@ -12,7 +13,7 @@ import bingus.task.TaskList;
  */
 public class Ui {
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("MMM d uuuu");
+            DateTimeFormatter.ofPattern("MMM d uuuu", Locale.ENGLISH);
 
     /**
      * Returns confirmation that a task was added.
@@ -75,6 +76,16 @@ public class Ui {
      */
     public String getTaskUnmarkedMessage(Task task) {
         return "OK, I've marked this task as not done yet:\n" + task.getTaskString();
+    }
+
+    /**
+     * Returns confirmation that a task was updated.
+     *
+     * @param task updated task
+     * @return task-updated message
+     */
+    public String getTaskUpdatedMessage(Task task) {
+        return "Got it. I've updated this task:\n" + task.getTaskString();
     }
 
     /**

@@ -3,6 +3,7 @@ package bingus.task;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * Represents a task that must be completed by a specified deadline.
@@ -11,7 +12,7 @@ public class Deadline extends Task {
 
     /** Formatter used to present a deadline in task output. */
     private static final DateTimeFormatter DISPLAY_DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a");
+            DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a", Locale.ENGLISH);
 
     /** Date and time by which this task must be completed. */
     private final LocalDateTime by;

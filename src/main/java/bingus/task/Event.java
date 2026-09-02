@@ -3,6 +3,7 @@ package bingus.task;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * Represents a task that starts and ends at specified times.
@@ -11,7 +12,7 @@ public class Event extends Task {
 
     /** Formatter used to present event times in task output. */
     private static final DateTimeFormatter DISPLAY_DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a");
+            DateTimeFormatter.ofPattern("MMM d uuuu, h:mm a", Locale.ENGLISH);
 
     /** Date and time at which this event begins. */
     private final LocalDateTime from;
