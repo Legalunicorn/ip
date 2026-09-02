@@ -37,8 +37,9 @@ public class Parser {
             .withResolverStyle(ResolverStyle.STRICT);
 
     /** Usage guidance for updating supported task details. */
-    private static final String UPDATE_USAGE = "Please use `update [TASK_NUMBER] /desc [DESCRIPTION]` "
-            + "or `update [TASK_NUMBER] /by [DATETIME]`.";
+    private static final String UPDATE_USAGE = "Please use `update [TASK_NUMBER] /desc [DESCRIPTION]`, "
+            + "`update [TASK_NUMBER] /by [DATETIME]`, `update [TASK_NUMBER] /from [DATETIME]`, "
+            + "or `update [TASK_NUMBER] /to [DATETIME]`.";
 
     /**
      * Converts one command line into the corresponding command object.
@@ -101,14 +102,17 @@ public class Parser {
             throw new BingusException("Missing update field. " + UPDATE_USAGE);
         }
         String updateField = updateParts[1];
-        if (!updateField.equals("/desc") && !updateField.equals("/by")) {
+        if (!updateField.equals("/desc")
+                && !updateField.equals("/by")
+                && !updateField.equals("/from")
+                && !updateField.equals("/to")) {
             throw new BingusException("Unsupported update field. " + UPDATE_USAGE);
         }
         if (updateParts.length < 3 || updateParts[2].trim().isEmpty()) {
             if (updateField.equals("/desc")) {
                 throw new BingusException("Updated description cannot be empty. " + UPDATE_USAGE);
             }
-            throw new BingusException("Updated deadline date/time cannot be empty. " + UPDATE_USAGE);
+            throw new BingusException("Updated date/time cannot be empty. " + UPDATE_USAGE);
         }
 
         String updatedValue = updateParts[2].trim();
@@ -116,8 +120,10 @@ public class Parser {
         Task updatedTask;
         if (updateField.equals("/desc")) {
             updatedTask = createTaskWithUpdatedDescription(original, updatedValue);
-        } else {
+        } else if (updateField.equals("/by")) {
             updatedTask = createDeadlineWithUpdatedDateTime(original, updatedValue);
+        } else {
+            updatedTask = createEventWithUpdatedDateTime(original, updateField, updatedValue);
         }
         return new UpdateCommand(taskId, updatedTask);
     }
@@ -166,6 +172,35 @@ public class Parser {
                 + "e.g. 2019-12-02 1800.";
         LocalDateTime updatedBy = parseDateTime(updatedDateTime, invalidDateTimeMessage);
         return new Deadline(originalTask.getDescription(), updatedBy);
+    }
+
+    /**
+     * Creates an event with one updated endpoint and all other details unchanged.
+     *
+     * @param originalTask event whose existing details should be preserved
+     * @param updateField {@code /from} to update the start or {@code /to} to update the end
+     * @param updatedDateTime replacement event date and time
+     * @return replacement event with the updated endpoint
+     * @throws BingusException if the task is not an event, the date and time is invalid, or the range is invalid
+     */
+    private Event createEventWithUpdatedDateTime(
+            Task originalTask, String updateField, String updatedDateTime) throws BingusException {
+        assert updateField.equals("/from") || updateField.equals("/to")
+                : "Event update field must be /from or /to";
+        if (!(originalTask instanceof Event)) {
+            throw new BingusException("The `/from` and `/to` fields can only be used with events. " + UPDATE_USAGE);
+        }
+
+        Event originalEvent = (Event) originalTask;
+        String invalidDateTimeMessage = "Invalid event date/time. Please use yyyy-MM-dd HHmm, "
+                + "e.g. 2019-12-02 1800.";
+        LocalDateTime updatedDate = parseDateTime(updatedDateTime, invalidDateTimeMessage);
+        LocalDateTime updatedFrom = updateField.equals("/from") ? updatedDate : originalEvent.getFrom();
+        LocalDateTime updatedTo = updateField.equals("/to") ? updatedDate : originalEvent.getTo();
+        if (!updatedTo.isAfter(updatedFrom)) {
+            throw new BingusException("Event end date/time must be after its start date/time.");
+        }
+        return new Event(originalEvent.getDescription(), updatedFrom, updatedTo);
     }
 
     /**
