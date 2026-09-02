@@ -3,6 +3,7 @@ package bingus.ui;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 import bingus.task.Task;
 import bingus.task.TaskList;
@@ -12,7 +13,7 @@ import bingus.task.TaskList;
  */
 public class Ui {
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("MMM d uuuu");
+            DateTimeFormatter.ofPattern("MMM d uuuu", Locale.ENGLISH);
 
     /**
      * Returns confirmation that a task was added.
