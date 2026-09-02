@@ -13,9 +13,11 @@ import bingus.command.ExitCommand;
 import bingus.command.FindCommand;
 import bingus.command.ListCommand;
 import bingus.command.MarkCommand;
+import bingus.command.UpdateCommand;
 import bingus.exception.BingusException;
 import bingus.task.Deadline;
 import bingus.task.Event;
+import bingus.task.Task;
 import bingus.task.TaskList;
 import bingus.task.Todo;
 
@@ -34,6 +36,9 @@ public class Parser {
             .ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
 
+    /** Usage guidance for updating a task description. */
+    private static final String UPDATE_DESCRIPTION_USAGE =
+            "Please use `update [TASK_NUMBER] /desc [DESCRIPTION]`.";
 
     /**
      * Converts one command line into the corresponding command object.
@@ -70,8 +75,67 @@ public class Parser {
                         parts, tasks.size(), "Missing delete number! Usage `delete [TASK_NUMBER]`."));
             case "find":
                 return new FindCommand(parseFindKeyword(parts));
+            case "update":
+                return parseUpdateCommand(parts, tasks);
             default:
                 throw new BingusException("I don't recognise this command :/ ");
+        }
+    }
+
+    /**
+     * Parses an update command that replaces a task's description.
+     *
+     * @param parts command and arguments split into at most two parts
+     * @param tasks current task list, used to find the task being updated
+     * @return command containing the updated replacement task
+     * @throws BingusException if the command arguments are missing or invalid
+     */
+    private UpdateCommand parseUpdateCommand(String[] parts, TaskList tasks) throws BingusException {
+        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+            throw new BingusException("Missing update arguments. " + UPDATE_DESCRIPTION_USAGE);
+        }
+
+        String[] updateParts = parts[1].trim().split("\\s+", 3);
+        int taskId = parseTaskId(updateParts[0], tasks.size());
+        if (updateParts.length < 2) {
+            throw new BingusException("Missing update field. " + UPDATE_DESCRIPTION_USAGE);
+        }
+        if (!updateParts[1].equals("/desc")) {
+            throw new BingusException("Unsupported update field. " + UPDATE_DESCRIPTION_USAGE);
+        }
+        if (updateParts.length < 3 || updateParts[2].trim().isEmpty()) {
+            throw new BingusException("Updated description cannot be empty. " + UPDATE_DESCRIPTION_USAGE);
+        }
+
+        String updatedDescription = updateParts[2].trim();
+        Task original = tasks.get(taskId - 1);
+        Task updatedTask = createTaskWithUpdatedDescription(original, updatedDescription);
+        return new UpdateCommand(taskId, updatedTask);
+    }
+
+    /**
+     * Creates a task of the same type with a new description and unchanged type-specific details.
+     *
+     * @param originalTask task whose type-specific details should be preserved
+     * @param updatedDescription replacement task description
+     * @return replacement task with the updated description
+     */
+    private Task createTaskWithUpdatedDescription(Task originalTask, String updatedDescription) {
+        switch (originalTask.getType()) {
+            case TODO:
+                return new Todo(updatedDescription);
+            case DEADLINE:
+                Deadline deadline = (Deadline) originalTask;
+                return new Deadline(updatedDescription, deadline.getBy());
+            case EVENT:
+                Event event = (Event) originalTask;
+                return new Event(
+                        updatedDescription,
+                        event.getFrom(),
+                        event.getTo());
+            default:
+                throw new IllegalStateException(
+                        "Unsupported task type: " + originalTask.getType());
         }
     }
 
