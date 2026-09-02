@@ -13,6 +13,9 @@ import bingus.ui.Ui;
  */
 public class Bingus {
 
+    /** Default save file used by the CLI and GUI entry points. */
+    static final String DEFAULT_SAVE_FILE_PATH = "data/bingus.txt";
+
     private final Storage storage;
     private String loadErrorMessage;
     private CommandType commandType = CommandType.NONE;
@@ -55,7 +58,7 @@ public class Bingus {
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
-        new Bingus("data/bingus.txt").run();
+        new Bingus(DEFAULT_SAVE_FILE_PATH).run();
     }
 
     /**

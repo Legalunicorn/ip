@@ -22,6 +22,22 @@ import bingus.task.Todo;
  */
 public class Storage {
 
+    private static final int TASK_TYPE_INDEX = 0;
+    private static final int COMPLETION_STATUS_INDEX = 1;
+    private static final int DESCRIPTION_INDEX = 2;
+    private static final int DATE_TIME_INDEX = 3;
+    private static final int EVENT_END_DATE_TIME_INDEX = 4;
+
+    private static final int TODO_FIELD_COUNT = 3;
+    private static final int DEADLINE_FIELD_COUNT = 4;
+    private static final int EVENT_FIELD_COUNT = 5;
+
+    private static final String TODO_TASK_CODE = "T";
+    private static final String DEADLINE_TASK_CODE = "D";
+    private static final String EVENT_TASK_CODE = "E";
+    private static final String COMPLETED_STATUS = "1";
+    private static final String INCOMPLETE_STATUS = "0";
+
     private final Path saveFile;
 
     /**
@@ -107,18 +123,19 @@ public class Storage {
      * @return save-file record
      */
     private static String toSaveRecord(Task task) {
-        String done = task.isDone() ? "1" : "0";
+        String completionStatus = task.isDone() ? COMPLETED_STATUS : INCOMPLETE_STATUS;
         String description = encode(task.getDescription());
         switch (task.getType()) {
             case TODO:
-                return "T|" + done + "|" + description;
+                return TODO_TASK_CODE + "|" + completionStatus + "|" + description;
             case DEADLINE:
                 Deadline deadline = (Deadline) task;
-                return "D|" + done + "|" + description + "|" + encode(deadline.getBy().toString());
+                return DEADLINE_TASK_CODE + "|" + completionStatus + "|" + description
+                        + "|" + encode(deadline.getBy().toString());
             case EVENT:
                 Event event = (Event) task;
-                return "E|" + done + "|" + description + "|" + encode(event.getFrom().toString())
-                        + "|" + encode(event.getTo().toString());
+                return EVENT_TASK_CODE + "|" + completionStatus + "|" + description
+                        + "|" + encode(event.getFrom().toString()) + "|" + encode(event.getTo().toString());
             default:
                 throw new IllegalStateException("Unsupported task type: " + task.getType());
         }
@@ -153,28 +170,32 @@ public class Storage {
     private static Task fromSaveRecord(String savedTask) {
         String[] fields = savedTask.split("\\|", -1);
         Task task;
-        switch (fields[0]) {
-            case "T":
-                requireFieldCount(fields, 3, savedTask);
-                task = new Todo(decode(fields[2]));
+        switch (fields[TASK_TYPE_INDEX]) {
+            case TODO_TASK_CODE:
+                requireFieldCount(fields, TODO_FIELD_COUNT, savedTask);
+                task = new Todo(decode(fields[DESCRIPTION_INDEX]));
                 break;
-            case "D":
-                requireFieldCount(fields, 4, savedTask);
-                task = new Deadline(decode(fields[2]), LocalDateTime.parse(decode(fields[3])));
+            case DEADLINE_TASK_CODE:
+                requireFieldCount(fields, DEADLINE_FIELD_COUNT, savedTask);
+                task = new Deadline(decode(fields[DESCRIPTION_INDEX]),
+                        LocalDateTime.parse(decode(fields[DATE_TIME_INDEX])));
                 break;
-            case "E":
-                requireFieldCount(fields, 5, savedTask);
-                task = new Event(decode(fields[2]), LocalDateTime.parse(decode(fields[3])),
-                        LocalDateTime.parse(decode(fields[4])));
+            case EVENT_TASK_CODE:
+                requireFieldCount(fields, EVENT_FIELD_COUNT, savedTask);
+                task = new Event(decode(fields[DESCRIPTION_INDEX]),
+                        LocalDateTime.parse(decode(fields[DATE_TIME_INDEX])),
+                        LocalDateTime.parse(decode(fields[EVENT_END_DATE_TIME_INDEX])));
                 break;
             default:
-                throw new IllegalStateException("Unknown task type in save file: " + fields[0]);
+                throw new IllegalStateException(
+                        "Unknown task type in save file: " + fields[TASK_TYPE_INDEX]);
         }
 
-        if (fields[1].equals("1")) {
+        if (fields[COMPLETION_STATUS_INDEX].equals(COMPLETED_STATUS)) {
             task.mark();
-        } else if (!fields[1].equals("0")) {
-            throw new IllegalStateException("Invalid completion status in save file: " + fields[1]);
+        } else if (!fields[COMPLETION_STATUS_INDEX].equals(INCOMPLETE_STATUS)) {
+            throw new IllegalStateException(
+                    "Invalid completion status in save file: " + fields[COMPLETION_STATUS_INDEX]);
         }
         return task;
     }

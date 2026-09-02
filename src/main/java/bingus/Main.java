@@ -17,7 +17,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
-    private Bingus bingus = new Bingus("data/bingus.txt");
+    private final Bingus bingus = new Bingus(Bingus.DEFAULT_SAVE_FILE_PATH);
 
     @Override
     public void start(Stage stage) {
