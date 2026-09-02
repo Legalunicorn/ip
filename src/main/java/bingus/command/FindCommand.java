@@ -20,6 +20,11 @@ public class FindCommand extends Command {
         this.word = word;
     }
 
+    @Override
+    public CommandType getType() {
+        return CommandType.FIND;
+    }
+
     /**
      * Finds matching tasks and returns them as a message.
      *

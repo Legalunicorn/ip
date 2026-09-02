@@ -10,14 +10,9 @@ import bingus.ui.Ui;
  */
 public class ExitCommand extends Command {
 
-    /**
-     * Returns that this command ends the application.
-     *
-     * @return always {@code true}
-     */
     @Override
-    public boolean isExit() {
-        return true;
+    public CommandType getType() {
+        return CommandType.EXIT;
     }
 
     /**

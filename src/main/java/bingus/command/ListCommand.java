@@ -30,6 +30,11 @@ public class ListCommand extends Command {
         this.date = date;
     }
 
+    @Override
+    public CommandType getType() {
+        return CommandType.LIST;
+    }
+
     /**
      * Returns the complete or date-filtered task list.
      *
@@ -42,8 +47,7 @@ public class ListCommand extends Command {
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         if (date == null) {
             return ui.getTaskListMessage(tasks);
-        } else {
-            return ui.getFilteredTaskListMessage(tasks, date);
         }
+        return ui.getFilteredTaskListMessage(tasks, date);
     }
 }

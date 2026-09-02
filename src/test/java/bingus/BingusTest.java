@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import bingus.command.CommandType;
+
 /**
  * Tests the GUI-facing command-response API of {@link Bingus}.
  */
@@ -33,10 +35,11 @@ class BingusTest {
         Bingus bingus = createBingus();
 
         String addResponse = bingus.getResponse("todo read book");
-        String listResponse = bingus.getResponse("list");
-
         assertTrue(addResponse.contains("read book"));
-        assertEquals("ListCommand", bingus.getCommandType());
+        assertEquals(CommandType.ADD, bingus.getCommandType());
+
+        String listResponse = bingus.getResponse("list");
+        assertEquals(CommandType.LIST, bingus.getCommandType());
         assertTrue(listResponse.contains("○"));
         assertTrue(listResponse.contains("read book"));
     }
@@ -50,24 +53,25 @@ class BingusTest {
         bingus.getResponse("todo read book");
 
         String markResponse = bingus.getResponse("mark 1");
-        String listResponse = bingus.getResponse("list");
-
         assertTrue(markResponse.contains("✓"));
+        assertEquals(CommandType.MARK, bingus.getCommandType());
+
+        String listResponse = bingus.getResponse("list");
         assertTrue(listResponse.contains("✓"));
         assertTrue(listResponse.contains("read book"));
     }
 
     /**
-     * Verifies that an invalid command returns an error and clears the command type used by the GUI.
+     * Verifies that an invalid command returns an error and records an invalid command type.
      */
     @Test
-    void getResponse_invalidCommand_returnsErrorAndClearsCommandType() {
+    void getResponse_invalidCommand_returnsErrorAndInvalidCommandType() {
         Bingus bingus = createBingus();
 
         String response = bingus.getResponse("nonsense");
 
         assertTrue(response.startsWith("Error:"));
-        assertEquals("", bingus.getCommandType());
+        assertEquals(CommandType.INVALID, bingus.getCommandType());
     }
 
     /**
@@ -80,7 +84,7 @@ class BingusTest {
         String response = bingus.getResponse("bye");
 
         assertTrue(response.contains("Bye!"));
-        assertEquals("ExitCommand", bingus.getCommandType());
+        assertEquals(CommandType.EXIT, bingus.getCommandType());
     }
 
     /**

@@ -10,6 +10,13 @@ import bingus.ui.Ui;
  */
 public abstract class Command {
     /**
+     * Returns this command's category.
+     *
+     * @return command category
+     */
+    public abstract CommandType getType();
+
+    /**
      * Executes this command using the current application collaborators.
      *
      * @param tasks Current task list.
@@ -19,13 +26,4 @@ public abstract class Command {
      * @throws BingusException If the command cannot be completed.
      */
     public abstract String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException;
-
-    /**
-     * Returns whether executing this command should end the application.
-     *
-     * @return {@code true} if the application should exit
-     */
-    public boolean isExit() {
-        return false;
-    }
 }

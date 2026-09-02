@@ -17,14 +17,14 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
-    private Bingus bingus = new Bingus("data/bingus.txt");
+    private final Bingus bingus = new Bingus(Bingus.DEFAULT_SAVE_FILE_PATH);
 
     @Override
     public void start(Stage stage) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
-            AnchorPane ap = fxmlLoader.load();
-            Scene scene = new Scene(ap);
+            AnchorPane rootPane = fxmlLoader.load();
+            Scene scene = new Scene(rootPane);
             stage.setScene(scene);
             stage.sizeToScene();
             stage.setMinHeight(stage.getHeight());
@@ -32,7 +32,7 @@ public class Main extends Application {
             fxmlLoader.<MainWindow>getController().setBingus(bingus);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to load the main window layout.", e);
         }
     }
 }

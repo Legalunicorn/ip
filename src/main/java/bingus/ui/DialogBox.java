@@ -7,6 +7,7 @@ package bingus.ui;
 import java.io.IOException;
 import java.util.Collections;
 
+import bingus.command.CommandType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -28,27 +29,27 @@ public class DialogBox extends HBox {
     @FXML
     private ImageView displayPicture;
 
-    private DialogBox(String text, Image img) {
+    private DialogBox(String text, Image image) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainWindow.class.getResource("/view/DialogBox.fxml"));
             fxmlLoader.setController(this);
             fxmlLoader.setRoot(this);
             fxmlLoader.load();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to load the dialog box layout.", e);
         }
 
         dialog.setText(text);
-        displayPicture.setImage(img);
+        displayPicture.setImage(image);
     }
 
     /**
      * Flips the dialog box such that the ImageView is on the left and text on the right.
      */
     private void flip() {
-        ObservableList<Node> tmp = FXCollections.observableArrayList(this.getChildren());
-        Collections.reverse(tmp);
-        getChildren().setAll(tmp);
+        ObservableList<Node> reversedChildren = FXCollections.observableArrayList(this.getChildren());
+        Collections.reverse(reversedChildren);
+        getChildren().setAll(reversedChildren);
         setAlignment(Pos.TOP_LEFT);
         dialog.getStyleClass().add("reply-label");
     }
@@ -57,42 +58,42 @@ public class DialogBox extends HBox {
      * Creates a dialog box for a user message.
      *
      * @param text message text
-     * @param img image representing the user
+     * @param image image representing the user
      * @return dialog box for the user message
      */
-    public static DialogBox getUserDialog(String text, Image img) {
-        return new DialogBox(text, img);
+    public static DialogBox getUserDialog(String text, Image image) {
+        return new DialogBox(text, image);
     }
 
     /**
      * Creates a flipped dialog box for a Bingus response.
      *
      * @param text response text
-     * @param img image representing Bingus
+     * @param image the image representing Bingus
      * @param commandType type of command that produced the response
      * @return dialog box for the Bingus response
      */
-    public static DialogBox getBingusDialog(String text, Image img, String commandType) {
-        var db = new DialogBox(text, img);
-        db.flip();
-        db.changeDialogStyle(commandType);
-        return db;
+    public static DialogBox getBingusDialog(String text, Image image, CommandType commandType) {
+        DialogBox bingusDialog = new DialogBox(text, image);
+        bingusDialog.flip();
+        bingusDialog.changeDialogStyle(commandType);
+        return bingusDialog;
     }
 
     /** Applies a response style based on the command type. */
-    private void changeDialogStyle(String commandType) {
+    private void changeDialogStyle(CommandType commandType) {
         switch (commandType) {
-            case "AddCommand":
+            case ADD:
                 dialog.getStyleClass().add("add-label");
                 break;
-            case "MarkCommand":
+            case MARK:
                 dialog.getStyleClass().add("marked-label");
                 break;
-            case "DeleteCommand":
+            case DELETE:
                 dialog.getStyleClass().add("delete-label");
                 break;
             default:
-                // Do nothing
+                // Use the default reply style.
         }
     }
 }

@@ -15,6 +15,7 @@ import bingus.task.Deadline;
 import bingus.task.Event;
 import bingus.task.TaskList;
 import bingus.task.Todo;
+
 /**
  * Tests command parsing and validation.
  */
@@ -36,78 +37,83 @@ public class ParserTest {
 
     @Test
     void parseDeadline_inputsLengthOne_throwsException() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"deadline"};
-        assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+        assertThrows(BingusException.class, () -> parser.parseDeadline(parts));
     }
 
     @Test
     void parseDeadline_inputWithoutDelimiter_throwsException() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"deadline", "no-delimiter"};
-        assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+        assertThrows(BingusException.class, () -> parser.parseDeadline(parts));
     }
 
     @Test
     void parseDeadline_inputWithDelimiterAndLocalDateTime_returnsDeadline() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] properParts = {"deadline", "soup /by 1212-12-12 1212"};
-        Deadline d = p.parseDeadline(properParts);
-        assertEquals("soup", d.getDescription());
+        Deadline deadline = parser.parseDeadline(properParts);
+        assertEquals("soup", deadline.getDescription());
         assertEquals(
                 LocalDateTime.of(1212, 12, 12, 12, 12),
-                d.getBy());
+                deadline.getBy());
     }
-
 
     @Test
     void parseDeadline_emptyDescription_throwsException() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"deadline", " /by 2026-08-30 2359"};
 
-        assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+        BingusException exception = assertThrows(BingusException.class, () -> parser.parseDeadline(parts));
+
+        assertEquals("Task description cannot be empty. "
+                + "Please use `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
     }
 
     @Test
     void parseDeadline_emptyDateTime_throwsException() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"deadline", "submit report /by "};
 
-        assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+        BingusException exception = assertThrows(BingusException.class, () -> parser.parseDeadline(parts));
+
+        assertEquals("Deadline date/time cannot be empty. "
+                + "Please use `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
     }
 
     @Test
     void parseDeadline_invalidCalendarDate_throwsException() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"deadline", "submit report /by 2026-02-30 1200"};
 
-        assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+        assertThrows(BingusException.class, () -> parser.parseDeadline(parts));
     }
 
     @Test
     void parseTodo_descriptionWithSurroundingWhitespace_returnsTrimmedTodo() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"todo", "  read JUnit guide  "};
 
-        Todo todo = p.parseTodo(parts);
+        Todo todo = parser.parseTodo(parts);
 
         assertEquals("read JUnit guide", todo.getDescription());
     }
 
     @Test
     void parseTodo_blankDescription_throwsException() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"todo", "   "};
 
-        assertThrows(BingusException.class, () -> p.parseTodo(parts));
+        assertThrows(BingusException.class, () -> parser.parseTodo(parts));
     }
 
     @Test
     void parseEvent_validTimes_returnsEventWithCorrectValues() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"event", "camp /from 2026-08-20 0900 /to 2026-08-22 1800"};
 
-        Event event = p.parseEvent(parts);
+        Event event = parser.parseEvent(parts);
 
         assertEquals("camp", event.getDescription());
         assertEquals(LocalDateTime.of(2026, 8, 20, 9, 0), event.getFrom());
@@ -116,10 +122,12 @@ public class ParserTest {
 
     @Test
     void parseEvent_endNotAfterStart_throwsException() {
-        Parser p = new Parser();
+        Parser parser = new Parser();
         String[] parts = {"event", "meeting /from 2026-08-20 0900 /to 2026-08-20 0900"};
 
-        assertThrows(BingusException.class, () -> p.parseEvent(parts));
+        BingusException exception = assertThrows(BingusException.class, () -> parser.parseEvent(parts));
+
+        assertEquals("Event end date/time must be after its start date/time.", exception.getMessage());
     }
 
     @Test
@@ -153,7 +161,10 @@ public class ParserTest {
     void parseTaskId_nonNumericInput_throwsException() {
         Parser parser = new Parser();
 
-        assertThrows(BingusException.class, () -> parser.parseTaskId("two", 3));
+        BingusException exception = assertThrows(
+                BingusException.class, () -> parser.parseTaskId("two", 3));
+
+        assertEquals("Task number must be a whole number.", exception.getMessage());
     }
 
     @Test

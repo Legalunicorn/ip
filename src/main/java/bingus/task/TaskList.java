@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Represents a collections of Tasks.
+ * Represents a collection of tasks.
  */
 public class TaskList {
 
@@ -39,31 +39,31 @@ public class TaskList {
     /**
      * Adds a task at the specified zero-based position.
      *
-     * @param id Zero-based position at which to add the task.
+     * @param index Zero-based position at which to add the task.
      * @param task Task to add.
      */
-    public void add(int id, Task task) {
-        this.tasks.add(id, task);
+    public void add(int index, Task task) {
+        this.tasks.add(index, task);
     }
 
     /**
      * Returns the task at the specified position.
      *
-     * @param id Zero-based position of the task.
+     * @param index Zero-based position of the task.
      * @return Task at the specified position.
      */
-    public Task get(int id) {
-        return this.tasks.get(id);
+    public Task get(int index) {
+        return this.tasks.get(index);
     }
 
     /**
      * Removes and returns the task at the specified position.
      *
-     * @param id Zero-based position of the task.
+     * @param index Zero-based position of the task.
      * @return Removed task.
      */
-    public Task remove(int id) {
-        return tasks.remove(id);
+    public Task remove(int index) {
+        return tasks.remove(index);
     }
 
     /**

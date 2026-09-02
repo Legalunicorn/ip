@@ -25,6 +25,11 @@ public class MarkCommand extends Command {
         this.isToMark = isToMark;
     }
 
+    @Override
+    public CommandType getType() {
+        return CommandType.MARK;
+    }
+
     /**
      * Updates the task's completion status, saves the list, and returns the result message.
      *
@@ -45,14 +50,13 @@ public class MarkCommand extends Command {
             task.unmark();
         }
 
-        // Maybe consider rollbacker/storage to handle roll backs
         try {
             storage.saveTasks(tasks.getAllTasks());
         } catch (BingusException e) {
             if (isToMark) {
-                task.unmark(); // reverse of mark
+                task.unmark();
             } else {
-                task.mark(); // reverse of unmark
+                task.mark();
             }
             throw e;
         }
