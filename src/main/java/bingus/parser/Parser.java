@@ -36,9 +36,9 @@ public class Parser {
             .ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
 
-    /** Usage guidance for updating a task description. */
-    private static final String UPDATE_DESCRIPTION_USAGE =
-            "Please use `update [TASK_NUMBER] /desc [DESCRIPTION]`.";
+    /** Usage guidance for updating supported task details. */
+    private static final String UPDATE_USAGE = "Please use `update [TASK_NUMBER] /desc [DESCRIPTION]` "
+            + "or `update [TASK_NUMBER] /by [DATETIME]`.";
 
     /**
      * Converts one command line into the corresponding command object.
@@ -83,7 +83,7 @@ public class Parser {
     }
 
     /**
-     * Parses an update command that replaces a task's description.
+     * Parses an update command that replaces a supported task detail.
      *
      * @param parts command and arguments split into at most two parts
      * @param tasks current task list, used to find the task being updated
@@ -92,24 +92,33 @@ public class Parser {
      */
     private UpdateCommand parseUpdateCommand(String[] parts, TaskList tasks) throws BingusException {
         if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            throw new BingusException("Missing update arguments. " + UPDATE_DESCRIPTION_USAGE);
+            throw new BingusException("Missing update arguments. " + UPDATE_USAGE);
         }
 
         String[] updateParts = parts[1].trim().split("\\s+", 3);
         int taskId = parseTaskId(updateParts[0], tasks.size());
         if (updateParts.length < 2) {
-            throw new BingusException("Missing update field. " + UPDATE_DESCRIPTION_USAGE);
+            throw new BingusException("Missing update field. " + UPDATE_USAGE);
         }
-        if (!updateParts[1].equals("/desc")) {
-            throw new BingusException("Unsupported update field. " + UPDATE_DESCRIPTION_USAGE);
+        String updateField = updateParts[1];
+        if (!updateField.equals("/desc") && !updateField.equals("/by")) {
+            throw new BingusException("Unsupported update field. " + UPDATE_USAGE);
         }
         if (updateParts.length < 3 || updateParts[2].trim().isEmpty()) {
-            throw new BingusException("Updated description cannot be empty. " + UPDATE_DESCRIPTION_USAGE);
+            if (updateField.equals("/desc")) {
+                throw new BingusException("Updated description cannot be empty. " + UPDATE_USAGE);
+            }
+            throw new BingusException("Updated deadline date/time cannot be empty. " + UPDATE_USAGE);
         }
 
-        String updatedDescription = updateParts[2].trim();
+        String updatedValue = updateParts[2].trim();
         Task original = tasks.get(taskId - 1);
-        Task updatedTask = createTaskWithUpdatedDescription(original, updatedDescription);
+        Task updatedTask;
+        if (updateField.equals("/desc")) {
+            updatedTask = createTaskWithUpdatedDescription(original, updatedValue);
+        } else {
+            updatedTask = createDeadlineWithUpdatedDateTime(original, updatedValue);
+        }
         return new UpdateCommand(taskId, updatedTask);
     }
 
@@ -137,6 +146,26 @@ public class Parser {
                 throw new IllegalStateException(
                         "Unsupported task type: " + originalTask.getType());
         }
+    }
+
+    /**
+     * Creates a deadline with a new due date and an unchanged description.
+     *
+     * @param originalTask deadline whose description should be preserved
+     * @param updatedDateTime replacement deadline date and time
+     * @return replacement deadline with the updated due date
+     * @throws BingusException if the task is not a deadline or the date and time is invalid
+     */
+    private Deadline createDeadlineWithUpdatedDateTime(Task originalTask, String updatedDateTime)
+            throws BingusException {
+        if (!(originalTask instanceof Deadline)) {
+            throw new BingusException("The `/by` field can only be used with deadlines. " + UPDATE_USAGE);
+        }
+
+        String invalidDateTimeMessage = "Invalid deadline date/time. Please use yyyy-MM-dd HHmm, "
+                + "e.g. 2019-12-02 1800.";
+        LocalDateTime updatedBy = parseDateTime(updatedDateTime, invalidDateTimeMessage);
+        return new Deadline(originalTask.getDescription(), updatedBy);
     }
 
     /**
