@@ -75,6 +75,34 @@ class BingusTest {
     }
 
     /**
+     * Verifies that updating both event endpoints changes and persists only its times.
+     */
+    @Test
+    void getResponse_updateEventTimes_changesAndPersistsStartAndEndTimes() {
+        Bingus bingus = createBingus();
+        bingus.getResponse("event project meeting /from 2026-09-20 1400 /to 2026-09-20 1600");
+        bingus.getResponse("mark 1");
+
+        bingus.getResponse("update 1 /from 2026-09-20 1500");
+        String updateResponse = bingus.getResponse("update 1 /to 2026-09-20 1730");
+
+        assertEquals(CommandType.UPDATE, bingus.getCommandType());
+        assertTrue(updateResponse.contains("project meeting"));
+        assertTrue(updateResponse.contains("Sep 20 2026, 3:00 PM"));
+        assertTrue(updateResponse.contains("Sep 20 2026, 5:30 PM"));
+        assertTrue(updateResponse.contains("✓"));
+
+        Bingus reloadedBingus = createBingus();
+        String listResponse = reloadedBingus.getResponse("list");
+        assertTrue(listResponse.contains("project meeting"));
+        assertTrue(listResponse.contains("Sep 20 2026, 3:00 PM"));
+        assertTrue(listResponse.contains("Sep 20 2026, 5:30 PM"));
+        assertTrue(listResponse.contains("✓"));
+        assertFalse(listResponse.contains("Sep 20 2026, 2:00 PM"));
+        assertFalse(listResponse.contains("Sep 20 2026, 4:00 PM"));
+    }
+
+    /**
      * Verifies that adding a task produces a response and lists an incomplete task icon.
      */
     @Test

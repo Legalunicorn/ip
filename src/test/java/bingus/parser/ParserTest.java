@@ -134,6 +134,101 @@ public class ParserTest {
     }
 
     @Test
+    void parseUpdateEvent_validStartTime_preservesDescriptionAndEndTime() {
+        Parser parser = new Parser();
+        LocalDateTime originalStartTime = LocalDateTime.of(2026, 9, 20, 14, 0);
+        LocalDateTime originalEndTime = LocalDateTime.of(2026, 9, 20, 16, 0);
+        TaskList tasks = new TaskList(List.of(
+                new Event("project meeting", originalStartTime, originalEndTime)));
+
+        Command command = parser.parse("update 1 /from 2026-09-20 1500", tasks);
+        command.execute(tasks, new Ui(), createStorage());
+
+        Event updatedEvent = assertInstanceOf(Event.class, tasks.get(0));
+        assertEquals("project meeting", updatedEvent.getDescription());
+        assertEquals(LocalDateTime.of(2026, 9, 20, 15, 0), updatedEvent.getFrom());
+        assertEquals(originalEndTime, updatedEvent.getTo());
+    }
+
+    @Test
+    void parseUpdateEvent_validEndTime_preservesDescriptionAndStartTime() {
+        Parser parser = new Parser();
+        LocalDateTime originalStartTime = LocalDateTime.of(2026, 9, 20, 14, 0);
+        LocalDateTime originalEndTime = LocalDateTime.of(2026, 9, 20, 16, 0);
+        TaskList tasks = new TaskList(List.of(
+                new Event("project meeting", originalStartTime, originalEndTime)));
+
+        Command command = parser.parse("update 1 /to 2026-09-20 1730", tasks);
+        command.execute(tasks, new Ui(), createStorage());
+
+        Event updatedEvent = assertInstanceOf(Event.class, tasks.get(0));
+        assertEquals("project meeting", updatedEvent.getDescription());
+        assertEquals(originalStartTime, updatedEvent.getFrom());
+        assertEquals(LocalDateTime.of(2026, 9, 20, 17, 30), updatedEvent.getTo());
+    }
+
+    @Test
+    void parseUpdateEvent_missingDateTime_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Event(
+                "project meeting",
+                LocalDateTime.of(2026, 9, 20, 14, 0),
+                LocalDateTime.of(2026, 9, 20, 16, 0))));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /from", tasks));
+    }
+
+    @Test
+    void parseUpdateEvent_invalidDateTime_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Event(
+                "project meeting",
+                LocalDateTime.of(2026, 9, 20, 14, 0),
+                LocalDateTime.of(2026, 9, 20, 16, 0))));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /to 2026-02-30 1200", tasks));
+    }
+
+    @Test
+    void parseUpdateEvent_startNotBeforeEnd_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Event(
+                "project meeting",
+                LocalDateTime.of(2026, 9, 20, 14, 0),
+                LocalDateTime.of(2026, 9, 20, 16, 0))));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /from 2026-09-20 1600", tasks));
+    }
+
+    @Test
+    void parseUpdateEvent_endNotAfterStart_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Event(
+                "project meeting",
+                LocalDateTime.of(2026, 9, 20, 14, 0),
+                LocalDateTime.of(2026, 9, 20, 16, 0))));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /to 2026-09-20 1400", tasks));
+    }
+
+    @Test
+    void parseUpdateEvent_todo_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /from 2026-09-20 1500", tasks));
+    }
+
+    @Test
+    void parseUpdateEvent_deadline_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(
+                new Deadline("submit report", LocalDateTime.of(2026, 9, 20, 18, 0))));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /to 2026-09-20 1900", tasks));
+    }
+
+    @Test
     void parseUpdate_missingArguments_throwsException() {
         Parser parser = new Parser();
 
