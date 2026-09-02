@@ -4,22 +4,123 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import bingus.command.Command;
 import bingus.command.FindCommand;
+import bingus.command.UpdateCommand;
 import bingus.exception.BingusException;
+import bingus.storage.Storage;
 import bingus.task.Deadline;
 import bingus.task.Event;
 import bingus.task.TaskList;
 import bingus.task.Todo;
+import bingus.ui.Ui;
 
 /**
  * Tests command parsing and validation.
  */
 public class ParserTest {
+    /** Directory created by JUnit for temporary test data. */
+    @TempDir
+    Path temporaryDirectory;
+
+    /**
+     * Creates storage backed by a test-specific save file.
+     *
+     * @return storage for executing parsed commands
+     */
+    private Storage createStorage() {
+        return new Storage(temporaryDirectory.resolve("data/tasks.txt").toString());
+    }
+
+    @Test
+    void parseUpdateDescription_todo_returnsExecutableUpdateCommand() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        Command command = parser.parse("update 1 /desc read two chapters", tasks);
+        command.execute(tasks, new Ui(), createStorage());
+
+        assertInstanceOf(UpdateCommand.class, command);
+        Todo updatedTodo = assertInstanceOf(Todo.class, tasks.get(0));
+        assertEquals("read two chapters", updatedTodo.getDescription());
+    }
+
+    @Test
+    void parseUpdateDescription_deadline_preservesDueDate() {
+        Parser parser = new Parser();
+        LocalDateTime dueDate = LocalDateTime.of(2026, 9, 15, 23, 59);
+        TaskList tasks = new TaskList(List.of(new Deadline("submit draft", dueDate)));
+
+        Command command = parser.parse("update 1 /desc submit final report", tasks);
+        command.execute(tasks, new Ui(), createStorage());
+
+        Deadline updatedDeadline = assertInstanceOf(Deadline.class, tasks.get(0));
+        assertEquals("submit final report", updatedDeadline.getDescription());
+        assertEquals(dueDate, updatedDeadline.getBy());
+    }
+
+    @Test
+    void parseUpdateDescription_event_preservesStartAndEndTimes() {
+        Parser parser = new Parser();
+        LocalDateTime startTime = LocalDateTime.of(2026, 9, 10, 14, 0);
+        LocalDateTime endTime = LocalDateTime.of(2026, 9, 10, 16, 0);
+        TaskList tasks = new TaskList(List.of(new Event("project meeting", startTime, endTime)));
+
+        Command command = parser.parse("update 1 /desc weekly team meeting", tasks);
+        command.execute(tasks, new Ui(), createStorage());
+
+        Event updatedEvent = assertInstanceOf(Event.class, tasks.get(0));
+        assertEquals("weekly team meeting", updatedEvent.getDescription());
+        assertEquals(startTime, updatedEvent.getFrom());
+        assertEquals(endTime, updatedEvent.getTo());
+    }
+
+    @Test
+    void parseUpdate_missingArguments_throwsException() {
+        Parser parser = new Parser();
+
+        assertThrows(BingusException.class, () -> parser.parse("update", new TaskList()));
+    }
+
+    @Test
+    void parseUpdate_missingField_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1", tasks));
+    }
+
+    @Test
+    void parseUpdate_missingDescription_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /desc", tasks));
+    }
+
+    @Test
+    void parseUpdate_unsupportedField_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 1 /by 2026-09-15 2359", tasks));
+    }
+
+    @Test
+    void parseUpdate_outOfRangeTaskId_throwsException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        assertThrows(BingusException.class, () -> parser.parse("update 2 /desc read two chapters", tasks));
+    }
 
     @Test
     void parseFind_validKeyword_returnsFindCommand() {

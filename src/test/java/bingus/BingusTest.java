@@ -1,6 +1,7 @@
 package bingus;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -25,6 +26,28 @@ class BingusTest {
      */
     private Bingus createBingus() {
         return new Bingus(temporaryDirectory.resolve("data/bingus.txt").toString());
+    }
+
+    /**
+     * Verifies that updating a description changes and persists the selected task.
+     */
+    @Test
+    void getResponse_updateDescription_changesAndPersistsTask() {
+        Bingus bingus = createBingus();
+        bingus.getResponse("todo read book");
+        bingus.getResponse("mark 1");
+
+        String updateResponse = bingus.getResponse("update 1 /desc read two chapters");
+
+        assertEquals(CommandType.UPDATE, bingus.getCommandType());
+        assertTrue(updateResponse.contains("read two chapters"));
+        assertTrue(updateResponse.contains("✓"));
+
+        Bingus reloadedBingus = createBingus();
+        String listResponse = reloadedBingus.getResponse("list");
+        assertTrue(listResponse.contains("read two chapters"));
+        assertTrue(listResponse.contains("✓"));
+        assertFalse(listResponse.contains("read book"));
     }
 
     /**
