@@ -78,6 +78,16 @@ public class Ui {
     }
 
     /**
+     * Returns confirmation that a task was updated.
+     *
+     * @param task updated task
+     * @return task-updated message
+     */
+    public String getTaskUpdatedMessage(Task task) {
+        return "Got it. I've updated this task:\n" + task.getTaskString();
+    }
+
+    /**
      * Returns tasks associated with a specified date.
      *
      * @param tasks task list to filter
