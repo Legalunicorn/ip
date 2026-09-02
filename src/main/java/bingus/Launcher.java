@@ -3,9 +3,7 @@
 
 package bingus;
 
-
 import javafx.application.Application;
-
 
 /**
  * Launches the JavaFX application to work around classpath issues.
