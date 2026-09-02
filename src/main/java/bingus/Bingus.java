@@ -13,7 +13,6 @@ import bingus.ui.Ui;
  */
 public class Bingus {
 
-    /** Default save file used by the CLI and GUI entry points. */
     static final String DEFAULT_SAVE_FILE_PATH = "data/bingus.txt";
 
     private final Storage storage;
@@ -68,8 +67,9 @@ public class Bingus {
     }
 
     /**
-     * Returns the load error message which can be null if there was no error.
-     * @return error message
+     * Returns the storage-loading error, or {@code null} if loading succeeded.
+     *
+     * @return storage-loading error, or {@code null} if there was no error
      */
     public String getLoadErrorMessage() {
         return loadErrorMessage;
