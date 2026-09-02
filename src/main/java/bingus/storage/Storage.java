@@ -43,11 +43,9 @@ public class Storage {
             return new ArrayList<>();
         }
         try {
-            List<Task> loadedTasks = new ArrayList<>();
-            for (String savedTask : Files.readAllLines(saveFile, StandardCharsets.UTF_8)) {
-                loadedTasks.add(fromSaveRecord(savedTask));
-            }
-            return loadedTasks;
+            return Files.readAllLines(saveFile, StandardCharsets.UTF_8).stream()
+                    .map(Storage::fromSaveRecord)
+                    .toList();
         } catch (IOException | IllegalArgumentException | IllegalStateException | SecurityException e) {
             throw new BingusException("Uh-oh.. I couldn't load your saved tasks, sorry! ");
         }
@@ -58,10 +56,9 @@ public class Storage {
      * the record separator cannot conflict with text entered by the user.
      */
     public void saveTasks(List<Task> tasks) throws BingusException {
-        List<String> savedTasks = new ArrayList<>();
-        for (Task task : tasks) {
-            savedTasks.add(toSaveRecord(task));
-        }
+        List<String> savedTasks = tasks.stream()
+                .map(Storage::toSaveRecord)
+                .toList();
 
         Path temporaryFile = null;
         try {
