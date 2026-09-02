@@ -8,7 +8,7 @@ import bingus.task.Task;
 import bingus.task.TaskList;
 
 /**
- * Represents the user-interface layer that reads terminal input and formats responses.
+ * Formats user-interface responses.
  */
 public class Ui {
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
