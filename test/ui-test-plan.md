@@ -211,7 +211,7 @@ ____________________________________________________________
     Invalid deadline date/time. Please use yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.
 ____________________________________________________________
 ____________________________________________________________
-    bingus.task.Event end date/time must be after its start date/time.
+    Event end date/time must be after its start date/time.
 ____________________________________________________________
 ____________________________________________________________
     Bye! Hope you visit me again :> 

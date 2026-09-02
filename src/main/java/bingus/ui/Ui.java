@@ -44,15 +44,6 @@ public class Ui {
     }
 
     /**
-     * Returns the welcome message for the chatbot.
-     *
-     * @return welcome message
-     */
-    public String getWelcomeMessage() {
-        return "Hello! I'm Bingus.\nWhat can I do for you?";
-    }
-
-    /**
      * Returns confirmation that a task was added.
      *
      * @param task task that was added

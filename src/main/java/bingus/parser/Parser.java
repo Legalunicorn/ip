@@ -152,8 +152,8 @@ public class Parser {
 
         String description = deadlineParts[0].trim();
         String by = deadlineParts[1].trim();
-        requireNonEmpty(description, "bingus.task.Task description cannot be empty. " + correctFormatMessage);
-        requireNonEmpty(by, "bingus.task.Deadline cannot be empty. " + correctFormatMessage);
+        requireNonEmpty(description, "Task description cannot be empty. " + correctFormatMessage);
+        requireNonEmpty(by, "Deadline date/time cannot be empty. " + correctFormatMessage);
 
         String invalidDateTimeMessage = "Invalid deadline date/time. Please use yyyy-MM-dd HHmm, "
                 + "e.g. 2019-12-02 1800.";
@@ -196,7 +196,7 @@ public class Parser {
         LocalDateTime fromDateTime = parseDateTime(from, invalidDateTimeMessage);
         LocalDateTime toDateTime = parseDateTime(to, invalidDateTimeMessage);
         if (!toDateTime.isAfter(fromDateTime)) {
-            throw new BingusException("bingus.task.Event end date/time must be after its start date/time.");
+            throw new BingusException("Event end date/time must be after its start date/time.");
         }
         return new Event(description, fromDateTime, toDateTime);
     }
@@ -246,7 +246,7 @@ public class Parser {
             }
             return taskId;
         } catch (NumberFormatException e) {
-            throw new BingusException("bingus.task.Task number must be a whole number.");
+            throw new BingusException("Task number must be a whole number.");
         }
     }
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Represents a collections of Tasks.
+ * Represents a collection of tasks.
  */
 public class TaskList {
 

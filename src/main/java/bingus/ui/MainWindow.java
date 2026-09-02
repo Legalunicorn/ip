@@ -38,8 +38,8 @@ public class MainWindow extends AnchorPane {
 
     private Bingus bingus;
 
-    private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image bingusImage = new Image(this.getClass().getResourceAsStream("/images/DaBingus.png"));
+    private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
+    private final Image bingusImage = new Image(this.getClass().getResourceAsStream("/images/DaBingus.png"));
 
     /**
      * Initializes automatic scrolling for new chat messages.

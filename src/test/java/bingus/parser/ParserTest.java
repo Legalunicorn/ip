@@ -65,7 +65,10 @@ public class ParserTest {
         Parser p = new Parser();
         String[] parts = {"deadline", " /by 2026-08-30 2359"};
 
-        assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+        BingusException exception = assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+
+        assertEquals("Task description cannot be empty. "
+                + "Please use `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
     }
 
     @Test
@@ -73,7 +76,10 @@ public class ParserTest {
         Parser p = new Parser();
         String[] parts = {"deadline", "submit report /by "};
 
-        assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+        BingusException exception = assertThrows(BingusException.class, () -> p.parseDeadline(parts));
+
+        assertEquals("Deadline date/time cannot be empty. "
+                + "Please use `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
     }
 
     @Test
@@ -119,7 +125,9 @@ public class ParserTest {
         Parser p = new Parser();
         String[] parts = {"event", "meeting /from 2026-08-20 0900 /to 2026-08-20 0900"};
 
-        assertThrows(BingusException.class, () -> p.parseEvent(parts));
+        BingusException exception = assertThrows(BingusException.class, () -> p.parseEvent(parts));
+
+        assertEquals("Event end date/time must be after its start date/time.", exception.getMessage());
     }
 
     @Test
@@ -153,7 +161,10 @@ public class ParserTest {
     void parseTaskId_nonNumericInput_throwsException() {
         Parser parser = new Parser();
 
-        assertThrows(BingusException.class, () -> parser.parseTaskId("two", 3));
+        BingusException exception = assertThrows(
+                BingusException.class, () -> parser.parseTaskId("two", 3));
+
+        assertEquals("Task number must be a whole number.", exception.getMessage());
     }
 
     @Test

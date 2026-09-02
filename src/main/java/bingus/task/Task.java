@@ -7,7 +7,7 @@ import java.time.LocalDate;
  */
 public class Task {
     /** Description displayed for this task. */
-    private String description;
+    private final String description;
 
     /** Whether this task has been completed. */
     private boolean isDone;
