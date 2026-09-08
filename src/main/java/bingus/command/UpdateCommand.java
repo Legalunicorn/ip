@@ -56,7 +56,7 @@ public class UpdateCommand extends Command {
         tasks.replace(taskIndex, updatedTask);
 
         try {
-            storage.saveTasks(tasks.getAllTasks());
+            storage.saveTasks(tasks.getTasksSnapshot());
         } catch (BingusException e) {
             tasks.replace(taskIndex, originalTask);
             throw e;

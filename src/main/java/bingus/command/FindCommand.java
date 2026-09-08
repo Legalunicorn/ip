@@ -9,15 +9,15 @@ import bingus.ui.Ui;
  * Finds tasks whose descriptions contain a keyword.
  */
 public class FindCommand extends Command {
-    private final String word;
+    private final String keyword;
 
     /**
-     * Creates a command that finds tasks containing the specified word.
+     * Creates a command that finds tasks containing the specified keyword.
      *
-     * @param word word to search for
+     * @param keyword keyword to search for
      */
-    public FindCommand(String word) {
-        this.word = word;
+    public FindCommand(String keyword) {
+        this.keyword = keyword;
     }
 
     @Override
@@ -35,6 +35,6 @@ public class FindCommand extends Command {
      */
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
-        return ui.getMatchingTasksMessage(tasks.findByWord(word), word);
+        return ui.getMatchingTasksMessage(tasks.findByKeyword(keyword), keyword);
     }
 }

@@ -282,6 +282,60 @@ public class ParserTest {
     }
 
     @Test
+    void parseBye_extraArgument_throwsHelpfulException() {
+        Parser parser = new Parser();
+
+        BingusException exception = assertThrows(
+                BingusException.class, () -> parser.parse("bye later", new TaskList()));
+
+        assertEquals("Bingus cannot use extra details with `bye`.\nTry `bye`.", exception.getMessage());
+    }
+
+    @Test
+    void parseMark_multipleTaskIds_throwsHelpfulException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book"), new Todo("write tests")));
+
+        BingusException exception = assertThrows(
+                BingusException.class, () -> parser.parse("mark 1 2", tasks));
+
+        assertEquals("I can only mark one task at a time.\nTry `mark [TASK_NUMBER]`.", exception.getMessage());
+    }
+
+    @Test
+    void parseUnmark_multipleTaskIds_throwsHelpfulException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book"), new Todo("write tests")));
+
+        BingusException exception = assertThrows(
+                BingusException.class, () -> parser.parse("unmark 1 2", tasks));
+
+        assertEquals("I can only unmark one task at a time.\nTry `unmark [TASK_NUMBER]`.", exception.getMessage());
+    }
+
+    @Test
+    void parseDelete_multipleTaskIds_throwsHelpfulException() {
+        Parser parser = new Parser();
+        TaskList tasks = new TaskList(List.of(new Todo("read book"), new Todo("write tests")));
+
+        BingusException exception = assertThrows(
+                BingusException.class, () -> parser.parse("delete 1 2", tasks));
+
+        assertEquals("I can only remove one task at a time.\nTry `delete [TASK_NUMBER]`.", exception.getMessage());
+    }
+
+    @Test
+    void parseList_multipleDates_throwsHelpfulException() {
+        Parser parser = new Parser();
+
+        BingusException exception = assertThrows(
+                BingusException.class, () -> parser.parse("list 2026-09-20 2026-09-21", new TaskList()));
+
+        assertEquals("I can only use one date to filter the list.\n"
+                + "Try `list [yyyy-MM-dd]`.", exception.getMessage());
+    }
+
+    @Test
     void parseDeadline_inputsLengthOne_throwsException() {
         Parser parser = new Parser();
         String[] parts = {"deadline"};
@@ -337,6 +391,17 @@ public class ParserTest {
     }
 
     @Test
+    void parseDeadline_repeatedByMarker_throwsHelpfulException() {
+        Parser parser = new Parser();
+        String[] parts = {"deadline", "submit report /by 2026-09-20 1800 /by 2026-09-21 1800"};
+
+        BingusException exception = assertThrows(BingusException.class, () -> parser.parseDeadline(parts));
+
+        assertEquals("I can only use one `/by` date for a deadline.\n"
+                + "Try `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
+    }
+
+    @Test
     void parseTodo_descriptionWithSurroundingWhitespace_returnsTrimmedTodo() {
         Parser parser = new Parser();
         String[] parts = {"todo", "  read JUnit guide  "};
@@ -374,6 +439,28 @@ public class ParserTest {
         BingusException exception = assertThrows(BingusException.class, () -> parser.parseEvent(parts));
 
         assertEquals("The event must end after it starts.", exception.getMessage());
+    }
+
+    @Test
+    void parseEvent_repeatedFromMarker_throwsHelpfulException() {
+        Parser parser = new Parser();
+        String[] parts = {"event", "meeting /from 2026-09-20 1400 /from 2026-09-20 1500 /to 2026-09-20 1600"};
+
+        BingusException exception = assertThrows(BingusException.class, () -> parser.parseEvent(parts));
+
+        assertEquals("I can only use one `/from` date for an event.\n"
+                + "Try `event [DESCRIPTION] /from [FROM_DATETIME] /to [TO_DATETIME]`.", exception.getMessage());
+    }
+
+    @Test
+    void parseEvent_repeatedToMarker_throwsHelpfulException() {
+        Parser parser = new Parser();
+        String[] parts = {"event", "meeting /from 2026-09-20 1400 /to 2026-09-20 1500 /to 2026-09-20 1600"};
+
+        BingusException exception = assertThrows(BingusException.class, () -> parser.parseEvent(parts));
+
+        assertEquals("I can only use one `/to` date for an event.\n"
+                + "Try `event [DESCRIPTION] /from [FROM_DATETIME] /to [TO_DATETIME]`.", exception.getMessage());
     }
 
     @Test

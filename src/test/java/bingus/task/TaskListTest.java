@@ -14,13 +14,13 @@ class TaskListTest {
      * Verifies that keyword searching ignores case and preserves task order.
      */
     @Test
-    void findByWord_matchingDescriptions_returnsMatchingTasksInOrder() {
+    void findByKeyword_matchingDescriptions_returnsMatchingTasksInOrder() {
         Todo firstTask = new Todo("read book");
         Todo unrelatedTask = new Todo("buy groceries");
         Todo lastTask = new Todo("return BOOK");
         TaskList taskList = new TaskList(List.of(firstTask, unrelatedTask, lastTask));
 
-        List<Task> matchingTasks = taskList.findByWord("book");
+        List<Task> matchingTasks = taskList.findByKeyword("book");
 
         assertEquals(List.of(firstTask, lastTask), matchingTasks);
     }
@@ -40,6 +40,6 @@ class TaskListTest {
 
         assertEquals(originalTask, replacedTask);
         assertEquals(3, taskList.size());
-        assertEquals(List.of(firstTask, replacementTask, lastTask), taskList.getAllTasks());
+        assertEquals(List.of(firstTask, replacementTask, lastTask), taskList.getTasksSnapshot());
     }
 }

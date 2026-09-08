@@ -51,7 +51,7 @@ public class MarkCommand extends Command {
         }
 
         try {
-            storage.saveTasks(tasks.getAllTasks());
+            storage.saveTasks(tasks.getTasksSnapshot());
         } catch (BingusException e) {
             if (isToMark) {
                 task.unmark();

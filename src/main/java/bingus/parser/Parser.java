@@ -57,34 +57,38 @@ public class Parser {
      * @throws BingusException if the command or its arguments are invalid
      */
     public Command parse(String userInput, TaskList tasks) throws BingusException {
-        String[] parts = splitCommand(userInput);
-        String commandWord = parts[0];
+        String[] commandParts = splitCommand(userInput);
+        String commandWord = commandParts[0];
         switch (commandWord) {
             case "bye":
+                requireNoArguments(commandParts, "Bingus cannot use extra details with `bye`.\nTry `bye`.");
                 return new ExitCommand();
             case "list":
-                return parts.length == 1
+                return commandParts.length == 1
                         ? new ListCommand()
-                        : new ListCommand(parseListDate(parts[1]));
+                        : new ListCommand(parseSingleListDate(commandParts[1]));
             case "todo":
-                return new AddCommand(parseTodo(parts));
+                return new AddCommand(parseTodo(commandParts));
             case "deadline":
-                return new AddCommand(parseDeadline(parts));
+                return new AddCommand(parseDeadline(commandParts));
             case "event":
-                return new AddCommand(parseEvent(parts));
+                return new AddCommand(parseEvent(commandParts));
             case "mark":
                 return new MarkCommand(parseRequiredTaskId(
-                        parts, tasks.size(), "Which task should I mark?\nTry `mark [TASK_NUMBER]`."), true);
+                        commandParts, tasks.size(), "Which task should I mark?\nTry `mark [TASK_NUMBER]`.",
+                        "I can only mark one task at a time.\nTry `mark [TASK_NUMBER]`."), true);
             case "unmark":
                 return new MarkCommand(parseRequiredTaskId(
-                        parts, tasks.size(), "Which task should I unmark?\nTry `unmark [TASK_NUMBER]`."), false);
+                        commandParts, tasks.size(), "Which task should I unmark?\nTry `unmark [TASK_NUMBER]`.",
+                        "I can only unmark one task at a time.\nTry `unmark [TASK_NUMBER]`."), false);
             case "delete":
                 return new DeleteCommand(parseRequiredTaskId(
-                        parts, tasks.size(), "Which task should I remove?\nTry `delete [TASK_NUMBER]`."));
+                        commandParts, tasks.size(), "Which task should I remove?\nTry `delete [TASK_NUMBER]`.",
+                        "I can only remove one task at a time.\nTry `delete [TASK_NUMBER]`."));
             case "find":
-                return new FindCommand(parseFindKeyword(parts));
+                return new FindCommand(parseFindKeyword(commandParts));
             case "update":
-                return parseUpdateCommand(parts, tasks);
+                return parseUpdateCommand(commandParts, tasks);
             default:
                 throw new BingusException("Hmm, I do not recognise that command.\n"
                         + "Try `todo`, `deadline`, `event`, `list`, `mark`, `unmark`, `delete`, "
@@ -95,17 +99,17 @@ public class Parser {
     /**
      * Parses an update command that replaces a supported task detail.
      *
-     * @param parts command and arguments split into at most two parts
+     * @param commandParts command and arguments split into at most two parts
      * @param tasks current task list, used to find the task being updated
      * @return command containing the updated replacement task
      * @throws BingusException if the command arguments are missing or invalid
      */
-    private UpdateCommand parseUpdateCommand(String[] parts, TaskList tasks) throws BingusException {
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+    private UpdateCommand parseUpdateCommand(String[] commandParts, TaskList tasks) throws BingusException {
+        if (commandParts.length < 2 || commandParts[1].trim().isEmpty()) {
             throw new BingusException("Tell me which task to update and what to change.\n" + UPDATE_USAGE);
         }
 
-        String[] updateParts = parts[1].trim().split("\\s+", 3);
+        String[] updateParts = commandParts[1].trim().split("\\s+", 3);
         int taskId = parseTaskId(updateParts[0], tasks.size());
         if (updateParts.length < 2) {
             throw new BingusException("Tell me what to change for that task.\n" + UPDATE_USAGE);
@@ -215,33 +219,67 @@ public class Parser {
     /**
      * Parses the required search word for a find command.
      *
-     * @param parts command and arguments split into at most two parts
+     * @param commandParts command and arguments split into at most two parts
      * @return validated search word
      * @throws BingusException if the search word is missing
      */
-    private String parseFindKeyword(String[] parts) throws BingusException {
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+    private String parseFindKeyword(String[] commandParts) throws BingusException {
+        if (commandParts.length < 2 || commandParts[1].trim().isEmpty()) {
             throw new BingusException("What should I search for?\nTry `find [KEYWORD]`.");
         }
 
-        return parts[1].trim();
+        return commandParts[1].trim();
     }
 
     /**
      * Parses a required task number using the specified missing-argument message.
      *
-     * @param parts command and arguments split into at most two parts
+     * @param commandParts command and arguments split into at most two parts
      * @param taskCount current number of tasks
      * @param missingArgumentMessage message to show when the task number is missing
      * @return validated one-based task number
      * @throws BingusException if the number is missing or invalid
      */
-    private int parseRequiredTaskId(String[] parts, int taskCount, String missingArgumentMessage)
+    private int parseRequiredTaskId(
+            String[] commandParts, int taskCount, String missingArgumentMessage, String extraArgumentMessage)
             throws BingusException {
-        if (parts.length < 2) {
+        if (commandParts.length < 2) {
             throw new BingusException(missingArgumentMessage);
         }
-        return parseTaskId(parts[1], taskCount);
+        String[] taskIds = commandParts[1].trim().split("\\s+");
+        if (taskIds.length != 1) {
+            throw new BingusException(extraArgumentMessage);
+        }
+        return parseTaskId(taskIds[0], taskCount);
+    }
+
+    /**
+     * Rejects details supplied to a command that does not accept them.
+     *
+     * @param commandParts command and arguments split into at most two parts
+     * @param errorMessage message to show when unused details are supplied
+     * @throws BingusException if the command has unused details
+     */
+    private void requireNoArguments(String[] commandParts, String errorMessage) throws BingusException {
+        if (commandParts.length > 1 && !commandParts[1].trim().isEmpty()) {
+            throw new BingusException(errorMessage);
+        }
+    }
+
+    /**
+     * Parses the optional date argument for a list command.
+     *
+     * @param input date argument supplied to the list command
+     * @return validated calendar date
+     * @throws BingusException if more than one date is supplied or the date is invalid
+     */
+    private LocalDate parseSingleListDate(String input) throws BingusException {
+        String[] dates = input.trim().split("\\s+");
+        if (dates.length != 1) {
+            throw new BingusException("I can only use one date to filter the list.\n"
+                    + "Try `list [yyyy-MM-dd]`.");
+        }
+        return parseListDate(dates[0]);
     }
 
 
@@ -258,58 +296,69 @@ public class Parser {
     /**
      * Parses the arguments of a todo command.
      *
-     * @param parts command and arguments split into at most two parts
+     * @param commandParts command and arguments split into at most two parts
      * @return validated todo task
      * @throws BingusException if the description is missing or empty
      */
-    public Todo parseTodo(String[] parts) throws BingusException {
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+    public Todo parseTodo(String[] commandParts) throws BingusException {
+        if (commandParts.length < 2 || commandParts[1].trim().isEmpty()) {
             throw new BingusException("I need a description for that task.\nTry `todo [DESCRIPTION]`.");
         }
-        return new Todo(parts[1].trim());
+        return new Todo(commandParts[1].trim());
     }
 
     /**
      * Parses the arguments of a deadline command.
      *
-     * @param parts command and arguments split into at most two parts
+     * @param commandParts command and arguments split into at most two parts
      * @return validated deadline task
      * @throws BingusException if the command format or date/time is invalid
      */
-    public Deadline parseDeadline(String[] parts) throws BingusException {
-        if (parts.length < 2) {
+    public Deadline parseDeadline(String[] commandParts) throws BingusException {
+        if (commandParts.length < 2) {
             throw new BingusException("I need a description and date for that deadline.\n" + DEADLINE_USAGE);
         }
 
-        String[] deadlineParts = parts[1].split("/by");
+        if (countOccurrences(commandParts[1], "/by") > 1) {
+            throw new BingusException("I can only use one `/by` date for a deadline.\n" + DEADLINE_USAGE);
+        }
+
+        String[] deadlineParts = commandParts[1].split("/by");
         if (deadlineParts.length != 2) {
             throw new BingusException("I could not understand that deadline.\n" + DEADLINE_USAGE);
         }
 
         String description = deadlineParts[0].trim();
-        String by = deadlineParts[1].trim();
+        String deadlineDateTimeText = deadlineParts[1].trim();
         requireNonEmpty(description, "I need a description for that deadline.\n" + DEADLINE_USAGE);
-        requireNonEmpty(by, "I need a date and time for that deadline.\n" + DEADLINE_USAGE);
+        requireNonEmpty(deadlineDateTimeText, "I need a date and time for that deadline.\n" + DEADLINE_USAGE);
 
         String invalidDateTimeMessage = "That deadline date and time are not valid.\n"
                 + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime deadlineDateTime = parseDateTime(by, invalidDateTimeMessage);
+        LocalDateTime deadlineDateTime = parseDateTime(deadlineDateTimeText, invalidDateTimeMessage);
         return new Deadline(description, deadlineDateTime);
     }
 
     /**
      * Parses the arguments of an event command.
      *
-     * @param parts command and arguments split into at most two parts
+     * @param commandParts command and arguments split into at most two parts
      * @return validated event task
      * @throws BingusException if the command format or date/time is invalid
      */
-    public Event parseEvent(String[] parts) throws BingusException {
-        if (parts.length < 2) {
+    public Event parseEvent(String[] commandParts) throws BingusException {
+        if (commandParts.length < 2) {
             throw new BingusException("I need a description, start, and end for that event.\n" + EVENT_USAGE);
         }
 
-        String[] descriptionAndTimes = parts[1].split("/from");
+        if (countOccurrences(commandParts[1], "/from") > 1) {
+            throw new BingusException("I can only use one `/from` date for an event.\n" + EVENT_USAGE);
+        }
+        if (countOccurrences(commandParts[1], "/to") > 1) {
+            throw new BingusException("I can only use one `/to` date for an event.\n" + EVENT_USAGE);
+        }
+
+        String[] descriptionAndTimes = commandParts[1].split("/from");
         if (descriptionAndTimes.length != 2) {
             throw new BingusException("I could not understand that event.\n" + EVENT_USAGE);
         }
@@ -320,16 +369,16 @@ public class Parser {
         }
 
         String description = descriptionAndTimes[0].trim();
-        String from = startAndEnd[0].trim();
-        String to = startAndEnd[1].trim();
-        requireNonEmpty(from, "I need a start date and time for that event.\n" + EVENT_USAGE);
-        requireNonEmpty(to, "I need an end date and time for that event.\n" + EVENT_USAGE);
+        String startDateTimeText = startAndEnd[0].trim();
+        String endDateTimeText = startAndEnd[1].trim();
+        requireNonEmpty(startDateTimeText, "I need a start date and time for that event.\n" + EVENT_USAGE);
+        requireNonEmpty(endDateTimeText, "I need an end date and time for that event.\n" + EVENT_USAGE);
         requireNonEmpty(description, "I need a description for that event.\n" + EVENT_USAGE);
 
         String invalidDateTimeMessage = "That event date and time are not valid.\n"
                 + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime fromDateTime = parseDateTime(from, invalidDateTimeMessage);
-        LocalDateTime toDateTime = parseDateTime(to, invalidDateTimeMessage);
+        LocalDateTime fromDateTime = parseDateTime(startDateTimeText, invalidDateTimeMessage);
+        LocalDateTime toDateTime = parseDateTime(endDateTimeText, invalidDateTimeMessage);
         if (!toDateTime.isAfter(fromDateTime)) {
             throw new BingusException("The event must end after it starts.");
         }
@@ -363,6 +412,23 @@ public class Parser {
         if (value.isEmpty()) {
             throw new BingusException(errorMessage);
         }
+    }
+
+    /**
+     * Counts non-overlapping occurrences of a marker in text.
+     *
+     * @param text text to inspect
+     * @param marker marker to count
+     * @return number of marker occurrences in the text
+     */
+    private int countOccurrences(String text, String marker) {
+        int occurrenceCount = 0;
+        int markerIndex = text.indexOf(marker);
+        while (markerIndex >= 0) {
+            occurrenceCount++;
+            markerIndex = text.indexOf(marker, markerIndex + marker.length());
+        }
+        return occurrenceCount;
     }
 
     /**

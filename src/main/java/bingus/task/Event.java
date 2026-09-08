@@ -76,8 +76,8 @@ public class Event extends Task {
      * @return formatted event task text
      */
     @Override
-    public String getTaskString() {
-        return super.getTaskString() + " (from: " + from.format(DISPLAY_DATE_TIME_FORMAT)
+    public String getDisplayString() {
+        return super.getDisplayString() + " (from: " + from.format(DISPLAY_DATE_TIME_FORMAT)
                 + " to: " + to.format(DISPLAY_DATE_TIME_FORMAT) + ")";
     }
 }

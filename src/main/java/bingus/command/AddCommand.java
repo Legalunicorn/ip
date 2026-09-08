@@ -40,7 +40,7 @@ public class AddCommand extends Command {
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         tasks.add(task);
         try {
-            storage.saveTasks(tasks.getAllTasks());
+            storage.saveTasks(tasks.getTasksSnapshot());
         } catch (BingusException e) {
             tasks.remove(tasks.size() - 1); // undo the failed save
             throw e;
