@@ -23,16 +23,19 @@
 }
 
 
-.add-label {
-    -fx-background-color: yellow;
+.neutral-label {
+    -fx-background-color: linear-gradient(to bottom right, #fff1e3, #f7cebc);
+    -fx-border-color: #522f21;
 }
 
-.marked-label {
-    -fx-background-color: palegreen;
+.success-label {
+    -fx-background-color: linear-gradient(to bottom right, #e7f7e5, #c8e8c5);
+    -fx-border-color: #3f7847;
 }
 
-.delete-label {
-    -fx-background-color: lightpink;
+.error-label {
+    -fx-background-color: linear-gradient(to bottom right, #ffe6e3, #f5bcb7);
+    -fx-border-color: #b23e36;
 }
 
 #displayPicture {

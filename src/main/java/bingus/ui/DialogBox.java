@@ -94,24 +94,24 @@ public class DialogBox extends HBox {
     public static DialogBox getBingusDialog(String text, Image image, CommandType commandType) {
         DialogBox bingusDialog = new DialogBox(text, image);
         bingusDialog.configureAsBingusDialog();
-        bingusDialog.changeDialogStyle(commandType);
+        bingusDialog.applyResponseStyle(commandType);
         return bingusDialog;
     }
 
-    /** Applies a response style based on the command type. */
-    private void changeDialogStyle(CommandType commandType) {
+    /** Applies a neutral, success, or error style based on the command type. */
+    private void applyResponseStyle(CommandType commandType) {
         switch (commandType) {
             case ADD:
-                dialog.getStyleClass().add("add-label");
-                break;
-            case MARK:
-                dialog.getStyleClass().add("marked-label");
-                break;
             case DELETE:
-                dialog.getStyleClass().add("delete-label");
+            case MARK:
+            case UPDATE:
+                dialog.getStyleClass().add("success-label");
+                break;
+            case INVALID:
+                dialog.getStyleClass().add("error-label");
                 break;
             default:
-                // Use the default reply style.
+                dialog.getStyleClass().add("neutral-label");
         }
     }
 }
