@@ -14,6 +14,14 @@
     -fx-border-radius: 1em 1em 1em 0;
 }
 
+.user-dialog {
+    -fx-alignment: top-right;
+}
+
+.bingus-dialog {
+    -fx-alignment: bottom-left;
+}
+
 
 .add-label {
     -fx-background-color: yellow;

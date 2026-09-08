@@ -34,7 +34,6 @@ public class MainWindow {
 
     private Bingus bingus;
 
-    private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
     private final Image bingusImage = new Image(this.getClass().getResourceAsStream("/images/DaBingus.png"));
 
     /**
@@ -76,7 +75,7 @@ public class MainWindow {
         userInput.setPromptText("Type here...");
         String response = bingus.getResponse(input);
         CommandType commandType = bingus.getCommandType();
-        DialogBox userDialog = DialogBox.getUserDialog(input, userImage);
+        DialogBox userDialog = DialogBox.getUserDialog(input);
         DialogBox botDialog = DialogBox.getBingusDialog(response, bingusImage, commandType);
 
         addDialogWithAnimation(userDialog);
