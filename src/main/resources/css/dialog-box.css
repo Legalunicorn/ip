@@ -14,17 +14,28 @@
     -fx-border-radius: 1em 1em 1em 0;
 }
 
-
-.add-label {
-    -fx-background-color: yellow;
+.user-dialog {
+    -fx-alignment: top-right;
 }
 
-.marked-label {
-    -fx-background-color: palegreen;
+.bingus-dialog {
+    -fx-alignment: bottom-left;
 }
 
-.delete-label {
-    -fx-background-color: lightpink;
+
+.neutral-label {
+    -fx-background-color: linear-gradient(to bottom right, #fff1e3, #f7cebc);
+    -fx-border-color: #522f21;
+}
+
+.success-label {
+    -fx-background-color: linear-gradient(to bottom right, #e7f7e5, #c8e8c5);
+    -fx-border-color: #3f7847;
+}
+
+.error-label {
+    -fx-background-color: linear-gradient(to bottom right, #ffe6e3, #f5bcb7);
+    -fx-border-color: #b23e36;
 }
 
 #displayPicture {

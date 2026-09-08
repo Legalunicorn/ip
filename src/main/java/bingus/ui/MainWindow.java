@@ -6,21 +6,25 @@ package bingus.ui;
 import bingus.Bingus;
 import bingus.command.CommandType;
 import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 /**
  * Controls the main Bingus GUI.
  */
-public class MainWindow extends AnchorPane {
+public class MainWindow {
+    private static final String DEFAULT_INPUT_PROMPT = "Type here...";
+    private static final String EMPTY_INPUT_PROMPT = "Enter a command.";
     private static final Duration REPLY_DELAY = Duration.millis(250);
     private static final Duration EXIT_DELAY = Duration.seconds(1);
     private static final double DIALOG_START_OFFSET = 16;
@@ -35,17 +39,20 @@ public class MainWindow extends AnchorPane {
 
     private Bingus bingus;
 
-    private final Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
     private final Image bingusImage = new Image(this.getClass().getResourceAsStream("/images/DaBingus.png"));
 
+    /** Animates the view to the newest message. */
+    private Timeline scrollAnimation;
+
     /**
-     * Initializes automatic scrolling for new chat messages.
+     * Initializes the chat controls.
      */
     @FXML
     public void initialize() {
         assert scrollPane != null : "Scroll pane must be injected from FXML";
         assert dialogContainer != null : "Dialog container must be injected from FXML";
-        scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        assert userInput != null : "User input field must be injected from FXML";
+        scrollPane.setVvalue(1.0);
     }
 
     /**
@@ -74,10 +81,16 @@ public class MainWindow extends AnchorPane {
         assert bingus != null : "Bingus must be injected before users can submit commands";
 
         String input = userInput.getText();
-        userInput.setPromptText("Type here...");
+        if (input == null || input.trim().isEmpty()) {
+            userInput.setPromptText(EMPTY_INPUT_PROMPT);
+            userInput.requestFocus();
+            return;
+        }
+
+        userInput.setPromptText(DEFAULT_INPUT_PROMPT);
         String response = bingus.getResponse(input);
         CommandType commandType = bingus.getCommandType();
-        DialogBox userDialog = DialogBox.getUserDialog(input, userImage);
+        DialogBox userDialog = DialogBox.getUserDialog(input);
         DialogBox botDialog = DialogBox.getBingusDialog(response, bingusImage, commandType);
 
         addDialogWithAnimation(userDialog);
@@ -94,6 +107,7 @@ public class MainWindow extends AnchorPane {
         replyDelay.play();
 
         userInput.clear();
+        userInput.requestFocus();
     }
 
     private void addDialogWithAnimation(DialogBox dialogBox) {
@@ -104,6 +118,19 @@ public class MainWindow extends AnchorPane {
         TranslateTransition slideUp = new TranslateTransition(SLIDE_DURATION, dialogBox);
         slideUp.setToY(0);
         slideUp.setInterpolator(Interpolator.EASE_OUT);
+        slideUp.setOnFinished(event -> animateScrollToBottom());
         slideUp.play();
+    }
+
+    /** Animates the chat view to the newest message. */
+    private void animateScrollToBottom() {
+        if (scrollAnimation != null) {
+            scrollAnimation.stop();
+        }
+
+        KeyValue scrollToBottom = new KeyValue(scrollPane.vvalueProperty(), 1.0, Interpolator.EASE_OUT);
+        KeyFrame scrollFrame = new KeyFrame(SLIDE_DURATION, scrollToBottom);
+        scrollAnimation = new Timeline(scrollFrame);
+        scrollAnimation.play();
     }
 }
