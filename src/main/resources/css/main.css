@@ -10,7 +10,17 @@
 
 .text-field {
     -fx-background-color: #ffedd9;
-    -fx-font: 20px "Arial";
+    -fx-font: 16px "Arial";
+    -fx-prompt-text-fill: #9e8070;
+}
+
+.text-field:focused {
+    -fx-border-color: #8a523b;
+    -fx-border-width: 2px;
+}
+
+.input-bar {
+    -fx-background-color: #ffedd9;
 }
 
 .button {
@@ -20,12 +30,15 @@
 
 .button:hover {
     -fx-background-color: #8a523b;
-    -fx-font-size: 18px;
 }
 
 .button:pressed {
-    -fx-background-color:orange;
-    -fx-font-size: 20px;
+    -fx-background-color: #c98251;
+}
+
+.button:focused {
+    -fx-border-color: #522f21;
+    -fx-border-width: 2px;
 }
 
 .scroll-pane,
