@@ -184,7 +184,7 @@ bye
 ### Expected output
 
 ```text
-    I couldn't load your saved tasks. Starting with an empty list.
+    I could not load your saved tasks. I have started with an empty list.
 ____________________________________________________________
 ____________________________________________________________
     Your task list is empty. Time for a cat nap!
@@ -208,10 +208,11 @@ bye
 
 ```text
 ____________________________________________________________
-    Invalid deadline date/time. Please use yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.
+    That deadline date and time are not valid.
+    Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.
 ____________________________________________________________
 ____________________________________________________________
-    Event end date/time must be after its start date/time.
+    The event must end after it starts.
 ____________________________________________________________
 ____________________________________________________________
     Bingus is curling up for a nap. See you soon!

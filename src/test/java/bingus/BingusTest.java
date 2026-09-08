@@ -140,12 +140,14 @@ class BingusTest {
      * Verifies that an invalid command returns an error and records an invalid command type.
      */
     @Test
-    void getResponse_invalidCommand_returnsErrorAndInvalidCommandType() {
+    void getResponse_invalidCommand_returnsHelpfulMessageAndInvalidCommandType() {
         Bingus bingus = createBingus();
 
         String response = bingus.getResponse("nonsense");
 
-        assertTrue(response.startsWith("Error:"));
+        assertEquals("Hmm, I do not recognise that command.\n"
+                + "Try `todo`, `deadline`, `event`, `list`, `mark`, `unmark`, `delete`, "
+                + "`find`, `update`, or `bye`.", response);
         assertEquals(CommandType.INVALID, bingus.getCommandType());
     }
 

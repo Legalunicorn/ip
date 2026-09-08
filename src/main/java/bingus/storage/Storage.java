@@ -63,7 +63,7 @@ public class Storage {
                     .map(Storage::fromSaveRecord)
                     .toList();
         } catch (IOException | IllegalArgumentException | IllegalStateException | SecurityException e) {
-            throw new BingusException("Uh-oh.. I couldn't load your saved tasks, sorry! ");
+            throw new BingusException("I could not load your saved tasks. I have started with an empty list.");
         }
     }
 
@@ -86,7 +86,7 @@ public class Storage {
             Files.write(temporaryFile, savedTasks, StandardCharsets.UTF_8);
             moveSaveFile(temporaryFile);
         } catch (IOException | SecurityException e) {
-            throw new BingusException("I couldn't save your tasks. Your task list was not changed.");
+            throw new BingusException("I could not save that change. Your task list was not changed.");
         } finally {
             if (temporaryFile != null) {
                 try {
