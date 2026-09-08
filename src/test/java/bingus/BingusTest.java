@@ -29,6 +29,19 @@ class BingusTest {
     }
 
     /**
+     * Verifies that a new GUI session can display Bingus's introduction.
+     */
+    @Test
+    void getWelcomeMessage_newSession_returnsIntroductionWithoutChangingCommandType() {
+        Bingus bingus = createBingus();
+
+        assertEquals("Hi! I'm Bingus, your task-watching cat.\n"
+                + "Tell me what you need to remember, and I'll keep an eye on it.",
+                bingus.getWelcomeMessage());
+        assertEquals(CommandType.NONE, bingus.getCommandType());
+    }
+
+    /**
      * Verifies that updating a description changes and persists the selected task.
      */
     @Test

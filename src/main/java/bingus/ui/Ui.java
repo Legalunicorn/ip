@@ -16,6 +16,16 @@ public class Ui {
             DateTimeFormatter.ofPattern("MMM d uuuu", Locale.ENGLISH);
 
     /**
+     * Returns Bingus's greeting for a new session.
+     *
+     * @return welcome message
+     */
+    public String getWelcomeMessage() {
+        return "Hi! I'm Bingus, your task-watching cat.\n"
+                + "Tell me what you need to remember, and I'll keep an eye on it.";
+    }
+
+    /**
      * Returns confirmation that a task was added.
      *
      * @param task task that was added

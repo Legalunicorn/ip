@@ -58,6 +58,15 @@ public class Bingus {
     }
 
     /**
+     * Returns Bingus's greeting for a new GUI session.
+     *
+     * @return welcome message
+     */
+    public String getWelcomeMessage() {
+        return ui.getWelcomeMessage();
+    }
+
+    /**
      * Returns the type of the latest command submitted through the GUI.
      *
      * @return type of the latest command

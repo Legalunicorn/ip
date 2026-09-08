@@ -23,8 +23,8 @@ import javafx.util.Duration;
  * Controls the main Bingus GUI.
  */
 public class MainWindow {
-    private static final String DEFAULT_INPUT_PROMPT = "Type here...";
-    private static final String EMPTY_INPUT_PROMPT = "Enter a command.";
+    private static final String DEFAULT_INPUT_PROMPT = "Tell Bingus what to remember...";
+    private static final String EMPTY_INPUT_PROMPT = "Enter a command first.";
     private static final Duration REPLY_DELAY = Duration.millis(250);
     private static final Duration EXIT_DELAY = Duration.seconds(1);
     private static final double DIALOG_START_OFFSET = 16;
@@ -71,6 +71,12 @@ public class MainWindow {
                     CommandType.INVALID);
             dialogContainer.getChildren().add(errorDialog);
         }
+
+        DialogBox welcomeDialog = DialogBox.getBingusDialog(
+                bingus.getWelcomeMessage(),
+                bingusImage,
+                CommandType.NONE);
+        addDialogWithAnimation(welcomeDialog);
     }
 
     /**
