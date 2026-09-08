@@ -1,14 +1,18 @@
 package bingus.command;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import bingus.exception.BingusException;
 import bingus.storage.Storage;
+import bingus.task.Task;
 import bingus.task.TaskList;
 import bingus.task.Todo;
 import bingus.ui.Ui;
@@ -40,5 +44,44 @@ class MarkCommandTest {
 
         assertFalse(todo.isDone());
         assertFalse(storage.loadTasks().get(0).isDone());
+    }
+
+    /**
+     * Verifies that a task remains incomplete when marking it cannot be saved.
+     */
+    @Test
+    void execute_markSaveFails_restoresIncompleteStatus() {
+        Storage failingStorage = new Storage(temporaryDirectory.resolve("data/tasks.txt").toString()) {
+            @Override
+            public void saveTasks(List<Task> tasks) throws BingusException {
+                throw new BingusException("Test save failure.");
+            }
+        };
+        Todo todo = new Todo("read JUnit guide");
+        TaskList tasks = new TaskList(List.of(todo));
+
+        assertThrows(BingusException.class, () -> new MarkCommand(1, true).execute(tasks, new Ui(), failingStorage));
+
+        assertFalse(todo.isDone());
+    }
+
+    /**
+     * Verifies that a task remains complete when unmarking it cannot be saved.
+     */
+    @Test
+    void execute_unmarkSaveFails_restoresCompleteStatus() {
+        Storage failingStorage = new Storage(temporaryDirectory.resolve("data/tasks.txt").toString()) {
+            @Override
+            public void saveTasks(List<Task> tasks) throws BingusException {
+                throw new BingusException("Test save failure.");
+            }
+        };
+        Todo todo = new Todo("read JUnit guide");
+        todo.mark();
+        TaskList tasks = new TaskList(List.of(todo));
+
+        assertThrows(BingusException.class, () -> new MarkCommand(1, false).execute(tasks, new Ui(), failingStorage));
+
+        assertTrue(todo.isDone());
     }
 }
