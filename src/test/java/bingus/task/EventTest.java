@@ -1,5 +1,6 @@
 package bingus.task;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests date matching for {@link Event} tasks.
  */
-public class EventTest {
+class EventTest {
 
     @Test
     void matchesDate_dateWithinMultipleDayEvent_returnsTrue() {
@@ -50,5 +51,22 @@ public class EventTest {
                 LocalDateTime.of(2026, 8, 22, 18, 0));
 
         assertFalse(event.matchesDate(LocalDate.of(2026, 8, 23)));
+    }
+
+    /**
+     * Verifies that an event displays its type, completion status, and both endpoints.
+     */
+    @Test
+    void getDisplayString_event_returnsFormattedDetails() {
+        Event event = new Event(
+                "project meeting",
+                LocalDateTime.of(2026, 9, 20, 14, 0),
+                LocalDateTime.of(2026, 9, 20, 16, 30));
+
+        assertEquals("[E][○] project meeting (from: Sep 20 2026, 2:00 PM to: Sep 20 2026, 4:30 PM)",
+                event.getDisplayString());
+        event.mark();
+        assertEquals("[E][✓] project meeting (from: Sep 20 2026, 2:00 PM to: Sep 20 2026, 4:30 PM)",
+                event.getDisplayString());
     }
 }
