@@ -29,6 +29,19 @@ class BingusTest {
     }
 
     /**
+     * Verifies that a new GUI session can display Bingus's introduction.
+     */
+    @Test
+    void getWelcomeMessage_newSession_returnsIntroductionWithoutChangingCommandType() {
+        Bingus bingus = createBingus();
+
+        assertEquals("Hi! I'm Bingus, your task-watching cat.\n"
+                + "Tell me what you need to remember, and I'll keep an eye on it.",
+                bingus.getWelcomeMessage());
+        assertEquals(CommandType.NONE, bingus.getCommandType());
+    }
+
+    /**
      * Verifies that updating a description changes and persists the selected task.
      */
     @Test
@@ -140,12 +153,14 @@ class BingusTest {
      * Verifies that an invalid command returns an error and records an invalid command type.
      */
     @Test
-    void getResponse_invalidCommand_returnsErrorAndInvalidCommandType() {
+    void getResponse_invalidCommand_returnsHelpfulMessageAndInvalidCommandType() {
         Bingus bingus = createBingus();
 
         String response = bingus.getResponse("nonsense");
 
-        assertTrue(response.startsWith("Error:"));
+        assertEquals("Hmm, I do not recognise that command.\n"
+                + "Try `todo`, `deadline`, `event`, `list`, `mark`, `unmark`, `delete`, "
+                + "`find`, `update`, or `bye`.", response);
         assertEquals(CommandType.INVALID, bingus.getCommandType());
     }
 
@@ -158,7 +173,7 @@ class BingusTest {
 
         String response = bingus.getResponse("bye");
 
-        assertTrue(response.contains("Bye!"));
+        assertEquals("Bingus is curling up for a nap. See you soon!", response);
         assertEquals(CommandType.EXIT, bingus.getCommandType());
     }
 

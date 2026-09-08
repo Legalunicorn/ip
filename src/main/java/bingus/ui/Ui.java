@@ -16,6 +16,16 @@ public class Ui {
             DateTimeFormatter.ofPattern("MMM d uuuu", Locale.ENGLISH);
 
     /**
+     * Returns Bingus's greeting for a new session.
+     *
+     * @return welcome message
+     */
+    public String getWelcomeMessage() {
+        return "Hi! I'm Bingus, your task-watching cat.\n"
+                + "Tell me what you need to remember, and I'll keep an eye on it.";
+    }
+
+    /**
      * Returns confirmation that a task was added.
      *
      * @param task task that was added
@@ -23,9 +33,9 @@ public class Ui {
      * @return task-added message
      */
     public String getTaskAddedMessage(Task task, int taskCount) {
-        return "Got it. I've added this task:\n"
+        return "Got it! I added this task:\n"
                 + task.getTaskString()
-                + "\nNow you have " + taskCount + " tasks in the list.";
+                + "\nYou now have " + getTaskCountDescription(taskCount) + " in your list.";
     }
 
     /**
@@ -35,7 +45,11 @@ public class Ui {
      * @return task-list message
      */
     public String getTaskListMessage(TaskList tasks) {
-        StringBuilder message = new StringBuilder("Here are the tasks in your list:");
+        if (tasks.size() == 0) {
+            return "Your task list is empty. Time for a cat nap!";
+        }
+
+        StringBuilder message = new StringBuilder("Here are the tasks I am watching:");
         for (int index = 0; index < tasks.size(); index++) {
             message.append("\n")
                     .append(index + 1)
@@ -53,9 +67,9 @@ public class Ui {
      * @return task-deleted message
      */
     public String getDeleteTaskMessage(Task task, int taskCount) {
-        return "Noted! I've removed this task:\n"
+        return "Done! I removed this task:\n"
                 + task.getTaskString()
-                + "\nNow you have " + taskCount + " tasks in the list.";
+                + "\nYou now have " + getTaskCountDescription(taskCount) + " in your list.";
     }
 
     /**
@@ -65,7 +79,7 @@ public class Ui {
      * @return task-marked message
      */
     public String getTaskMarkedMessage(Task task) {
-        return "Nice! I've marked this task as done:\n" + task.getTaskString();
+        return "Purrfect! This task is complete:\n" + task.getTaskString();
     }
 
     /**
@@ -75,7 +89,7 @@ public class Ui {
      * @return task-unmarked message
      */
     public String getTaskUnmarkedMessage(Task task) {
-        return "OK, I've marked this task as not done yet:\n" + task.getTaskString();
+        return "No problem! This task is active again:\n" + task.getTaskString();
     }
 
     /**
@@ -85,7 +99,7 @@ public class Ui {
      * @return task-updated message
      */
     public String getTaskUpdatedMessage(Task task) {
-        return "Got it. I've updated this task:\n" + task.getTaskString();
+        return "Got it! I updated this task:\n" + task.getTaskString();
     }
 
     /**
@@ -96,16 +110,23 @@ public class Ui {
      * @return filtered task-list message
      */
     public String getFilteredTaskListMessage(TaskList tasks, LocalDate date) {
+        String formattedDate = date.format(DISPLAY_DATE_FORMAT);
         StringBuilder message = new StringBuilder(
-                "Here are the tasks on " + date.format(DISPLAY_DATE_FORMAT) + ":");
+                "Here are the tasks I am watching on " + formattedDate + ":");
+        boolean hasMatchingTasks = false;
         for (int index = 0; index < tasks.size(); index++) {
             Task task = tasks.get(index);
             if (task.matchesDate(date)) {
+                hasMatchingTasks = true;
                 message.append("\n")
                         .append(index + 1)
                         .append(". ")
                         .append(task.getTaskString());
             }
+        }
+
+        if (!hasMatchingTasks) {
+            return "I am not watching any tasks on " + formattedDate + ".";
         }
         return message.toString();
     }
@@ -116,7 +137,7 @@ public class Ui {
      * @return farewell message
      */
     public String getByeMessage() {
-        return "Bye! Hope you visit me again :>";
+        return "Bingus is curling up for a nap. See you soon!";
     }
 
     /**
@@ -127,19 +148,28 @@ public class Ui {
      * @return matching-tasks message
      */
     public String getMatchingTasksMessage(List<Task> tasks, String word) {
-        StringBuilder message = new StringBuilder("Here are the matching tasks in your list:");
+        if (tasks.isEmpty()) {
+            return "I could not find anything matching `" + word + "`.";
+        }
+
+        StringBuilder message = new StringBuilder("I found these matching tasks:");
         for (int index = 0; index < tasks.size(); index++) {
             message.append("\n")
                     .append(index + 1)
                     .append(". ")
                     .append(tasks.get(index).getTaskString());
         }
-        if (tasks.isEmpty()) {
-            message.append("\nThere were no matches for `")
-                    .append(word)
-                    .append("`.");
-        }
         return message.toString();
+    }
+
+    /**
+     * Returns a task count with the correct singular or plural noun.
+     *
+     * @param taskCount number of tasks
+     * @return formatted task count
+     */
+    private String getTaskCountDescription(int taskCount) {
+        return taskCount + (taskCount == 1 ? " task" : " tasks");
     }
 
 }

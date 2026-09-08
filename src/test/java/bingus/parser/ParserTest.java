@@ -313,8 +313,8 @@ public class ParserTest {
 
         BingusException exception = assertThrows(BingusException.class, () -> parser.parseDeadline(parts));
 
-        assertEquals("Task description cannot be empty. "
-                + "Please use `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
+        assertEquals("I need a description for that deadline.\n"
+                + "Try `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
     }
 
     @Test
@@ -324,8 +324,8 @@ public class ParserTest {
 
         BingusException exception = assertThrows(BingusException.class, () -> parser.parseDeadline(parts));
 
-        assertEquals("Deadline date/time cannot be empty. "
-                + "Please use `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
+        assertEquals("I need a date and time for that deadline.\n"
+                + "Try `deadline [DESCRIPTION] /by [DATETIME]`.", exception.getMessage());
     }
 
     @Test
@@ -373,7 +373,7 @@ public class ParserTest {
 
         BingusException exception = assertThrows(BingusException.class, () -> parser.parseEvent(parts));
 
-        assertEquals("Event end date/time must be after its start date/time.", exception.getMessage());
+        assertEquals("The event must end after it starts.", exception.getMessage());
     }
 
     @Test
@@ -410,7 +410,7 @@ public class ParserTest {
         BingusException exception = assertThrows(
                 BingusException.class, () -> parser.parseTaskId("two", 3));
 
-        assertEquals("Task number must be a whole number.", exception.getMessage());
+        assertEquals("The task number must be a whole number.", exception.getMessage());
     }
 
     @Test

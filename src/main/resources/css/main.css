@@ -8,6 +8,16 @@
     -fx-background-size: cover;
 }
 
+.app-header {
+    -fx-background-color: rgba(82, 47, 33, 0.9);
+    -fx-padding: 8px 12px;
+}
+
+.app-title {
+    -fx-font: bold 22px "Arial";
+    -fx-text-fill: #fff1e3;
+}
+
 .text-field {
     -fx-background-color: #ffedd9;
     -fx-font: 16px "Arial";

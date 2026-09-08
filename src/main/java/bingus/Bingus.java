@@ -53,8 +53,17 @@ public class Bingus {
             return command.execute(tasks, ui, storage);
         } catch (BingusException e) {
             commandType = CommandType.INVALID;
-            return "Error: " + e.getMessage();
+            return e.getMessage();
         }
+    }
+
+    /**
+     * Returns Bingus's greeting for a new GUI session.
+     *
+     * @return welcome message
+     */
+    public String getWelcomeMessage() {
+        return ui.getWelcomeMessage();
     }
 
     /**

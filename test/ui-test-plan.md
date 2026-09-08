@@ -17,12 +17,12 @@ bye
 
 ```text
 ____________________________________________________________
-    Got it. I've added this task:
+    Got it! I added this task:
         [T][ ] borrow book
-    Now you have 1 tasks in the list.
+    You now have 1 task in your list.
 ____________________________________________________________
 ____________________________________________________________
-    Bye! Hope you visit me again :> 
+    Bingus is curling up for a nap. See you soon!
 ____________________________________________________________
 ```
 
@@ -40,17 +40,17 @@ bye
 
 ```text
 ____________________________________________________________
-    Got it. I've added this task:
+    Got it! I added this task:
         [D][ ] return book (by: Dec 2 2019, 6:00 pm)
-    Now you have 1 tasks in the list.
+    You now have 1 task in your list.
 ____________________________________________________________
 ____________________________________________________________
-    Got it. I've added this task:
+    Got it! I added this task:
         [E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
-    Now you have 2 tasks in the list.
+    You now have 2 tasks in your list.
 ____________________________________________________________
 ____________________________________________________________
-    Bye! Hope you visit me again :> 
+    Bingus is curling up for a nap. See you soon!
 ____________________________________________________________
 ```
 
@@ -72,38 +72,38 @@ bye
 
 ```text
 ____________________________________________________________
-    Got it. I've added this task:
+    Got it! I added this task:
         [T][ ] read book
-    Now you have 1 tasks in the list.
+    You now have 1 task in your list.
 ____________________________________________________________
 ____________________________________________________________
-    Got it. I've added this task:
+    Got it! I added this task:
         [D][ ] return book (by: Dec 2 2019, 6:00 pm)
-    Now you have 2 tasks in the list.
+    You now have 2 tasks in your list.
 ____________________________________________________________
 ____________________________________________________________
-    Got it. I've added this task:
+    Got it! I added this task:
         [E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
-    Now you have 3 tasks in the list.
+    You now have 3 tasks in your list.
 ____________________________________________________________
 ____________________________________________________________
-    Here are the tasks in your list:
+    Here are the tasks I am watching:
     1.[T][ ] read book
     2.[D][ ] return book (by: Dec 2 2019, 6:00 pm)
     3.[E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
 ____________________________________________________________
 ____________________________________________________________
-    Nice! I've marked this task as done : ) 
+    Purrfect! This task is complete:
         [D][X] return book (by: Dec 2 2019, 6:00 pm)
 ____________________________________________________________
 ____________________________________________________________
-    Here are the tasks in your list:
+    Here are the tasks I am watching:
     1.[T][ ] read book
     2.[D][X] return book (by: Dec 2 2019, 6:00 pm)
     3.[E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
 ____________________________________________________________
 ____________________________________________________________
-    Bye! Hope you visit me again :> 
+    Bingus is curling up for a nap. See you soon!
 ____________________________________________________________
 ```
 
@@ -120,12 +120,12 @@ bye
 
 ```text
 ____________________________________________________________
-    Got it. I've added this task:
+    Got it! I added this task:
         [T][ ] plan | revise
-    Now you have 1 tasks in the list.
+    You now have 1 task in your list.
 ____________________________________________________________
 ____________________________________________________________
-    Bye! Hope you visit me again :> 
+    Bingus is curling up for a nap. See you soon!
 ____________________________________________________________
 ```
 
@@ -156,11 +156,11 @@ bye
 
 ```text
 ____________________________________________________________
-    Here are the tasks in your list:
+    Here are the tasks I am watching:
     1.[T][X] plan | revise
 ____________________________________________________________
 ____________________________________________________________
-    Bye! Hope you visit me again :> 
+    Bingus is curling up for a nap. See you soon!
 ____________________________________________________________
 ```
 
@@ -184,13 +184,13 @@ bye
 ### Expected output
 
 ```text
-    I couldn't load your saved tasks. Starting with an empty list.
+    I could not load your saved tasks. I have started with an empty list.
 ____________________________________________________________
 ____________________________________________________________
-    Here are the tasks in your list:
+    Your task list is empty. Time for a cat nap!
 ____________________________________________________________
 ____________________________________________________________
-    Bye! Hope you visit me again :> 
+    Bingus is curling up for a nap. See you soon!
 ____________________________________________________________
 ```
 
@@ -208,13 +208,14 @@ bye
 
 ```text
 ____________________________________________________________
-    Invalid deadline date/time. Please use yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.
+    That deadline date and time are not valid.
+    Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.
 ____________________________________________________________
 ____________________________________________________________
-    Event end date/time must be after its start date/time.
+    The event must end after it starts.
 ____________________________________________________________
 ____________________________________________________________
-    Bye! Hope you visit me again :> 
+    Bingus is curling up for a nap. See you soon!
 ____________________________________________________________
 ```
 
@@ -241,11 +242,11 @@ bye
 
 ```text
 ____________________________________________________________
-    Here are the tasks on Dec 2 2019:
+    Here are the tasks I am watching on Dec 2 2019:
     2.[D][ ] return book (by: Dec 2 2019, 6:00 pm)
     3.[E][ ] project meeting (from: Dec 2 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
 ____________________________________________________________
 ____________________________________________________________
-    Bye! Hope you visit me again :> 
+    Bingus is curling up for a nap. See you soon!
 ____________________________________________________________
 ```
