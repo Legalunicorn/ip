@@ -41,7 +41,7 @@ class UpdateCommandTest {
 
         assertSame(updatedTask, tasks.get(0));
         assertTrue(updatedTask.isDone());
-        assertEquals("Got it. I've updated this task:\n[T][✓] read two chapters", response);
+        assertEquals("Got it! I updated this task:\n[T][✓] read two chapters", response);
         List<Task> savedTasks = storage.loadTasks();
         assertEquals("read two chapters", savedTasks.get(0).getDescription());
         assertTrue(savedTasks.get(0).isDone());

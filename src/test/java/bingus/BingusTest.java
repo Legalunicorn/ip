@@ -158,7 +158,7 @@ class BingusTest {
 
         String response = bingus.getResponse("bye");
 
-        assertTrue(response.contains("Bye!"));
+        assertEquals("Bingus is curling up for a nap. See you soon!", response);
         assertEquals(CommandType.EXIT, bingus.getCommandType());
     }
 
