@@ -57,7 +57,7 @@ public class Deadline extends Task {
      * @return formatted deadline task text
      */
     @Override
-    public String getTaskString() {
-        return super.getTaskString() + " (by: " + by.format(DISPLAY_DATE_TIME_FORMAT) + ")";
+    public String getDisplayString() {
+        return super.getDisplayString() + " (by: " + by.format(DISPLAY_DATE_TIME_FORMAT) + ")";
     }
 }

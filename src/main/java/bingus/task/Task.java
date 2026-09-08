@@ -33,7 +33,7 @@ public class Task {
      *
      * @return formatted task text
      */
-    public String getTaskString() {
+    public String getDisplayString() {
         return "[" + type.getSymbol() + "]" + "[" + getStatusIcon() + "] " + description;
     }
 

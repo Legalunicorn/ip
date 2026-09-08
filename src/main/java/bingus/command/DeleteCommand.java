@@ -39,12 +39,11 @@ public class DeleteCommand extends Command {
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         assert taskId >= 1 && taskId <= tasks.size()
                 : "Delete task ID must refer to an existing task";
-        int idx = taskId - 1;
         int taskIndex = taskId - 1;
         Task deletedTask = tasks.remove(taskIndex);
 
         try {
-            storage.saveTasks(tasks.getAllTasks());
+            storage.saveTasks(tasks.getTasksSnapshot());
         } catch (BingusException e) {
             tasks.add(taskIndex, deletedTask);
             throw e;

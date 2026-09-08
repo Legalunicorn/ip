@@ -80,23 +80,23 @@ public class TaskList {
      *
      * @return Tasks in their current order.
      */
-    public List<Task> getAllTasks() {
+    public List<Task> getTasksSnapshot() {
         return List.copyOf(tasks);
     }
 
     /**
-     * Returns tasks whose descriptions contain the specified word, ignoring case.
+     * Returns tasks whose descriptions contain the specified keyword, ignoring case.
      *
-     * @param word word to search for
+     * @param keyword keyword to search for
      * @return matching tasks in their current order
      */
-    public List<Task> findByWord(String word) {
-        String normalizedWord = word.toLowerCase(Locale.ROOT);
+    public List<Task> findByKeyword(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
 
         return tasks.stream()
                 .filter(task -> task.getDescription()
                         .toLowerCase(Locale.ROOT)
-                        .contains(normalizedWord))
+                        .contains(normalizedKeyword))
                 .toList();
     }
 

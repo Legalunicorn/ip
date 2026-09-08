@@ -34,7 +34,7 @@ public class Ui {
      */
     public String getTaskAddedMessage(Task task, int taskCount) {
         return "Got it! I added this task:\n"
-                + task.getTaskString()
+                + task.getDisplayString()
                 + "\nYou now have " + getTaskCountDescription(taskCount) + " in your list.";
     }
 
@@ -54,7 +54,7 @@ public class Ui {
             message.append("\n")
                     .append(index + 1)
                     .append(". ")
-                    .append(tasks.get(index).getTaskString());
+                    .append(tasks.get(index).getDisplayString());
         }
         return message.toString();
     }
@@ -68,7 +68,7 @@ public class Ui {
      */
     public String getDeleteTaskMessage(Task task, int taskCount) {
         return "Done! I removed this task:\n"
-                + task.getTaskString()
+                + task.getDisplayString()
                 + "\nYou now have " + getTaskCountDescription(taskCount) + " in your list.";
     }
 
@@ -79,7 +79,7 @@ public class Ui {
      * @return task-marked message
      */
     public String getTaskMarkedMessage(Task task) {
-        return "Purrfect! This task is complete:\n" + task.getTaskString();
+        return "Purrfect! This task is complete:\n" + task.getDisplayString();
     }
 
     /**
@@ -89,7 +89,7 @@ public class Ui {
      * @return task-unmarked message
      */
     public String getTaskUnmarkedMessage(Task task) {
-        return "No problem! This task is active again:\n" + task.getTaskString();
+        return "No problem! This task is active again:\n" + task.getDisplayString();
     }
 
     /**
@@ -99,7 +99,7 @@ public class Ui {
      * @return task-updated message
      */
     public String getTaskUpdatedMessage(Task task) {
-        return "Got it! I updated this task:\n" + task.getTaskString();
+        return "Got it! I updated this task:\n" + task.getDisplayString();
     }
 
     /**
@@ -121,7 +121,7 @@ public class Ui {
                 message.append("\n")
                         .append(index + 1)
                         .append(". ")
-                        .append(task.getTaskString());
+                        .append(task.getDisplayString());
             }
         }
 
@@ -141,15 +141,15 @@ public class Ui {
     }
 
     /**
-     * Returns tasks whose descriptions match a search word.
+     * Returns tasks whose descriptions match a search keyword.
      *
      * @param tasks matching tasks
-     * @param word word used to search for tasks
+     * @param keyword keyword used to search for tasks
      * @return matching-tasks message
      */
-    public String getMatchingTasksMessage(List<Task> tasks, String word) {
+    public String getMatchingTasksMessage(List<Task> tasks, String keyword) {
         if (tasks.isEmpty()) {
-            return "I could not find anything matching `" + word + "`.";
+            return "I could not find anything matching `" + keyword + "`.";
         }
 
         StringBuilder message = new StringBuilder("I found these matching tasks:");
@@ -157,7 +157,7 @@ public class Ui {
             message.append("\n")
                     .append(index + 1)
                     .append(". ")
-                    .append(tasks.get(index).getTaskString());
+                    .append(tasks.get(index).getDisplayString());
         }
         return message.toString();
     }
