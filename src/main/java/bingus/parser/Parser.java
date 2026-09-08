@@ -61,11 +61,12 @@ public class Parser {
         String commandWord = parts[0];
         switch (commandWord) {
             case "bye":
+                requireNoArguments(parts, "Bingus cannot use extra details with `bye`.\nTry `bye`.");
                 return new ExitCommand();
             case "list":
                 return parts.length == 1
                         ? new ListCommand()
-                        : new ListCommand(parseListDate(parts[1]));
+                        : new ListCommand(parseSingleListDate(parts[1]));
             case "todo":
                 return new AddCommand(parseTodo(parts));
             case "deadline":
@@ -74,13 +75,16 @@ public class Parser {
                 return new AddCommand(parseEvent(parts));
             case "mark":
                 return new MarkCommand(parseRequiredTaskId(
-                        parts, tasks.size(), "Which task should I mark?\nTry `mark [TASK_NUMBER]`."), true);
+                        parts, tasks.size(), "Which task should I mark?\nTry `mark [TASK_NUMBER]`.",
+                        "I can only mark one task at a time.\nTry `mark [TASK_NUMBER]`."), true);
             case "unmark":
                 return new MarkCommand(parseRequiredTaskId(
-                        parts, tasks.size(), "Which task should I unmark?\nTry `unmark [TASK_NUMBER]`."), false);
+                        parts, tasks.size(), "Which task should I unmark?\nTry `unmark [TASK_NUMBER]`.",
+                        "I can only unmark one task at a time.\nTry `unmark [TASK_NUMBER]`."), false);
             case "delete":
                 return new DeleteCommand(parseRequiredTaskId(
-                        parts, tasks.size(), "Which task should I remove?\nTry `delete [TASK_NUMBER]`."));
+                        parts, tasks.size(), "Which task should I remove?\nTry `delete [TASK_NUMBER]`.",
+                        "I can only remove one task at a time.\nTry `delete [TASK_NUMBER]`."));
             case "find":
                 return new FindCommand(parseFindKeyword(parts));
             case "update":
@@ -236,12 +240,46 @@ public class Parser {
      * @return validated one-based task number
      * @throws BingusException if the number is missing or invalid
      */
-    private int parseRequiredTaskId(String[] parts, int taskCount, String missingArgumentMessage)
+    private int parseRequiredTaskId(
+            String[] parts, int taskCount, String missingArgumentMessage, String extraArgumentMessage)
             throws BingusException {
         if (parts.length < 2) {
             throw new BingusException(missingArgumentMessage);
         }
-        return parseTaskId(parts[1], taskCount);
+        String[] taskIds = parts[1].trim().split("\\s+");
+        if (taskIds.length != 1) {
+            throw new BingusException(extraArgumentMessage);
+        }
+        return parseTaskId(taskIds[0], taskCount);
+    }
+
+    /**
+     * Rejects details supplied to a command that does not accept them.
+     *
+     * @param parts command and arguments split into at most two parts
+     * @param errorMessage message to show when unused details are supplied
+     * @throws BingusException if the command has unused details
+     */
+    private void requireNoArguments(String[] parts, String errorMessage) throws BingusException {
+        if (parts.length > 1 && !parts[1].trim().isEmpty()) {
+            throw new BingusException(errorMessage);
+        }
+    }
+
+    /**
+     * Parses the optional date argument for a list command.
+     *
+     * @param input date argument supplied to the list command
+     * @return validated calendar date
+     * @throws BingusException if more than one date is supplied or the date is invalid
+     */
+    private LocalDate parseSingleListDate(String input) throws BingusException {
+        String[] dates = input.trim().split("\\s+");
+        if (dates.length != 1) {
+            throw new BingusException("I can only use one date to filter the list.\n"
+                    + "Try `list [yyyy-MM-dd]`.");
+        }
+        return parseListDate(dates[0]);
     }
 
 
@@ -281,6 +319,10 @@ public class Parser {
             throw new BingusException("I need a description and date for that deadline.\n" + DEADLINE_USAGE);
         }
 
+        if (countOccurrences(parts[1], "/by") > 1) {
+            throw new BingusException("I can only use one `/by` date for a deadline.\n" + DEADLINE_USAGE);
+        }
+
         String[] deadlineParts = parts[1].split("/by");
         if (deadlineParts.length != 2) {
             throw new BingusException("I could not understand that deadline.\n" + DEADLINE_USAGE);
@@ -307,6 +349,13 @@ public class Parser {
     public Event parseEvent(String[] parts) throws BingusException {
         if (parts.length < 2) {
             throw new BingusException("I need a description, start, and end for that event.\n" + EVENT_USAGE);
+        }
+
+        if (countOccurrences(parts[1], "/from") > 1) {
+            throw new BingusException("I can only use one `/from` date for an event.\n" + EVENT_USAGE);
+        }
+        if (countOccurrences(parts[1], "/to") > 1) {
+            throw new BingusException("I can only use one `/to` date for an event.\n" + EVENT_USAGE);
         }
 
         String[] descriptionAndTimes = parts[1].split("/from");
@@ -363,6 +412,23 @@ public class Parser {
         if (value.isEmpty()) {
             throw new BingusException(errorMessage);
         }
+    }
+
+    /**
+     * Counts non-overlapping occurrences of a marker in text.
+     *
+     * @param text text to inspect
+     * @param marker marker to count
+     * @return number of marker occurrences in the text
+     */
+    private int countOccurrences(String text, String marker) {
+        int occurrenceCount = 0;
+        int markerIndex = text.indexOf(marker);
+        while (markerIndex >= 0) {
+            occurrenceCount++;
+            markerIndex = text.indexOf(marker, markerIndex + marker.length());
+        }
+        return occurrenceCount;
     }
 
     /**
