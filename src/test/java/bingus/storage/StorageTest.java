@@ -2,8 +2,11 @@ package bingus.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import bingus.exception.BingusException;
 import bingus.task.Deadline;
 import bingus.task.Event;
 import bingus.task.Task;
@@ -49,5 +53,69 @@ class StorageTest {
         assertEquals(LocalDateTime.of(2026, 8, 30, 23, 59), loadedDeadline.getBy());
         assertEquals(LocalDateTime.of(2026, 8, 20, 9, 0), loadedEvent.getFrom());
         assertEquals(LocalDateTime.of(2026, 8, 22, 18, 0), loadedEvent.getTo());
+    }
+
+    /**
+     * Verifies that loading a file that has not been created returns an empty task list.
+     */
+    @Test
+    void loadTasks_missingSaveFile_returnsEmptyList() {
+        Storage storage = new Storage(temporaryDirectory.resolve("missing/tasks.txt").toString());
+
+        assertEquals(List.of(), storage.loadTasks());
+    }
+
+    /**
+     * Verifies that saving an empty task list persists an empty list.
+     */
+    @Test
+    void saveTasks_emptyListThenLoadTasks_returnsEmptyList() {
+        Storage storage = new Storage(temporaryDirectory.resolve("data/tasks.txt").toString());
+
+        storage.saveTasks(List.of());
+
+        assertEquals(List.of(), storage.loadTasks());
+    }
+
+    /**
+     * Verifies that a later save replaces the previously saved complete task list.
+     */
+    @Test
+    void saveTasks_secondSave_replacesPreviouslySavedTasks() {
+        Storage storage = new Storage(temporaryDirectory.resolve("data/tasks.txt").toString());
+
+        storage.saveTasks(List.of(new Todo("first task")));
+        storage.saveTasks(List.of(new Todo("replacement task")));
+
+        List<Task> loadedTasks = storage.loadTasks();
+        assertEquals(1, loadedTasks.size());
+        assertEquals("replacement task", loadedTasks.get(0).getDescription());
+    }
+
+    /**
+     * Verifies that malformed records are rejected with a user-facing loading error.
+     *
+     * @throws IOException if the test save file cannot be written
+     */
+    @Test
+    void loadTasks_malformedRecords_throwsFriendlyException() throws IOException {
+        Path saveFile = temporaryDirectory.resolve("data/tasks.txt");
+        Storage storage = new Storage(saveFile.toString());
+        List<String> malformedRecords = List.of(
+                "X|0|cmVhZCBib29r",
+                "T|2|cmVhZCBib29r",
+                "D|0|c3VibWl0IHJlcG9ydA==",
+                "T|0|not-valid-base64!",
+                "D|0|c3VibWl0IHJlcG9ydA==|bm90LWEtdGltZQ==");
+
+        Files.createDirectories(saveFile.getParent());
+        for (String malformedRecord : malformedRecords) {
+            Files.writeString(saveFile, malformedRecord);
+
+            BingusException exception = assertThrows(BingusException.class, storage::loadTasks);
+
+            assertEquals("I could not load your saved tasks. I have started with an empty list.",
+                    exception.getMessage());
+        }
     }
 }

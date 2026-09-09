@@ -85,8 +85,9 @@ class UpdateCommandTest {
         Todo updatedTask = new Todo("read two chapters");
         TaskList tasks = new TaskList(List.of(originalTask));
 
-        assertThrows(BingusException.class,
-                () -> new UpdateCommand(1, updatedTask).execute(tasks, new Ui(), failingStorage));
+        assertThrows(
+                BingusException.class, () -> new UpdateCommand(1, updatedTask)
+                        .execute(tasks, new Ui(), failingStorage));
 
         assertSame(originalTask, tasks.get(0));
         assertTrue(originalTask.isDone());
