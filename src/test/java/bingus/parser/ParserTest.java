@@ -13,7 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import bingus.command.Command;
+import bingus.command.CommandType;
+import bingus.command.ExitCommand;
 import bingus.command.FindCommand;
+import bingus.command.ListCommand;
 import bingus.command.UpdateCommand;
 import bingus.exception.BingusException;
 import bingus.storage.Storage;
@@ -38,6 +41,32 @@ public class ParserTest {
      */
     private Storage createStorage() {
         return new Storage(temporaryDirectory.resolve("data/tasks.txt").toString());
+    }
+
+    /**
+     * Verifies that a bye command is parsed as an exit command.
+     */
+    @Test
+    void parseBye_returnsExitCommand() {
+        Parser parser = new Parser();
+
+        Command command = parser.parse("bye", new TaskList());
+
+        assertInstanceOf(ExitCommand.class, command);
+        assertEquals(CommandType.EXIT, command.getType());
+    }
+
+    /**
+     * Verifies that a valid date-filtered list command is parsed as a list command.
+     */
+    @Test
+    void parseList_validDate_returnsListCommand() {
+        Parser parser = new Parser();
+
+        Command command = parser.parse("list 2026-09-20", new TaskList());
+
+        assertInstanceOf(ListCommand.class, command);
+        assertEquals(CommandType.LIST, command.getType());
     }
 
     @Test
@@ -302,6 +331,25 @@ public class ParserTest {
         assertEquals("I can only mark one task at a time.\nTry `mark [TASK_NUMBER]`.", exception.getMessage());
     }
 
+    /**
+     * Verifies that commands requiring a task number report their command-specific guidance.
+     */
+    @Test
+    void parseTaskCommands_missingTaskId_throwsHelpfulException() {
+        Parser parser = new Parser();
+
+        BingusException markException = assertThrows(
+                BingusException.class, () -> parser.parse("mark", new TaskList()));
+        BingusException unmarkException = assertThrows(
+                BingusException.class, () -> parser.parse("unmark", new TaskList()));
+        BingusException deleteException = assertThrows(
+                BingusException.class, () -> parser.parse("delete", new TaskList()));
+
+        assertEquals("Which task should I mark?\nTry `mark [TASK_NUMBER]`.", markException.getMessage());
+        assertEquals("Which task should I unmark?\nTry `unmark [TASK_NUMBER]`.", unmarkException.getMessage());
+        assertEquals("Which task should I remove?\nTry `delete [TASK_NUMBER]`.", deleteException.getMessage());
+    }
+
     @Test
     void parseUnmark_multipleTaskIds_throwsHelpfulException() {
         Parser parser = new Parser();
@@ -483,6 +531,16 @@ public class ParserTest {
         assertThrows(BingusException.class, () -> parser.parseTaskId("0", 3));
     }
 
+    /**
+     * Verifies that a negative task number is rejected.
+     */
+    @Test
+    void parseTaskId_negativeId_throwsException() {
+        Parser parser = new Parser();
+
+        assertThrows(BingusException.class, () -> parser.parseTaskId("-1", 3));
+    }
+
     @Test
     void parseTaskId_idGreaterThanTaskCount_throwsException() {
         Parser parser = new Parser();
@@ -512,5 +570,15 @@ public class ParserTest {
         Parser parser = new Parser();
 
         assertThrows(BingusException.class, () -> parser.parseListDate("2026-02-30"));
+    }
+
+    /**
+     * Verifies that a list date must use the documented year-month-day format.
+     */
+    @Test
+    void parseListDate_wrongFormat_throwsException() {
+        Parser parser = new Parser();
+
+        assertThrows(BingusException.class, () -> parser.parseListDate("20-09-2026"));
     }
 }
