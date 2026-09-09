@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
@@ -162,6 +164,40 @@ class BingusTest {
                 + "Try `todo`, `deadline`, `event`, `list`, `mark`, `unmark`, `delete`, "
                 + "`find`, `update`, or `bye`.", response);
         assertEquals(CommandType.INVALID, bingus.getCommandType());
+    }
+
+    /**
+     * Verifies that an invalid command does not remove tasks that were already added.
+     */
+    @Test
+    void getResponse_invalidCommand_preservesExistingTasks() {
+        Bingus bingus = createBingus();
+        bingus.getResponse("todo read book");
+
+        String errorResponse = bingus.getResponse("delete 2");
+
+        assertEquals("I could not find that task number in your list.", errorResponse);
+        assertEquals(CommandType.INVALID, bingus.getCommandType());
+        assertTrue(bingus.getResponse("list").contains("read book"));
+    }
+
+    /**
+     * Verifies that Bingus starts with an empty list and exposes an error after a corrupted save file.
+     *
+     * @throws IOException if the test save file cannot be written
+     */
+    @Test
+    void constructor_corruptedSaveFile_startsWithEmptyListAndLoadError() throws IOException {
+        Path saveFile = temporaryDirectory.resolve("data/bingus.txt");
+        Files.createDirectories(saveFile.getParent());
+        Files.writeString(saveFile, "T|0|not-valid-base64!");
+
+        Bingus bingus = new Bingus(saveFile.toString());
+
+        assertEquals("I could not load your saved tasks. I have started with an empty list.",
+                bingus.getLoadErrorMessage());
+        assertEquals("Your task list is empty. Time for a cat nap!", bingus.getResponse("list"));
+        assertEquals(CommandType.LIST, bingus.getCommandType());
     }
 
     /**
