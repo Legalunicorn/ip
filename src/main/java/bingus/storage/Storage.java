@@ -6,6 +6,7 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -62,7 +63,8 @@ public class Storage {
             return Files.readAllLines(saveFile, StandardCharsets.UTF_8).stream()
                     .map(Storage::fromSaveRecord)
                     .toList();
-        } catch (IOException | IllegalArgumentException | IllegalStateException | SecurityException e) {
+        } catch (IOException | DateTimeException | IllegalArgumentException | IllegalStateException
+                | SecurityException e) {
             throw new BingusException("I could not load your saved tasks. I have started with an empty list.");
         }
     }

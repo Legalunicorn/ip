@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import bingus.task.Deadline;
+import bingus.task.Event;
 import bingus.task.Task;
 import bingus.task.TaskList;
 import bingus.task.Todo;
@@ -18,6 +19,16 @@ import bingus.task.Todo;
  */
 class UiTest {
     private final Ui ui = new Ui();
+
+    /**
+     * Verifies that the user interface provides the expected welcome message.
+     */
+    @Test
+    void getWelcomeMessage_returnsIntroduction() {
+        assertEquals("Hi! I'm Bingus, your task-watching cat.\n"
+                + "Tell me what you need to remember, and I'll keep an eye on it.",
+                ui.getWelcomeMessage());
+    }
 
     @Test
     void getTaskAddedMessage_differentTaskCounts_usesCorrectGrammar() {
@@ -83,6 +94,21 @@ class UiTest {
         TaskList tasks = new TaskList(List.of(new Todo("read book")));
 
         assertEquals("I am not watching any tasks on Sep 20 2026.",
+                ui.getFilteredTaskListMessage(tasks, date));
+    }
+
+    /**
+     * Verifies that a multi-day event appears when listing a date between its start and end dates.
+     */
+    @Test
+    void getFilteredTaskListMessage_dateWithinEvent_returnsFormattedEvent() {
+        LocalDate date = LocalDate.of(2026, 9, 20);
+        Event event = new Event("camp", LocalDateTime.of(2026, 9, 19, 9, 0),
+                LocalDateTime.of(2026, 9, 21, 18, 0));
+        TaskList tasks = new TaskList(List.of(new Todo("read book"), event));
+
+        assertEquals("Here are the tasks I am watching on Sep 20 2026:\n"
+                + "2. [E][○] camp (from: Sep 19 2026, 9:00 AM to: Sep 21 2026, 6:00 PM)",
                 ui.getFilteredTaskListMessage(tasks, date));
     }
 

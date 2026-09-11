@@ -68,4 +68,28 @@ class UpdateCommandTest {
         assertSame(originalTask, tasks.get(0));
         assertEquals(1, tasks.size());
     }
+
+    /**
+     * Verifies that a failed update restores the original task and its completed status.
+     */
+    @Test
+    void execute_saveFailsForMarkedTask_restoresOriginalMarkedTask() {
+        Storage failingStorage = new Storage(temporaryDirectory.resolve("data/tasks.txt").toString()) {
+            @Override
+            public void saveTasks(List<Task> tasks) throws BingusException {
+                throw new BingusException("Test save failure.");
+            }
+        };
+        Todo originalTask = new Todo("read book");
+        originalTask.mark();
+        Todo updatedTask = new Todo("read two chapters");
+        TaskList tasks = new TaskList(List.of(originalTask));
+
+        assertThrows(
+                BingusException.class, () -> new UpdateCommand(1, updatedTask)
+                        .execute(tasks, new Ui(), failingStorage));
+
+        assertSame(originalTask, tasks.get(0));
+        assertTrue(originalTask.isDone());
+    }
 }
