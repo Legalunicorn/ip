@@ -1,8 +1,10 @@
 # bingus.Bingus UI Test Plan
 
-All divider lines begin at column one. Ordinary response lines have four leading spaces, and newly added task lines have eight.
+All divider lines begin at column one. Ordinary response lines have four leading spaces, and task lines in
+add, mark, unmark, update, and delete responses have eight. Every test includes the greeting shown at startup.
 
-Before Tests 1–4, ensure that `data/bingus.txt` does not exist. This keeps their saved task data independent.
+Run each test independently and reset `data/bingus.txt` before starting it. For Tests 1–4 and 7, ensure that
+the file does not exist. For Tests 5, 6, and 8, use only the data described in that test's setup.
 
 ## Test 1: Add a todo task
 
@@ -17,8 +19,12 @@ bye
 
 ```text
 ____________________________________________________________
+    Hi! I'm Bingus, your task-watching cat.
+    Tell me what you need to remember, and I'll keep an eye on it.
+____________________________________________________________
+____________________________________________________________
     Got it! I added this task:
-        [T][ ] borrow book
+        [T][○] borrow book
     You now have 1 task in your list.
 ____________________________________________________________
 ____________________________________________________________
@@ -40,13 +46,17 @@ bye
 
 ```text
 ____________________________________________________________
+    Hi! I'm Bingus, your task-watching cat.
+    Tell me what you need to remember, and I'll keep an eye on it.
+____________________________________________________________
+____________________________________________________________
     Got it! I added this task:
-        [D][ ] return book (by: Dec 2 2019, 6:00 pm)
+        [D][○] return book (by: Dec 2 2019, 6:00 PM)
     You now have 1 task in your list.
 ____________________________________________________________
 ____________________________________________________________
     Got it! I added this task:
-        [E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
+        [E][○] project meeting (from: Dec 3 2019, 2:00 PM to: Dec 3 2019, 4:00 PM)
     You now have 2 tasks in your list.
 ____________________________________________________________
 ____________________________________________________________
@@ -72,35 +82,39 @@ bye
 
 ```text
 ____________________________________________________________
+    Hi! I'm Bingus, your task-watching cat.
+    Tell me what you need to remember, and I'll keep an eye on it.
+____________________________________________________________
+____________________________________________________________
     Got it! I added this task:
-        [T][ ] read book
+        [T][○] read book
     You now have 1 task in your list.
 ____________________________________________________________
 ____________________________________________________________
     Got it! I added this task:
-        [D][ ] return book (by: Dec 2 2019, 6:00 pm)
+        [D][○] return book (by: Dec 2 2019, 6:00 PM)
     You now have 2 tasks in your list.
 ____________________________________________________________
 ____________________________________________________________
     Got it! I added this task:
-        [E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
+        [E][○] project meeting (from: Dec 3 2019, 2:00 PM to: Dec 3 2019, 4:00 PM)
     You now have 3 tasks in your list.
 ____________________________________________________________
 ____________________________________________________________
     Here are the tasks I am watching:
-    1.[T][ ] read book
-    2.[D][ ] return book (by: Dec 2 2019, 6:00 pm)
-    3.[E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
+    1. [T][○] read book
+    2. [D][○] return book (by: Dec 2 2019, 6:00 PM)
+    3. [E][○] project meeting (from: Dec 3 2019, 2:00 PM to: Dec 3 2019, 4:00 PM)
 ____________________________________________________________
 ____________________________________________________________
     Purrfect! This task is complete:
-        [D][X] return book (by: Dec 2 2019, 6:00 pm)
+        [D][✓] return book (by: Dec 2 2019, 6:00 PM)
 ____________________________________________________________
 ____________________________________________________________
     Here are the tasks I am watching:
-    1.[T][ ] read book
-    2.[D][X] return book (by: Dec 2 2019, 6:00 pm)
-    3.[E][ ] project meeting (from: Dec 3 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
+    1. [T][○] read book
+    2. [D][✓] return book (by: Dec 2 2019, 6:00 PM)
+    3. [E][○] project meeting (from: Dec 3 2019, 2:00 PM to: Dec 3 2019, 4:00 PM)
 ____________________________________________________________
 ____________________________________________________________
     Bingus is curling up for a nap. See you soon!
@@ -120,8 +134,12 @@ bye
 
 ```text
 ____________________________________________________________
+    Hi! I'm Bingus, your task-watching cat.
+    Tell me what you need to remember, and I'll keep an eye on it.
+____________________________________________________________
+____________________________________________________________
     Got it! I added this task:
-        [T][ ] plan | revise
+        [T][○] plan | revise
     You now have 1 task in your list.
 ____________________________________________________________
 ____________________________________________________________
@@ -156,8 +174,12 @@ bye
 
 ```text
 ____________________________________________________________
+    Hi! I'm Bingus, your task-watching cat.
+    Tell me what you need to remember, and I'll keep an eye on it.
+____________________________________________________________
+____________________________________________________________
     Here are the tasks I am watching:
-    1.[T][X] plan | revise
+    1. [T][✓] plan | revise
 ____________________________________________________________
 ____________________________________________________________
     Bingus is curling up for a nap. See you soon!
@@ -184,7 +206,12 @@ bye
 ### Expected output
 
 ```text
+____________________________________________________________
     I could not load your saved tasks. I have started with an empty list.
+____________________________________________________________
+____________________________________________________________
+    Hi! I'm Bingus, your task-watching cat.
+    Tell me what you need to remember, and I'll keep an eye on it.
 ____________________________________________________________
 ____________________________________________________________
     Your task list is empty. Time for a cat nap!
@@ -207,6 +234,10 @@ bye
 ### Expected output
 
 ```text
+____________________________________________________________
+    Hi! I'm Bingus, your task-watching cat.
+    Tell me what you need to remember, and I'll keep an eye on it.
+____________________________________________________________
 ____________________________________________________________
     That deadline date and time are not valid.
     Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.
@@ -242,9 +273,13 @@ bye
 
 ```text
 ____________________________________________________________
+    Hi! I'm Bingus, your task-watching cat.
+    Tell me what you need to remember, and I'll keep an eye on it.
+____________________________________________________________
+____________________________________________________________
     Here are the tasks I am watching on Dec 2 2019:
-    2.[D][ ] return book (by: Dec 2 2019, 6:00 pm)
-    3.[E][ ] project meeting (from: Dec 2 2019, 2:00 pm to: Dec 3 2019, 4:00 pm)
+    2. [D][○] return book (by: Dec 2 2019, 6:00 PM)
+    3. [E][○] project meeting (from: Dec 2 2019, 2:00 PM to: Dec 3 2019, 4:00 PM)
 ____________________________________________________________
 ____________________________________________________________
     Bingus is curling up for a nap. See you soon!
