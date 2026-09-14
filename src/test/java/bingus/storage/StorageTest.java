@@ -6,9 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,10 @@ class StorageTest {
     /** Directory created by JUnit for this test and removed after the test run. */
     @TempDir
     Path temporaryDirectory;
+
+    private static String encode(String value) {
+        return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    }
 
     /**
      * Verifies that persistence retains each task's type, content, dates, and completion status.
@@ -93,20 +99,47 @@ class StorageTest {
     }
 
     /**
+     * Verifies that storage supports a save-file path without a parent directory.
+     *
+     * @throws IOException if the test save file cannot be deleted.
+     */
+    @Test
+    void saveTasks_parentlessFilePath_savesAndLoadsTask() throws IOException {
+        Path saveFile = Path.of("storage-" + temporaryDirectory.getFileName() + ".txt");
+        Storage storage = new Storage(saveFile.toString());
+
+        try {
+            storage.saveTasks(List.of(new Todo("read book")));
+
+            assertEquals("read book", storage.loadTasks().get(0).getDescription());
+        } finally {
+            Files.deleteIfExists(saveFile);
+        }
+    }
+
+    /**
      * Verifies that malformed records are rejected with a user-facing loading error.
      *
-     * @throws IOException if the test save file cannot be written
+     * @throws IOException if the test save file cannot be written.
      */
     @Test
     void loadTasks_malformedRecords_throwsFriendlyException() throws IOException {
         Path saveFile = temporaryDirectory.resolve("data/tasks.txt");
         Storage storage = new Storage(saveFile.toString());
+        String eventWithReversedDateRange = String.join(
+                "|",
+                "E",
+                "0",
+                encode("camp"),
+                encode("2026-09-21T18:00"),
+                encode("2026-09-20T09:00"));
         List<String> malformedRecords = List.of(
-                "X|0|cmVhZCBib29r",
-                "T|2|cmVhZCBib29r",
-                "D|0|c3VibWl0IHJlcG9ydA==",
+                "X|0|" + encode("read book"),
+                "T|2|" + encode("read book"),
+                "D|0|" + encode("submit report"),
                 "T|0|not-valid-base64!",
-                "D|0|c3VibWl0IHJlcG9ydA==|bm90LWEtdGltZQ==");
+                "D|0|" + encode("submit report") + "|" + encode("not-a-time"),
+                eventWithReversedDateRange);
 
         Files.createDirectories(saveFile.getParent());
         for (String malformedRecord : malformedRecords) {

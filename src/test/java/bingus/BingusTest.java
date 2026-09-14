@@ -24,7 +24,7 @@ class BingusTest {
     /**
      * Creates a Bingus instance with a test-specific save file.
      *
-     * @return Bingus instance backed by a temporary save file
+     * @return Bingus instance backed by a temporary save file.
      */
     private Bingus createBingus() {
         return new Bingus(temporaryDirectory.resolve("data/bingus.txt").toString());
@@ -184,7 +184,7 @@ class BingusTest {
     /**
      * Verifies that Bingus starts with an empty list and exposes an error after a corrupted save file.
      *
-     * @throws IOException if the test save file cannot be written
+     * @throws IOException if the test save file cannot be written.
      */
     @Test
     void constructor_corruptedSaveFile_startsWithEmptyListAndLoadError() throws IOException {

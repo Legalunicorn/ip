@@ -20,13 +20,12 @@ public class Event extends Task {
     /** Date and time at which this event ends. */
     private final LocalDateTime to;
 
-
     /**
      * Creates an event task.
      *
-     * @param description description of the event
-     * @param from date and time at which the event starts
-     * @param to date and time at which the event ends
+     * @param description description of the event.
+     * @param from date and time at which the event starts.
+     * @param to date and time at which the event ends.
      */
     public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description, TaskType.EVENT);
@@ -42,7 +41,7 @@ public class Event extends Task {
     /**
      * Returns the event's start date and time.
      *
-     * @return start date and time
+     * @return start date and time.
      */
     public LocalDateTime getFrom() {
         return from;
@@ -51,7 +50,7 @@ public class Event extends Task {
     /**
      * Returns the event's end date and time.
      *
-     * @return end date and time
+     * @return end date and time.
      */
     public LocalDateTime getTo() {
         return to;
@@ -60,8 +59,8 @@ public class Event extends Task {
     /**
      * Returns whether this event overlaps the specified calendar date.
      *
-     * @param date date to check
-     * @return true if the event occurs on the date
+     * @param date date to check.
+     * @return true if the event occurs on the date.
      */
     @Override
     public boolean matchesDate(LocalDate date) {
@@ -73,7 +72,7 @@ public class Event extends Task {
     /**
      * Returns this event in the format used for display.
      *
-     * @return formatted event task text
+     * @return formatted event task text.
      */
     @Override
     public String getDisplayString() {

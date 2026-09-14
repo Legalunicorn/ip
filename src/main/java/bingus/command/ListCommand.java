@@ -38,10 +38,10 @@ public class ListCommand extends Command {
     /**
      * Returns the complete or date-filtered task list.
      *
-     * @param tasks task list to display
-     * @param ui user interface used to format the list
-     * @param storage persistent task storage, which is not changed
-     * @return task-list message
+     * @param tasks task list to display.
+     * @param ui user interface used to format the list.
+     * @param storage persistent task storage, which is not changed.
+     * @return task-list message.
      */
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {

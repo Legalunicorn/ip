@@ -26,6 +26,20 @@ class MarkCommandTest {
     Path temporaryDirectory;
 
     /**
+     * Creates storage that always fails when saving tasks.
+     *
+     * @return Storage that fails when saving tasks.
+     */
+    private Storage createFailingStorage() {
+        return new Storage(temporaryDirectory.resolve("data/tasks.txt").toString()) {
+            @Override
+            public void saveTasks(List<Task> tasks) throws BingusException {
+                throw new BingusException("Test save failure.");
+            }
+        };
+    }
+
+    /**
      * Verifies that marking and then unmarking a task changes and persists its completion status.
      */
     @Test
@@ -51,12 +65,7 @@ class MarkCommandTest {
      */
     @Test
     void execute_markSaveFails_restoresIncompleteStatus() {
-        Storage failingStorage = new Storage(temporaryDirectory.resolve("data/tasks.txt").toString()) {
-            @Override
-            public void saveTasks(List<Task> tasks) throws BingusException {
-                throw new BingusException("Test save failure.");
-            }
-        };
+        Storage failingStorage = createFailingStorage();
         Todo todo = new Todo("read JUnit guide");
         TaskList tasks = new TaskList(List.of(todo));
 
@@ -70,12 +79,7 @@ class MarkCommandTest {
      */
     @Test
     void execute_unmarkSaveFails_restoresCompleteStatus() {
-        Storage failingStorage = new Storage(temporaryDirectory.resolve("data/tasks.txt").toString()) {
-            @Override
-            public void saveTasks(List<Task> tasks) throws BingusException {
-                throw new BingusException("Test save failure.");
-            }
-        };
+        Storage failingStorage = createFailingStorage();
         Todo todo = new Todo("read JUnit guide");
         todo.mark();
         TaskList tasks = new TaskList(List.of(todo));
@@ -83,5 +87,36 @@ class MarkCommandTest {
         assertThrows(BingusException.class, () -> new MarkCommand(1, false).execute(tasks, new Ui(), failingStorage));
 
         assertTrue(todo.isDone());
+    }
+
+    /**
+     * Verifies that a completed task remains complete when marking it again cannot be saved.
+     */
+    @Test
+    void execute_redundantMarkSaveFails_restoresCompleteStatus() {
+        Storage failingStorage = createFailingStorage();
+        Todo todo = new Todo("read JUnit guide");
+        todo.mark();
+        TaskList tasks = new TaskList(List.of(todo));
+        MarkCommand command = new MarkCommand(1, true);
+
+        assertThrows(BingusException.class, () -> command.execute(tasks, new Ui(), failingStorage));
+
+        assertTrue(todo.isDone());
+    }
+
+    /**
+     * Verifies that an incomplete task remains incomplete when unmarking it again cannot be saved.
+     */
+    @Test
+    void execute_redundantUnmarkSaveFails_restoresIncompleteStatus() {
+        Storage failingStorage = createFailingStorage();
+        Todo todo = new Todo("read JUnit guide");
+        TaskList tasks = new TaskList(List.of(todo));
+        MarkCommand command = new MarkCommand(1, false);
+
+        assertThrows(BingusException.class, () -> command.execute(tasks, new Ui(), failingStorage));
+
+        assertFalse(todo.isDone());
     }
 }

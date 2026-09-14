@@ -20,8 +20,8 @@ public class Deadline extends Task {
     /**
      * Creates a deadline task.
      *
-     * @param description task description
-     * @param by date and time by which the task is due
+     * @param description task description.
+     * @param by date and time by which the task is due.
      */
     public Deadline(String description, LocalDateTime by) {
         super(description, TaskType.DEADLINE);
@@ -34,7 +34,7 @@ public class Deadline extends Task {
     /**
      * Returns the date and time by which this task is due.
      *
-     * @return deadline date and time
+     * @return deadline date and time.
      */
     public LocalDateTime getBy() {
         return by;
@@ -43,8 +43,8 @@ public class Deadline extends Task {
     /**
      * Returns whether this deadline is due on the specified date.
      *
-     * @param date date to check
-     * @return true if this deadline is due on the date
+     * @param date date to check.
+     * @return true if this deadline is due on the date.
      */
     @Override
     public boolean matchesDate(LocalDate date) {
@@ -54,7 +54,7 @@ public class Deadline extends Task {
     /**
      * Returns this deadline in the format used for display.
      *
-     * @return formatted deadline task text
+     * @return formatted deadline task text.
      */
     @Override
     public String getDisplayString() {

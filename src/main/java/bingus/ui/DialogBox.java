@@ -1,4 +1,4 @@
-// Adapted from the SE-EDU JavaFX Tutorial, Part 4 & 5;
+// Adapted from the SE-EDU JavaFX Tutorial, Parts 4 and 5:
 // https://se-education.org/guides/tutorials/javaFxPart4.html
 // https://se-education.org/guides/tutorials/javaFxPart5.html
 
@@ -74,8 +74,8 @@ public class DialogBox extends HBox {
     /**
      * Creates a dialog box for a user message.
      *
-     * @param text message text
-     * @return dialog box for the user message
+     * @param text message text.
+     * @return dialog box for the user message.
      */
     public static DialogBox getUserDialog(String text) {
         DialogBox userDialog = new DialogBox(text);
@@ -86,10 +86,10 @@ public class DialogBox extends HBox {
     /**
      * Creates a left-aligned dialog box for a Bingus response.
      *
-     * @param text response text
-     * @param image the image representing Bingus
-     * @param commandType type of command that produced the response
-     * @return dialog box for the Bingus response
+     * @param text response text.
+     * @param image the image representing Bingus.
+     * @param commandType type of command that produced the response.
+     * @return dialog box for the Bingus response.
      */
     public static DialogBox getBingusDialog(String text, Image image, CommandType commandType) {
         DialogBox bingusDialog = new DialogBox(text, image);

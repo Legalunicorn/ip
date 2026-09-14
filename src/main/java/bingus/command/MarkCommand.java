@@ -33,17 +33,18 @@ public class MarkCommand extends Command {
     /**
      * Updates the task's completion status, saves the list, and returns the result message.
      *
-     * @param tasks task list containing the task to update
-     * @param ui user interface used to format the result
-     * @param storage persistent task storage
-     * @return task-marked or task-unmarked message
-     * @throws BingusException if the updated list cannot be saved
+     * @param tasks task list containing the task to update.
+     * @param ui user interface used to format the result.
+     * @param storage persistent task storage.
+     * @return task-marked or task-unmarked message.
+     * @throws BingusException if the updated list cannot be saved.
      */
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {
         assert taskId >= 1 && taskId <= tasks.size()
                 : "Mark task ID must refer to an existing task";
         Task task = tasks.get(taskId - 1);
+        boolean wasDone = task.isDone();
         if (isToMark) {
             task.mark();
         } else {
@@ -53,10 +54,10 @@ public class MarkCommand extends Command {
         try {
             storage.saveTasks(tasks.getTasksSnapshot());
         } catch (BingusException e) {
-            if (isToMark) {
-                task.unmark();
-            } else {
+            if (wasDone) {
                 task.mark();
+            } else {
+                task.unmark();
             }
             throw e;
         }

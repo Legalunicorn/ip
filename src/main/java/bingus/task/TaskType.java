@@ -13,7 +13,7 @@ public enum TaskType {
     /**
      * Creates a task type with its display symbol.
      *
-     * @param symbol symbol displayed for this type
+     * @param symbol symbol displayed for this type.
      */
     TaskType(String symbol) {
         this.symbol = symbol;
@@ -22,7 +22,7 @@ public enum TaskType {
     /**
      * Returns the symbol used when displaying this task type.
      *
-     * @return task-type display symbol
+     * @return task-type display symbol.
      */
     public String getSymbol() {
         return symbol;

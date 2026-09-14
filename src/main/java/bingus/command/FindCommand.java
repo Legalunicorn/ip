@@ -14,7 +14,7 @@ public class FindCommand extends Command {
     /**
      * Creates a command that finds tasks containing the specified keyword.
      *
-     * @param keyword keyword to search for
+     * @param keyword keyword to search for.
      */
     public FindCommand(String keyword) {
         this.keyword = keyword;
@@ -28,10 +28,10 @@ public class FindCommand extends Command {
     /**
      * Finds matching tasks and returns them as a message.
      *
-     * @param tasks task list to search
-     * @param ui user interface used to format results
-     * @param storage persistent task storage, which is not changed
-     * @return matching-tasks message
+     * @param tasks task list to search.
+     * @param ui user interface used to format results.
+     * @param storage persistent task storage, which is not changed.
+     * @return matching-tasks message.
      */
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {

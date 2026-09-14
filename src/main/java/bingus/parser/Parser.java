@@ -26,35 +26,25 @@ import bingus.task.Todo;
  */
 public class Parser {
 
-    /** Strict format accepted for deadline and event date/time input. */
-    private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT = DateTimeFormatter
-            .ofPattern("uuuu-MM-dd HHmm")
-            .withResolverStyle(ResolverStyle.STRICT);
-
     /** Strict format accepted when filtering tasks by date. */
     private static final DateTimeFormatter INPUT_DATE_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
-
-    /** Usage guidance for deadline commands. */
-    private static final String DEADLINE_USAGE = "Try `deadline [DESCRIPTION] /by [DATETIME]`.";
-
-    /** Usage guidance for event commands. */
-    private static final String EVENT_USAGE =
-            "Try `event [DESCRIPTION] /from [FROM_DATETIME] /to [TO_DATETIME]`.";
 
     /** Usage guidance for updating supported task details. */
     private static final String UPDATE_USAGE = "Try `update [TASK_NUMBER] /desc [DESCRIPTION]`, "
             + "`update [TASK_NUMBER] /by [DATETIME]`, `update [TASK_NUMBER] /from [DATETIME]`, "
             + "or `update [TASK_NUMBER] /to [DATETIME]`.";
 
+    private final TaskParser taskParser = new TaskParser();
+
     /**
      * Converts one command line into the corresponding command object.
      *
-     * @param userInput complete command line entered by the user
-     * @param tasks current task list, used to validate task numbers
-     * @return command represented by the input
-     * @throws BingusException if the command or its arguments are invalid
+     * @param userInput complete command line entered by the user.
+     * @param tasks current task list, used to validate task numbers.
+     * @return command represented by the input.
+     * @throws BingusException if the command or its arguments are invalid.
      */
     public Command parse(String userInput, TaskList tasks) throws BingusException {
         String[] commandParts = splitCommand(userInput);
@@ -68,11 +58,11 @@ public class Parser {
                         ? new ListCommand()
                         : new ListCommand(parseSingleListDate(commandParts[1]));
             case "todo":
-                return new AddCommand(parseTodo(commandParts));
+                return new AddCommand(taskParser.parseTodo(commandParts));
             case "deadline":
-                return new AddCommand(parseDeadline(commandParts));
+                return new AddCommand(taskParser.parseDeadline(commandParts));
             case "event":
-                return new AddCommand(parseEvent(commandParts));
+                return new AddCommand(taskParser.parseEvent(commandParts));
             case "mark":
                 return new MarkCommand(parseRequiredTaskId(
                         commandParts, tasks.size(), "Which task should I mark?\nTry `mark [TASK_NUMBER]`.",
@@ -99,10 +89,10 @@ public class Parser {
     /**
      * Parses an update command that replaces a supported task detail.
      *
-     * @param commandParts command and arguments split into at most two parts
-     * @param tasks current task list, used to find the task being updated
-     * @return command containing the updated replacement task
-     * @throws BingusException if the command arguments are missing or invalid
+     * @param commandParts command and arguments split into at most two parts.
+     * @param tasks current task list, used to find the task being updated.
+     * @return command containing the updated replacement task.
+     * @throws BingusException if the command arguments are missing or invalid.
      */
     private UpdateCommand parseUpdateCommand(String[] commandParts, TaskList tasks) throws BingusException {
         if (commandParts.length < 2 || commandParts[1].trim().isEmpty()) {
@@ -111,14 +101,27 @@ public class Parser {
 
         String[] updateParts = commandParts[1].trim().split("\\s+", 3);
         int taskId = parseTaskId(updateParts[0], tasks.size());
+        validateUpdateParts(updateParts);
+
+        String updateField = updateParts[1];
+        String updatedValue = updateParts[2].trim();
+        Task originalTask = tasks.get(taskId - 1);
+        Task updatedTask = createUpdatedTask(originalTask, updateField, updatedValue);
+        return new UpdateCommand(taskId, updatedTask);
+    }
+
+    /**
+     * Validates the field and replacement value supplied to an update command.
+     *
+     * @param updateParts task number, update field, and replacement value.
+     * @throws BingusException if the update field or replacement value is invalid.
+     */
+    private void validateUpdateParts(String[] updateParts) throws BingusException {
         if (updateParts.length < 2) {
             throw new BingusException("Tell me what to change for that task.\n" + UPDATE_USAGE);
         }
         String updateField = updateParts[1];
-        if (!updateField.equals("/desc")
-                && !updateField.equals("/by")
-                && !updateField.equals("/from")
-                && !updateField.equals("/to")) {
+        if (!isSupportedUpdateField(updateField)) {
             throw new BingusException("I cannot update that field.\n" + UPDATE_USAGE);
         }
         if (updateParts.length < 3 || updateParts[2].trim().isEmpty()) {
@@ -127,26 +130,50 @@ public class Parser {
             }
             throw new BingusException("I need a new date and time.\n" + UPDATE_USAGE);
         }
+    }
 
-        String updatedValue = updateParts[2].trim();
-        Task original = tasks.get(taskId - 1);
-        Task updatedTask;
-        if (updateField.equals("/desc")) {
-            updatedTask = createTaskWithUpdatedDescription(original, updatedValue);
-        } else if (updateField.equals("/by")) {
-            updatedTask = createDeadlineWithUpdatedDateTime(original, updatedValue);
-        } else {
-            updatedTask = createEventWithUpdatedDateTime(original, updateField, updatedValue);
+    private boolean isSupportedUpdateField(String updateField) {
+        switch (updateField) {
+            case "/desc":
+            case "/by":
+            case "/from":
+            case "/to":
+                return true;
+            default:
+                return false;
         }
-        return new UpdateCommand(taskId, updatedTask);
+    }
+
+    /**
+     * Creates a replacement task containing the requested update.
+     *
+     * @param originalTask task whose details should be updated.
+     * @param updateField task detail to replace.
+     * @param updatedValue replacement value for the selected detail.
+     * @return replacement task containing the update.
+     * @throws BingusException if the update is incompatible with the task.
+     */
+    private Task createUpdatedTask(Task originalTask, String updateField, String updatedValue)
+            throws BingusException {
+        switch (updateField) {
+            case "/desc":
+                return createTaskWithUpdatedDescription(originalTask, updatedValue);
+            case "/by":
+                return createDeadlineWithUpdatedDateTime(originalTask, updatedValue);
+            case "/from":
+            case "/to":
+                return createEventWithUpdatedDateTime(originalTask, updateField, updatedValue);
+            default:
+                throw new IllegalStateException("Unsupported update field: " + updateField);
+        }
     }
 
     /**
      * Creates a task of the same type with a new description and unchanged type-specific details.
      *
-     * @param originalTask task whose type-specific details should be preserved
-     * @param updatedDescription replacement task description
-     * @return replacement task with the updated description
+     * @param originalTask task whose type-specific details should be preserved.
+     * @param updatedDescription replacement task description.
+     * @return replacement task with the updated description.
      */
     private Task createTaskWithUpdatedDescription(Task originalTask, String updatedDescription) {
         switch (originalTask.getType()) {
@@ -170,10 +197,10 @@ public class Parser {
     /**
      * Creates a deadline with a new due date and an unchanged description.
      *
-     * @param originalTask deadline whose description should be preserved
-     * @param updatedDateTime replacement deadline date and time
-     * @return replacement deadline with the updated due date
-     * @throws BingusException if the task is not a deadline or the date and time is invalid
+     * @param originalTask deadline whose description should be preserved.
+     * @param updatedDateTime replacement deadline date and time.
+     * @return replacement deadline with the updated due date.
+     * @throws BingusException if the task is not a deadline or the date and time is invalid.
      */
     private Deadline createDeadlineWithUpdatedDateTime(Task originalTask, String updatedDateTime)
             throws BingusException {
@@ -181,20 +208,18 @@ public class Parser {
             throw new BingusException("I can only use `/by` with deadlines.\n" + UPDATE_USAGE);
         }
 
-        String invalidDateTimeMessage = "That deadline date and time are not valid.\n"
-                + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime updatedBy = parseDateTime(updatedDateTime, invalidDateTimeMessage);
+        LocalDateTime updatedBy = taskParser.parseDeadlineDateTime(updatedDateTime);
         return new Deadline(originalTask.getDescription(), updatedBy);
     }
 
     /**
      * Creates an event with one updated endpoint and all other details unchanged.
      *
-     * @param originalTask event whose existing details should be preserved
-     * @param updateField {@code /from} to update the start or {@code /to} to update the end
-     * @param updatedDateTime replacement event date and time
-     * @return replacement event with the updated endpoint
-     * @throws BingusException if the task is not an event, the date and time is invalid, or the range is invalid
+     * @param originalTask event whose existing details should be preserved.
+     * @param updateField {@code /from} to update the start or {@code /to} to update the end.
+     * @param updatedDateTime replacement event date and time.
+     * @return replacement event with the updated endpoint.
+     * @throws BingusException if the task is not an event, the date and time is invalid, or the range is invalid.
      */
     private Event createEventWithUpdatedDateTime(
             Task originalTask, String updateField, String updatedDateTime) throws BingusException {
@@ -205,9 +230,7 @@ public class Parser {
         }
 
         Event originalEvent = (Event) originalTask;
-        String invalidDateTimeMessage = "That event date and time are not valid.\n"
-                + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime updatedDate = parseDateTime(updatedDateTime, invalidDateTimeMessage);
+        LocalDateTime updatedDate = taskParser.parseEventDateTime(updatedDateTime);
         LocalDateTime updatedFrom = updateField.equals("/from") ? updatedDate : originalEvent.getFrom();
         LocalDateTime updatedTo = updateField.equals("/to") ? updatedDate : originalEvent.getTo();
         if (!updatedTo.isAfter(updatedFrom)) {
@@ -219,9 +242,9 @@ public class Parser {
     /**
      * Parses the required search word for a find command.
      *
-     * @param commandParts command and arguments split into at most two parts
-     * @return validated search word
-     * @throws BingusException if the search word is missing
+     * @param commandParts command and arguments split into at most two parts.
+     * @return validated search word.
+     * @throws BingusException if the search word is missing.
      */
     private String parseFindKeyword(String[] commandParts) throws BingusException {
         if (commandParts.length < 2 || commandParts[1].trim().isEmpty()) {
@@ -234,11 +257,12 @@ public class Parser {
     /**
      * Parses a required task number using the specified missing-argument message.
      *
-     * @param commandParts command and arguments split into at most two parts
-     * @param taskCount current number of tasks
-     * @param missingArgumentMessage message to show when the task number is missing
-     * @return validated one-based task number
-     * @throws BingusException if the number is missing or invalid
+     * @param commandParts command and arguments split into at most two parts.
+     * @param taskCount current number of tasks.
+     * @param missingArgumentMessage message to show when the task number is missing.
+     * @param extraArgumentMessage message to show when more than one task number is supplied.
+     * @return validated one-based task number.
+     * @throws BingusException if the number is missing or invalid.
      */
     private int parseRequiredTaskId(
             String[] commandParts, int taskCount, String missingArgumentMessage, String extraArgumentMessage)
@@ -256,9 +280,9 @@ public class Parser {
     /**
      * Rejects details supplied to a command that does not accept them.
      *
-     * @param commandParts command and arguments split into at most two parts
-     * @param errorMessage message to show when unused details are supplied
-     * @throws BingusException if the command has unused details
+     * @param commandParts command and arguments split into at most two parts.
+     * @param errorMessage message to show when unused details are supplied.
+     * @throws BingusException if the command has unused details.
      */
     private void requireNoArguments(String[] commandParts, String errorMessage) throws BingusException {
         if (commandParts.length > 1 && !commandParts[1].trim().isEmpty()) {
@@ -269,9 +293,9 @@ public class Parser {
     /**
      * Parses the optional date argument for a list command.
      *
-     * @param input date argument supplied to the list command
-     * @return validated calendar date
-     * @throws BingusException if more than one date is supplied or the date is invalid
+     * @param input date argument supplied to the list command.
+     * @return validated calendar date.
+     * @throws BingusException if more than one date is supplied or the date is invalid.
      */
     private LocalDate parseSingleListDate(String input) throws BingusException {
         String[] dates = input.trim().split("\\s+");
@@ -282,164 +306,25 @@ public class Parser {
         return parseListDate(dates[0]);
     }
 
-
     /**
      * Splits a user command into its command word and remaining arguments.
      *
-     * @param userInput complete command line entered by the user
-     * @return command and arguments split into at most two parts
+     * @param userInput complete command line entered by the user.
+     * @return command and arguments split into at most two parts.
      */
-    public String[] splitCommand(String userInput) {
+    private String[] splitCommand(String userInput) {
         return userInput.split("\\s+", 2);
-    }
-
-    /**
-     * Parses the arguments of a todo command.
-     *
-     * @param commandParts command and arguments split into at most two parts
-     * @return validated todo task
-     * @throws BingusException if the description is missing or empty
-     */
-    public Todo parseTodo(String[] commandParts) throws BingusException {
-        if (commandParts.length < 2 || commandParts[1].trim().isEmpty()) {
-            throw new BingusException("I need a description for that task.\nTry `todo [DESCRIPTION]`.");
-        }
-        return new Todo(commandParts[1].trim());
-    }
-
-    /**
-     * Parses the arguments of a deadline command.
-     *
-     * @param commandParts command and arguments split into at most two parts
-     * @return validated deadline task
-     * @throws BingusException if the command format or date/time is invalid
-     */
-    public Deadline parseDeadline(String[] commandParts) throws BingusException {
-        if (commandParts.length < 2) {
-            throw new BingusException("I need a description and date for that deadline.\n" + DEADLINE_USAGE);
-        }
-
-        if (countOccurrences(commandParts[1], "/by") > 1) {
-            throw new BingusException("I can only use one `/by` date for a deadline.\n" + DEADLINE_USAGE);
-        }
-
-        String[] deadlineParts = commandParts[1].split("/by");
-        if (deadlineParts.length != 2) {
-            throw new BingusException("I could not understand that deadline.\n" + DEADLINE_USAGE);
-        }
-
-        String description = deadlineParts[0].trim();
-        String deadlineDateTimeText = deadlineParts[1].trim();
-        requireNonEmpty(description, "I need a description for that deadline.\n" + DEADLINE_USAGE);
-        requireNonEmpty(deadlineDateTimeText, "I need a date and time for that deadline.\n" + DEADLINE_USAGE);
-
-        String invalidDateTimeMessage = "That deadline date and time are not valid.\n"
-                + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime deadlineDateTime = parseDateTime(deadlineDateTimeText, invalidDateTimeMessage);
-        return new Deadline(description, deadlineDateTime);
-    }
-
-    /**
-     * Parses the arguments of an event command.
-     *
-     * @param commandParts command and arguments split into at most two parts
-     * @return validated event task
-     * @throws BingusException if the command format or date/time is invalid
-     */
-    public Event parseEvent(String[] commandParts) throws BingusException {
-        if (commandParts.length < 2) {
-            throw new BingusException("I need a description, start, and end for that event.\n" + EVENT_USAGE);
-        }
-
-        if (countOccurrences(commandParts[1], "/from") > 1) {
-            throw new BingusException("I can only use one `/from` date for an event.\n" + EVENT_USAGE);
-        }
-        if (countOccurrences(commandParts[1], "/to") > 1) {
-            throw new BingusException("I can only use one `/to` date for an event.\n" + EVENT_USAGE);
-        }
-
-        String[] descriptionAndTimes = commandParts[1].split("/from");
-        if (descriptionAndTimes.length != 2) {
-            throw new BingusException("I could not understand that event.\n" + EVENT_USAGE);
-        }
-
-        String[] startAndEnd = descriptionAndTimes[1].split("/to");
-        if (startAndEnd.length != 2) {
-            throw new BingusException("I could not understand that event.\n" + EVENT_USAGE);
-        }
-
-        String description = descriptionAndTimes[0].trim();
-        String startDateTimeText = startAndEnd[0].trim();
-        String endDateTimeText = startAndEnd[1].trim();
-        requireNonEmpty(startDateTimeText, "I need a start date and time for that event.\n" + EVENT_USAGE);
-        requireNonEmpty(endDateTimeText, "I need an end date and time for that event.\n" + EVENT_USAGE);
-        requireNonEmpty(description, "I need a description for that event.\n" + EVENT_USAGE);
-
-        String invalidDateTimeMessage = "That event date and time are not valid.\n"
-                + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime fromDateTime = parseDateTime(startDateTimeText, invalidDateTimeMessage);
-        LocalDateTime toDateTime = parseDateTime(endDateTimeText, invalidDateTimeMessage);
-        if (!toDateTime.isAfter(fromDateTime)) {
-            throw new BingusException("The event must end after it starts.");
-        }
-        return new Event(description, fromDateTime, toDateTime);
-    }
-
-    /**
-     * Parses a date and time using the command input format.
-     *
-     * @param input date-time text to parse
-     * @param errorMessage message to show when the text is invalid
-     * @return parsed date and time
-     * @throws BingusException if the text is not a valid date and time
-     */
-    private LocalDateTime parseDateTime(String input, String errorMessage) throws BingusException {
-        try {
-            return LocalDateTime.parse(input, INPUT_DATE_TIME_FORMAT);
-        } catch (DateTimeParseException e) {
-            throw new BingusException(errorMessage);
-        }
-    }
-
-    /**
-     * Ensures that a required command value is not empty.
-     *
-     * @param value command value to validate
-     * @param errorMessage message to show when the value is empty
-     * @throws BingusException if the value is empty
-     */
-    private void requireNonEmpty(String value, String errorMessage) throws BingusException {
-        if (value.isEmpty()) {
-            throw new BingusException(errorMessage);
-        }
-    }
-
-    /**
-     * Counts non-overlapping occurrences of a marker in text.
-     *
-     * @param text text to inspect
-     * @param marker marker to count
-     * @return number of marker occurrences in the text
-     */
-    private int countOccurrences(String text, String marker) {
-        int occurrenceCount = 0;
-        int markerIndex = text.indexOf(marker);
-        while (markerIndex >= 0) {
-            occurrenceCount++;
-            markerIndex = text.indexOf(marker, markerIndex + marker.length());
-        }
-        return occurrenceCount;
     }
 
     /**
      * Parses a one-based task number and verifies that it refers to a task.
      *
-     * @param input task number text
-     * @param taskCount current number of tasks
-     * @return validated one-based task number
-     * @throws BingusException if the number is not an integer or is out of range
+     * @param input task number text.
+     * @param taskCount current number of tasks.
+     * @return validated one-based task number.
+     * @throws BingusException if the number is not an integer or is out of range.
      */
-    public int parseTaskId(String input, int taskCount) throws BingusException {
+    int parseTaskId(String input, int taskCount) throws BingusException {
         try {
             int taskId = Integer.parseInt(input.trim());
             if (taskId < 1 || taskId > taskCount) {
@@ -454,11 +339,11 @@ public class Parser {
     /**
      * Parses a date used to filter the task list.
      *
-     * @param input date text in yyyy-MM-dd format
-     * @return validated calendar date
-     * @throws BingusException if the date is invalid
+     * @param input date text in yyyy-MM-dd format.
+     * @return validated calendar date.
+     * @throws BingusException if the date is invalid.
      */
-    public LocalDate parseListDate(String input) throws BingusException {
+    LocalDate parseListDate(String input) throws BingusException {
         try {
             return LocalDate.parse(input.trim(), INPUT_DATE_FORMAT);
         } catch (DateTimeParseException e) {
