@@ -44,6 +44,7 @@ public class MarkCommand extends Command {
         assert taskId >= 1 && taskId <= tasks.size()
                 : "Mark task ID must refer to an existing task";
         Task task = tasks.get(taskId - 1);
+        boolean wasDone = task.isDone();
         if (isToMark) {
             task.mark();
         } else {
@@ -53,10 +54,10 @@ public class MarkCommand extends Command {
         try {
             storage.saveTasks(tasks.getTasksSnapshot());
         } catch (BingusException e) {
-            if (isToMark) {
-                task.unmark();
-            } else {
+            if (wasDone) {
                 task.mark();
+            } else {
+                task.unmark();
             }
             throw e;
         }
