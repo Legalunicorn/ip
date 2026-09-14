@@ -20,7 +20,6 @@ public class Event extends Task {
     /** Date and time at which this event ends. */
     private final LocalDateTime to;
 
-
     /**
      * Creates an event task.
      *

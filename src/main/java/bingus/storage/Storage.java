@@ -48,7 +48,6 @@ public class Storage {
         this.saveFile = Path.of(filePath);
     }
 
-
     /**
      * Loads all tasks from the save file. Returns an empty list if the file does not exist.
      *

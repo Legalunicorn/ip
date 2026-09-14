@@ -1,4 +1,4 @@
-// Adapted from the SE-EDU JavaFX Tutorial, Part 4 & 5;
+// Adapted from the SE-EDU JavaFX Tutorial, Parts 4 and 5:
 // https://se-education.org/guides/tutorials/javaFxPart4.html
 // https://se-education.org/guides/tutorials/javaFxPart5.html
 

@@ -282,14 +282,13 @@ public class Parser {
         return parseListDate(dates[0]);
     }
 
-
     /**
      * Splits a user command into its command word and remaining arguments.
      *
      * @param userInput complete command line entered by the user
      * @return command and arguments split into at most two parts
      */
-    public String[] splitCommand(String userInput) {
+    private String[] splitCommand(String userInput) {
         return userInput.split("\\s+", 2);
     }
 
@@ -300,7 +299,7 @@ public class Parser {
      * @return validated todo task
      * @throws BingusException if the description is missing or empty
      */
-    public Todo parseTodo(String[] commandParts) throws BingusException {
+    Todo parseTodo(String[] commandParts) throws BingusException {
         if (commandParts.length < 2 || commandParts[1].trim().isEmpty()) {
             throw new BingusException("I need a description for that task.\nTry `todo [DESCRIPTION]`.");
         }
@@ -314,7 +313,7 @@ public class Parser {
      * @return validated deadline task
      * @throws BingusException if the command format or date/time is invalid
      */
-    public Deadline parseDeadline(String[] commandParts) throws BingusException {
+    Deadline parseDeadline(String[] commandParts) throws BingusException {
         if (commandParts.length < 2) {
             throw new BingusException("I need a description and date for that deadline.\n" + DEADLINE_USAGE);
         }
@@ -346,7 +345,7 @@ public class Parser {
      * @return validated event task
      * @throws BingusException if the command format or date/time is invalid
      */
-    public Event parseEvent(String[] commandParts) throws BingusException {
+    Event parseEvent(String[] commandParts) throws BingusException {
         if (commandParts.length < 2) {
             throw new BingusException("I need a description, start, and end for that event.\n" + EVENT_USAGE);
         }
@@ -439,7 +438,7 @@ public class Parser {
      * @return validated one-based task number
      * @throws BingusException if the number is not an integer or is out of range
      */
-    public int parseTaskId(String input, int taskCount) throws BingusException {
+    int parseTaskId(String input, int taskCount) throws BingusException {
         try {
             int taskId = Integer.parseInt(input.trim());
             if (taskId < 1 || taskId > taskCount) {
@@ -458,7 +457,7 @@ public class Parser {
      * @return validated calendar date
      * @throws BingusException if the date is invalid
      */
-    public LocalDate parseListDate(String input) throws BingusException {
+    LocalDate parseListDate(String input) throws BingusException {
         try {
             return LocalDate.parse(input.trim(), INPUT_DATE_FORMAT);
         } catch (DateTimeParseException e) {
