@@ -42,7 +42,7 @@ public class AddCommand extends Command {
         try {
             storage.saveTasks(tasks.getTasksSnapshot());
         } catch (BingusException e) {
-            tasks.remove(tasks.size() - 1); // undo the failed save
+            tasks.remove(tasks.size() - 1);
             throw e;
         }
         return ui.getTaskAddedMessage(task, tasks.size());

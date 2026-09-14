@@ -51,10 +51,7 @@ public class Ui {
 
         StringBuilder message = new StringBuilder("Here are the tasks I am watching:");
         for (int index = 0; index < tasks.size(); index++) {
-            message.append("\n")
-                    .append(index + 1)
-                    .append(". ")
-                    .append(tasks.get(index).getDisplayString());
+            appendNumberedTask(message, index + 1, tasks.get(index));
         }
         return message.toString();
     }
@@ -118,10 +115,7 @@ public class Ui {
             Task task = tasks.get(index);
             if (task.matchesDate(date)) {
                 hasMatchingTasks = true;
-                message.append("\n")
-                        .append(index + 1)
-                        .append(". ")
-                        .append(task.getDisplayString());
+                appendNumberedTask(message, index + 1, task);
             }
         }
 
@@ -154,12 +148,16 @@ public class Ui {
 
         StringBuilder message = new StringBuilder("I found these matching tasks:");
         for (int index = 0; index < tasks.size(); index++) {
-            message.append("\n")
-                    .append(index + 1)
-                    .append(". ")
-                    .append(tasks.get(index).getDisplayString());
+            appendNumberedTask(message, index + 1, tasks.get(index));
         }
         return message.toString();
+    }
+
+    private void appendNumberedTask(StringBuilder message, int taskNumber, Task task) {
+        message.append("\n")
+                .append(taskNumber)
+                .append(". ")
+                .append(task.getDisplayString());
     }
 
     /**

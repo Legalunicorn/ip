@@ -101,14 +101,27 @@ public class Parser {
 
         String[] updateParts = commandParts[1].trim().split("\\s+", 3);
         int taskId = parseTaskId(updateParts[0], tasks.size());
+        validateUpdateParts(updateParts);
+
+        String updateField = updateParts[1];
+        String updatedValue = updateParts[2].trim();
+        Task originalTask = tasks.get(taskId - 1);
+        Task updatedTask = createUpdatedTask(originalTask, updateField, updatedValue);
+        return new UpdateCommand(taskId, updatedTask);
+    }
+
+    /**
+     * Validates the field and replacement value supplied to an update command.
+     *
+     * @param updateParts task number, update field, and replacement value.
+     * @throws BingusException if the update field or replacement value is invalid.
+     */
+    private void validateUpdateParts(String[] updateParts) throws BingusException {
         if (updateParts.length < 2) {
             throw new BingusException("Tell me what to change for that task.\n" + UPDATE_USAGE);
         }
         String updateField = updateParts[1];
-        if (!updateField.equals("/desc")
-                && !updateField.equals("/by")
-                && !updateField.equals("/from")
-                && !updateField.equals("/to")) {
+        if (!isSupportedUpdateField(updateField)) {
             throw new BingusException("I cannot update that field.\n" + UPDATE_USAGE);
         }
         if (updateParts.length < 3 || updateParts[2].trim().isEmpty()) {
@@ -117,18 +130,42 @@ public class Parser {
             }
             throw new BingusException("I need a new date and time.\n" + UPDATE_USAGE);
         }
+    }
 
-        String updatedValue = updateParts[2].trim();
-        Task original = tasks.get(taskId - 1);
-        Task updatedTask;
-        if (updateField.equals("/desc")) {
-            updatedTask = createTaskWithUpdatedDescription(original, updatedValue);
-        } else if (updateField.equals("/by")) {
-            updatedTask = createDeadlineWithUpdatedDateTime(original, updatedValue);
-        } else {
-            updatedTask = createEventWithUpdatedDateTime(original, updateField, updatedValue);
+    private boolean isSupportedUpdateField(String updateField) {
+        switch (updateField) {
+            case "/desc":
+            case "/by":
+            case "/from":
+            case "/to":
+                return true;
+            default:
+                return false;
         }
-        return new UpdateCommand(taskId, updatedTask);
+    }
+
+    /**
+     * Creates a replacement task containing the requested update.
+     *
+     * @param originalTask task whose details should be updated.
+     * @param updateField task detail to replace.
+     * @param updatedValue replacement value for the selected detail.
+     * @return replacement task containing the update.
+     * @throws BingusException if the update is incompatible with the task.
+     */
+    private Task createUpdatedTask(Task originalTask, String updateField, String updatedValue)
+            throws BingusException {
+        switch (updateField) {
+            case "/desc":
+                return createTaskWithUpdatedDescription(originalTask, updatedValue);
+            case "/by":
+                return createDeadlineWithUpdatedDateTime(originalTask, updatedValue);
+            case "/from":
+            case "/to":
+                return createEventWithUpdatedDateTime(originalTask, updateField, updatedValue);
+            default:
+                throw new IllegalStateException("Unsupported update field: " + updateField);
+        }
     }
 
     /**

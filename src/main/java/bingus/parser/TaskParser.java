@@ -86,13 +86,7 @@ class TaskParser {
             throw new BingusException("I need a description, start, and end for that event.\n" + EVENT_USAGE);
         }
 
-        if (countOccurrences(commandParts[1], "/from") > 1) {
-            throw new BingusException("I can only use one `/from` date for an event.\n" + EVENT_USAGE);
-        }
-        if (countOccurrences(commandParts[1], "/to") > 1) {
-            throw new BingusException("I can only use one `/to` date for an event.\n" + EVENT_USAGE);
-        }
-
+        validateEventMarkers(commandParts[1]);
         String[] descriptionAndTimes = commandParts[1].split("/from");
         if (descriptionAndTimes.length != 2) {
             throw new BingusException("I could not understand that event.\n" + EVENT_USAGE);
@@ -116,6 +110,15 @@ class TaskParser {
             throw new BingusException("The event must end after it starts.");
         }
         return new Event(description, fromDateTime, toDateTime);
+    }
+
+    private void validateEventMarkers(String eventArguments) throws BingusException {
+        if (countOccurrences(eventArguments, "/from") > 1) {
+            throw new BingusException("I can only use one `/from` date for an event.\n" + EVENT_USAGE);
+        }
+        if (countOccurrences(eventArguments, "/to") > 1) {
+            throw new BingusException("I can only use one `/to` date for an event.\n" + EVENT_USAGE);
+        }
     }
 
     /**

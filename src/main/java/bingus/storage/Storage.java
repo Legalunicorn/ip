@@ -177,17 +177,28 @@ public class Storage {
     private static Task fromSaveRecord(String savedTask) {
         String[] fields = savedTask.split("\\|", -1);
         TaskType taskType = TaskType.fromSymbol(fields[TASK_TYPE_INDEX]);
-        Task task;
+        Task task = createTaskFromFields(fields, taskType, savedTask);
+        restoreCompletionStatus(task, fields[COMPLETION_STATUS_INDEX]);
+        return task;
+    }
+
+    /**
+     * Creates a task using the type-specific fields in a save-file record.
+     *
+     * @param fields fields in the save-file record.
+     * @param taskType type of task represented by the record.
+     * @param savedTask original save-file record.
+     * @return task reconstructed from the record fields.
+     */
+    private static Task createTaskFromFields(String[] fields, TaskType taskType, String savedTask) {
         switch (taskType) {
             case TODO:
                 requireFieldCount(fields, TODO_FIELD_COUNT, savedTask);
-                task = new Todo(decode(fields[DESCRIPTION_INDEX]));
-                break;
+                return new Todo(decode(fields[DESCRIPTION_INDEX]));
             case DEADLINE:
                 requireFieldCount(fields, DEADLINE_FIELD_COUNT, savedTask);
-                task = new Deadline(decode(fields[DESCRIPTION_INDEX]),
+                return new Deadline(decode(fields[DESCRIPTION_INDEX]),
                         LocalDateTime.parse(decode(fields[DATE_TIME_INDEX])));
-                break;
             case EVENT:
                 requireFieldCount(fields, EVENT_FIELD_COUNT, savedTask);
                 LocalDateTime eventStartDateTime = LocalDateTime.parse(decode(fields[DATE_TIME_INDEX]));
@@ -195,19 +206,24 @@ public class Storage {
                 if (!eventStartDateTime.isBefore(eventEndDateTime)) {
                     throw new IllegalStateException("Invalid event range in save file");
                 }
-                task = new Event(decode(fields[DESCRIPTION_INDEX]), eventStartDateTime, eventEndDateTime);
-                break;
+                return new Event(decode(fields[DESCRIPTION_INDEX]), eventStartDateTime, eventEndDateTime);
             default:
                 throw new IllegalStateException("Unsupported task type: " + taskType);
         }
+    }
 
-        if (fields[COMPLETION_STATUS_INDEX].equals(COMPLETED_STATUS)) {
+    /**
+     * Restores a task's saved completion status.
+     *
+     * @param task task whose status should be restored.
+     * @param completionStatus status field from the save-file record.
+     */
+    private static void restoreCompletionStatus(Task task, String completionStatus) {
+        if (completionStatus.equals(COMPLETED_STATUS)) {
             task.mark();
-        } else if (!fields[COMPLETION_STATUS_INDEX].equals(INCOMPLETE_STATUS)) {
-            throw new IllegalStateException(
-                    "Invalid completion status in save file: " + fields[COMPLETION_STATUS_INDEX]);
+        } else if (!completionStatus.equals(INCOMPLETE_STATUS)) {
+            throw new IllegalStateException("Invalid completion status in save file: " + completionStatus);
         }
-        return task;
     }
 
     /**
