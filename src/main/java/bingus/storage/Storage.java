@@ -83,8 +83,12 @@ public class Storage {
 
         Path temporaryFile = null;
         try {
-            Files.createDirectories(saveFile.getParent());
-            temporaryFile = Files.createTempFile(saveFile.getParent(), "bingus-", ".tmp");
+            Path saveDirectory = saveFile.getParent();
+            if (saveDirectory == null) {
+                saveDirectory = Path.of(".");
+            }
+            Files.createDirectories(saveDirectory);
+            temporaryFile = Files.createTempFile(saveDirectory, "bingus-", ".tmp");
             Files.write(temporaryFile, savedTasks, StandardCharsets.UTF_8);
             moveSaveFile(temporaryFile);
         } catch (IOException | SecurityException e) {

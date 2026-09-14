@@ -99,6 +99,25 @@ class StorageTest {
     }
 
     /**
+     * Verifies that storage supports a save-file path without a parent directory.
+     *
+     * @throws IOException if the test save file cannot be deleted.
+     */
+    @Test
+    void saveTasks_parentlessFilePath_savesAndLoadsTask() throws IOException {
+        Path saveFile = Path.of("storage-" + temporaryDirectory.getFileName() + ".txt");
+        Storage storage = new Storage(saveFile.toString());
+
+        try {
+            storage.saveTasks(List.of(new Todo("read book")));
+
+            assertEquals("read book", storage.loadTasks().get(0).getDescription());
+        } finally {
+            Files.deleteIfExists(saveFile);
+        }
+    }
+
+    /**
      * Verifies that malformed records are rejected with a user-facing loading error.
      *
      * @throws IOException if the test save file cannot be written
