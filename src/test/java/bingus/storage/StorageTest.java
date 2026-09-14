@@ -101,12 +101,14 @@ class StorageTest {
     void loadTasks_malformedRecords_throwsFriendlyException() throws IOException {
         Path saveFile = temporaryDirectory.resolve("data/tasks.txt");
         Storage storage = new Storage(saveFile.toString());
+        String eventWithReversedDateRange = "E|0|Y2FtcA==|MjAyNi0wOS0yMVQxODowMA==|MjAyNi0wOS0yMFQwOTowMA==";
         List<String> malformedRecords = List.of(
                 "X|0|cmVhZCBib29r",
                 "T|2|cmVhZCBib29r",
                 "D|0|c3VibWl0IHJlcG9ydA==",
                 "T|0|not-valid-base64!",
-                "D|0|c3VibWl0IHJlcG9ydA==|bm90LWEtdGltZQ==");
+                "D|0|c3VibWl0IHJlcG9ydA==|bm90LWEtdGltZQ==",
+                eventWithReversedDateRange);
 
         Files.createDirectories(saveFile.getParent());
         for (String malformedRecord : malformedRecords) {

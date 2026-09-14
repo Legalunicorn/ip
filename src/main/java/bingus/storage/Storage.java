@@ -187,9 +187,12 @@ public class Storage {
                 break;
             case EVENT:
                 requireFieldCount(fields, EVENT_FIELD_COUNT, savedTask);
-                task = new Event(decode(fields[DESCRIPTION_INDEX]),
-                        LocalDateTime.parse(decode(fields[DATE_TIME_INDEX])),
-                        LocalDateTime.parse(decode(fields[EVENT_END_DATE_TIME_INDEX])));
+                LocalDateTime eventStartDateTime = LocalDateTime.parse(decode(fields[DATE_TIME_INDEX]));
+                LocalDateTime eventEndDateTime = LocalDateTime.parse(decode(fields[EVENT_END_DATE_TIME_INDEX]));
+                if (!eventStartDateTime.isBefore(eventEndDateTime)) {
+                    throw new IllegalStateException("Invalid event range in save file");
+                }
+                task = new Event(decode(fields[DESCRIPTION_INDEX]), eventStartDateTime, eventEndDateTime);
                 break;
             default:
                 throw new IllegalStateException("Unsupported task type: " + taskType);
