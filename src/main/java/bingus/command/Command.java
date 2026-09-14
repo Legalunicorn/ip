@@ -12,7 +12,7 @@ public abstract class Command {
     /**
      * Returns this command's category.
      *
-     * @return command category
+     * @return command category.
      */
     public abstract CommandType getType();
 

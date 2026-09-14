@@ -37,7 +37,7 @@ public class ParserTest {
     /**
      * Creates storage backed by a test-specific save file.
      *
-     * @return storage for executing parsed commands
+     * @return storage for executing parsed commands.
      */
     private Storage createStorage() {
         return new Storage(temporaryDirectory.resolve("data/tasks.txt").toString());

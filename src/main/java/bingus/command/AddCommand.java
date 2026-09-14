@@ -30,11 +30,11 @@ public class AddCommand extends Command {
     /**
      * Adds the task, saves the list, and returns the result message.
      *
-     * @param tasks task list to update
-     * @param ui user interface used to format the result
-     * @param storage persistent task storage
-     * @return task-added message
-     * @throws BingusException if the updated list cannot be saved
+     * @param tasks task list to update.
+     * @param ui user interface used to format the result.
+     * @param storage persistent task storage.
+     * @return task-added message.
+     * @throws BingusException if the updated list cannot be saved.
      */
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {

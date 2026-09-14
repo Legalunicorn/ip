@@ -16,8 +16,8 @@ public class Task {
     /**
      * Creates an incomplete task of the given type.
      *
-     * @param description description displayed for this task
-     * @param type type of this task
+     * @param description description displayed for this task.
+     * @param type type of this task.
      */
     protected Task(String description, TaskType type) {
         assert description != null : "Task description must not be null";
@@ -31,7 +31,7 @@ public class Task {
     /**
      * Returns this task in the format used for display.
      *
-     * @return formatted task text
+     * @return formatted task text.
      */
     public String getDisplayString() {
         return "[" + type.getSymbol() + "]" + "[" + getStatusIcon() + "] " + description;
@@ -40,7 +40,7 @@ public class Task {
     /**
      * Returns the symbol representing this task's completion status.
      *
-     * @return {@code "✓"} if complete, or {@code "○"} if incomplete
+     * @return {@code "✓"} if complete, or {@code "○"} if incomplete.
      */
     public String getStatusIcon() {
         return (isDone ? "✓" : "○");
@@ -49,7 +49,7 @@ public class Task {
     /**
      * Returns the description stored for this task.
      *
-     * @return task description
+     * @return task description.
      */
     public String getDescription() {
         return description;
@@ -58,7 +58,7 @@ public class Task {
     /**
      * Returns this task's type.
      *
-     * @return task type
+     * @return task type.
      */
     public TaskType getType() {
         return type;
@@ -67,7 +67,7 @@ public class Task {
     /**
      * Returns whether this task is complete.
      *
-     * @return {@code true} if the task is complete
+     * @return {@code true} if the task is complete.
      */
     public boolean isDone() {
         return isDone;
@@ -90,8 +90,8 @@ public class Task {
     /**
      * Returns whether this task is associated with a date.
      *
-     * @param date date to check
-     * @return {@code true} if this task is associated with the date
+     * @param date date to check.
+     * @return {@code true} if this task is associated with the date.
      */
     public boolean matchesDate(LocalDate date) {
         return false;

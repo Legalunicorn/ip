@@ -33,11 +33,11 @@ public class MarkCommand extends Command {
     /**
      * Updates the task's completion status, saves the list, and returns the result message.
      *
-     * @param tasks task list containing the task to update
-     * @param ui user interface used to format the result
-     * @param storage persistent task storage
-     * @return task-marked or task-unmarked message
-     * @throws BingusException if the updated list cannot be saved
+     * @param tasks task list containing the task to update.
+     * @param ui user interface used to format the result.
+     * @param storage persistent task storage.
+     * @return task-marked or task-unmarked message.
+     * @throws BingusException if the updated list cannot be saved.
      */
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws BingusException {

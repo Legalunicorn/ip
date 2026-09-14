@@ -120,7 +120,7 @@ class StorageTest {
     /**
      * Verifies that malformed records are rejected with a user-facing loading error.
      *
-     * @throws IOException if the test save file cannot be written
+     * @throws IOException if the test save file cannot be written.
      */
     @Test
     void loadTasks_malformedRecords_throwsFriendlyException() throws IOException {

@@ -25,7 +25,7 @@ public class Bingus {
     /**
      * Creates the application using the specified task save file.
      *
-     * @param filePath path of the task save file
+     * @param filePath path of the task save file.
      */
     public Bingus(String filePath) {
         storage = new Storage(filePath);
@@ -43,8 +43,8 @@ public class Bingus {
     /**
      * Returns a response for a command submitted through the GUI.
      *
-     * @param input command entered by the user
-     * @return response message for the user
+     * @param input command entered by the user.
+     * @return response message for the user.
      */
     public String getResponse(String input) {
         try {
@@ -60,7 +60,7 @@ public class Bingus {
     /**
      * Returns Bingus's greeting for a new GUI session.
      *
-     * @return welcome message
+     * @return welcome message.
      */
     public String getWelcomeMessage() {
         return ui.getWelcomeMessage();
@@ -69,7 +69,7 @@ public class Bingus {
     /**
      * Returns the type of the latest command submitted through the GUI.
      *
-     * @return type of the latest command
+     * @return type of the latest command.
      */
     public CommandType getCommandType() {
         return commandType;
@@ -78,7 +78,7 @@ public class Bingus {
     /**
      * Returns the storage-loading error, or {@code null} if loading succeeded.
      *
-     * @return storage-loading error, or {@code null} if there was no error
+     * @return storage-loading error, or {@code null} if there was no error.
      */
     public String getLoadErrorMessage() {
         return loadErrorMessage;

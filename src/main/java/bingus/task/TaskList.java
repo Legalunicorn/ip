@@ -87,8 +87,8 @@ public class TaskList {
     /**
      * Returns tasks whose descriptions contain the specified keyword, ignoring case.
      *
-     * @param keyword keyword to search for
-     * @return matching tasks in their current order
+     * @param keyword keyword to search for.
+     * @return matching tasks in their current order.
      */
     public List<Task> findByKeyword(String keyword) {
         String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
@@ -103,9 +103,9 @@ public class TaskList {
     /**
      * Replaces the task at the specified zero-based position.
      *
-     * @param index zero-based position of the task to replace
-     * @param replacement task to store at the specified position
-     * @return task previously stored at the specified position
+     * @param index zero-based position of the task to replace.
+     * @param replacement task to store at the specified position.
+     * @return task previously stored at the specified position.
      */
     public Task replace(int index, Task replacement) {
         return tasks.set(index, replacement);

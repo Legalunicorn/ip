@@ -42,7 +42,7 @@ public class Storage {
     /**
      * Creates storage backed by the specified save-file path.
      *
-     * @param filePath path of the save file
+     * @param filePath path of the save file.
      */
     public Storage(String filePath) {
         this.saveFile = Path.of(filePath);
@@ -51,8 +51,8 @@ public class Storage {
     /**
      * Loads all tasks from the save file. Returns an empty list if the file does not exist.
      *
-     * @return loaded tasks, or an empty list if there is no save file
-     * @throws BingusException if the save file cannot be read or contains invalid data
+     * @return loaded tasks, or an empty list if there is no save file.
+     * @throws BingusException if the save file cannot be read or contains invalid data.
      */
     public List<Task> loadTasks() throws BingusException {
         if (Files.notExists(saveFile)) {
@@ -72,8 +72,8 @@ public class Storage {
      * Writes the complete task list to disk. Text fields are Base64 encoded so
      * the record separator cannot conflict with text entered by the user.
      *
-     * @param tasks complete task list to save
-     * @throws BingusException if the task list cannot be written
+     * @param tasks complete task list to save.
+     * @throws BingusException if the task list cannot be written.
      */
     public void saveTasks(List<Task> tasks) throws BingusException {
         List<String> savedTasks = tasks.stream()
@@ -107,8 +107,8 @@ public class Storage {
      * Replaces the save file with a complete temporary file, avoiding a
      * partially written save file if writing is interrupted.
      *
-     * @param temporaryFile complete temporary save file
-     * @throws IOException if the file cannot be replaced
+     * @param temporaryFile complete temporary save file.
+     * @throws IOException if the file cannot be replaced.
      */
     private void moveSaveFile(Path temporaryFile) throws IOException {
         try {
@@ -122,8 +122,8 @@ public class Storage {
     /**
      * Converts one task to a delimiter-safe record for the save file.
      *
-     * @param task task to convert
-     * @return save-file record
+     * @param task task to convert.
+     * @return save-file record.
      */
     private static String toSaveRecord(Task task) {
         String taskTypeSymbol = task.getType().getSymbol();
@@ -151,8 +151,8 @@ public class Storage {
     /**
      * Encodes arbitrary task text for safe storage in a pipe-separated record.
      *
-     * @param value text to encode
-     * @return Base64 representation of {@code value}
+     * @param value text to encode.
+     * @return Base64 representation of {@code value}.
      */
     private static String encode(String value) {
         return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
@@ -161,8 +161,8 @@ public class Storage {
     /**
      * Decodes text that was Base64 encoded before being saved.
      *
-     * @param value Base64 text from the save file
-     * @return original task text
+     * @param value Base64 text from the save file.
+     * @return original task text.
      */
     private static String decode(String value) {
         return new String(Base64.getDecoder().decode(value), StandardCharsets.UTF_8);
@@ -171,8 +171,8 @@ public class Storage {
     /**
      * Reconstructs a task from one delimiter-safe save-file record.
      *
-     * @param savedTask task record from the save file
-     * @return reconstructed task
+     * @param savedTask task record from the save file.
+     * @return reconstructed task.
      */
     private static Task fromSaveRecord(String savedTask) {
         String[] fields = savedTask.split("\\|", -1);
@@ -213,9 +213,9 @@ public class Storage {
     /**
      * Ensures a record has the expected number of fields before it is decoded.
      *
-     * @param fields fields in the record
-     * @param expectedCount expected number of fields
-     * @param savedTask original save-file record
+     * @param fields fields in the record.
+     * @param expectedCount expected number of fields.
+     * @param savedTask original save-file record.
      */
     private static void requireFieldCount(String[] fields, int expectedCount, String savedTask) {
         if (fields.length != expectedCount) {

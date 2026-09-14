@@ -58,7 +58,7 @@ public class MainWindow {
     /**
      * Injects the Bingus instance used to process user commands.
      *
-     * @param bingus Bingus instance to use
+     * @param bingus Bingus instance to use.
      */
     public void setBingus(Bingus bingus) {
         this.bingus = bingus;
