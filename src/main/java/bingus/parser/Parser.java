@@ -26,27 +26,17 @@ import bingus.task.Todo;
  */
 public class Parser {
 
-    /** Strict format accepted for deadline and event date/time input. */
-    private static final DateTimeFormatter INPUT_DATE_TIME_FORMAT = DateTimeFormatter
-            .ofPattern("uuuu-MM-dd HHmm")
-            .withResolverStyle(ResolverStyle.STRICT);
-
     /** Strict format accepted when filtering tasks by date. */
     private static final DateTimeFormatter INPUT_DATE_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd")
             .withResolverStyle(ResolverStyle.STRICT);
 
-    /** Usage guidance for deadline commands. */
-    private static final String DEADLINE_USAGE = "Try `deadline [DESCRIPTION] /by [DATETIME]`.";
-
-    /** Usage guidance for event commands. */
-    private static final String EVENT_USAGE =
-            "Try `event [DESCRIPTION] /from [FROM_DATETIME] /to [TO_DATETIME]`.";
-
     /** Usage guidance for updating supported task details. */
     private static final String UPDATE_USAGE = "Try `update [TASK_NUMBER] /desc [DESCRIPTION]`, "
             + "`update [TASK_NUMBER] /by [DATETIME]`, `update [TASK_NUMBER] /from [DATETIME]`, "
             + "or `update [TASK_NUMBER] /to [DATETIME]`.";
+
+    private final TaskParser taskParser = new TaskParser();
 
     /**
      * Converts one command line into the corresponding command object.
@@ -68,11 +58,11 @@ public class Parser {
                         ? new ListCommand()
                         : new ListCommand(parseSingleListDate(commandParts[1]));
             case "todo":
-                return new AddCommand(parseTodo(commandParts));
+                return new AddCommand(taskParser.parseTodo(commandParts));
             case "deadline":
-                return new AddCommand(parseDeadline(commandParts));
+                return new AddCommand(taskParser.parseDeadline(commandParts));
             case "event":
-                return new AddCommand(parseEvent(commandParts));
+                return new AddCommand(taskParser.parseEvent(commandParts));
             case "mark":
                 return new MarkCommand(parseRequiredTaskId(
                         commandParts, tasks.size(), "Which task should I mark?\nTry `mark [TASK_NUMBER]`.",
@@ -181,9 +171,7 @@ public class Parser {
             throw new BingusException("I can only use `/by` with deadlines.\n" + UPDATE_USAGE);
         }
 
-        String invalidDateTimeMessage = "That deadline date and time are not valid.\n"
-                + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime updatedBy = parseDateTime(updatedDateTime, invalidDateTimeMessage);
+        LocalDateTime updatedBy = taskParser.parseDeadlineDateTime(updatedDateTime);
         return new Deadline(originalTask.getDescription(), updatedBy);
     }
 
@@ -205,9 +193,7 @@ public class Parser {
         }
 
         Event originalEvent = (Event) originalTask;
-        String invalidDateTimeMessage = "That event date and time are not valid.\n"
-                + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime updatedDate = parseDateTime(updatedDateTime, invalidDateTimeMessage);
+        LocalDateTime updatedDate = taskParser.parseEventDateTime(updatedDateTime);
         LocalDateTime updatedFrom = updateField.equals("/from") ? updatedDate : originalEvent.getFrom();
         LocalDateTime updatedTo = updateField.equals("/to") ? updatedDate : originalEvent.getTo();
         if (!updatedTo.isAfter(updatedFrom)) {
@@ -237,6 +223,7 @@ public class Parser {
      * @param commandParts command and arguments split into at most two parts.
      * @param taskCount current number of tasks.
      * @param missingArgumentMessage message to show when the task number is missing.
+     * @param extraArgumentMessage message to show when more than one task number is supplied.
      * @return validated one-based task number.
      * @throws BingusException if the number is missing or invalid.
      */
@@ -290,144 +277,6 @@ public class Parser {
      */
     private String[] splitCommand(String userInput) {
         return userInput.split("\\s+", 2);
-    }
-
-    /**
-     * Parses the arguments of a todo command.
-     *
-     * @param commandParts command and arguments split into at most two parts.
-     * @return validated todo task.
-     * @throws BingusException if the description is missing or empty.
-     */
-    Todo parseTodo(String[] commandParts) throws BingusException {
-        if (commandParts.length < 2 || commandParts[1].trim().isEmpty()) {
-            throw new BingusException("I need a description for that task.\nTry `todo [DESCRIPTION]`.");
-        }
-        return new Todo(commandParts[1].trim());
-    }
-
-    /**
-     * Parses the arguments of a deadline command.
-     *
-     * @param commandParts command and arguments split into at most two parts.
-     * @return validated deadline task.
-     * @throws BingusException if the command format or date/time is invalid.
-     */
-    Deadline parseDeadline(String[] commandParts) throws BingusException {
-        if (commandParts.length < 2) {
-            throw new BingusException("I need a description and date for that deadline.\n" + DEADLINE_USAGE);
-        }
-
-        if (countOccurrences(commandParts[1], "/by") > 1) {
-            throw new BingusException("I can only use one `/by` date for a deadline.\n" + DEADLINE_USAGE);
-        }
-
-        String[] deadlineParts = commandParts[1].split("/by");
-        if (deadlineParts.length != 2) {
-            throw new BingusException("I could not understand that deadline.\n" + DEADLINE_USAGE);
-        }
-
-        String description = deadlineParts[0].trim();
-        String deadlineDateTimeText = deadlineParts[1].trim();
-        requireNonEmpty(description, "I need a description for that deadline.\n" + DEADLINE_USAGE);
-        requireNonEmpty(deadlineDateTimeText, "I need a date and time for that deadline.\n" + DEADLINE_USAGE);
-
-        String invalidDateTimeMessage = "That deadline date and time are not valid.\n"
-                + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime deadlineDateTime = parseDateTime(deadlineDateTimeText, invalidDateTimeMessage);
-        return new Deadline(description, deadlineDateTime);
-    }
-
-    /**
-     * Parses the arguments of an event command.
-     *
-     * @param commandParts command and arguments split into at most two parts.
-     * @return validated event task.
-     * @throws BingusException if the command format or date/time is invalid.
-     */
-    Event parseEvent(String[] commandParts) throws BingusException {
-        if (commandParts.length < 2) {
-            throw new BingusException("I need a description, start, and end for that event.\n" + EVENT_USAGE);
-        }
-
-        if (countOccurrences(commandParts[1], "/from") > 1) {
-            throw new BingusException("I can only use one `/from` date for an event.\n" + EVENT_USAGE);
-        }
-        if (countOccurrences(commandParts[1], "/to") > 1) {
-            throw new BingusException("I can only use one `/to` date for an event.\n" + EVENT_USAGE);
-        }
-
-        String[] descriptionAndTimes = commandParts[1].split("/from");
-        if (descriptionAndTimes.length != 2) {
-            throw new BingusException("I could not understand that event.\n" + EVENT_USAGE);
-        }
-
-        String[] startAndEnd = descriptionAndTimes[1].split("/to");
-        if (startAndEnd.length != 2) {
-            throw new BingusException("I could not understand that event.\n" + EVENT_USAGE);
-        }
-
-        String description = descriptionAndTimes[0].trim();
-        String startDateTimeText = startAndEnd[0].trim();
-        String endDateTimeText = startAndEnd[1].trim();
-        requireNonEmpty(startDateTimeText, "I need a start date and time for that event.\n" + EVENT_USAGE);
-        requireNonEmpty(endDateTimeText, "I need an end date and time for that event.\n" + EVENT_USAGE);
-        requireNonEmpty(description, "I need a description for that event.\n" + EVENT_USAGE);
-
-        String invalidDateTimeMessage = "That event date and time are not valid.\n"
-                + "Use yyyy-MM-dd HHmm, for example 2019-12-02 1800.";
-        LocalDateTime fromDateTime = parseDateTime(startDateTimeText, invalidDateTimeMessage);
-        LocalDateTime toDateTime = parseDateTime(endDateTimeText, invalidDateTimeMessage);
-        if (!toDateTime.isAfter(fromDateTime)) {
-            throw new BingusException("The event must end after it starts.");
-        }
-        return new Event(description, fromDateTime, toDateTime);
-    }
-
-    /**
-     * Parses a date and time using the command input format.
-     *
-     * @param input date-time text to parse.
-     * @param errorMessage message to show when the text is invalid.
-     * @return parsed date and time.
-     * @throws BingusException if the text is not a valid date and time.
-     */
-    private LocalDateTime parseDateTime(String input, String errorMessage) throws BingusException {
-        try {
-            return LocalDateTime.parse(input, INPUT_DATE_TIME_FORMAT);
-        } catch (DateTimeParseException e) {
-            throw new BingusException(errorMessage);
-        }
-    }
-
-    /**
-     * Ensures that a required command value is not empty.
-     *
-     * @param value command value to validate.
-     * @param errorMessage message to show when the value is empty.
-     * @throws BingusException if the value is empty.
-     */
-    private void requireNonEmpty(String value, String errorMessage) throws BingusException {
-        if (value.isEmpty()) {
-            throw new BingusException(errorMessage);
-        }
-    }
-
-    /**
-     * Counts non-overlapping occurrences of a marker in text.
-     *
-     * @param text text to inspect.
-     * @param marker marker to count.
-     * @return number of marker occurrences in the text.
-     */
-    private int countOccurrences(String text, String marker) {
-        int occurrenceCount = 0;
-        int markerIndex = text.indexOf(marker);
-        while (markerIndex >= 0) {
-            occurrenceCount++;
-            markerIndex = text.indexOf(marker, markerIndex + marker.length());
-        }
-        return occurrenceCount;
     }
 
     /**
